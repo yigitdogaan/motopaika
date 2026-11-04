@@ -28,3 +28,7 @@ tarih | kim | karar | gerekçe
 2026-11-04 | ceo | Tur 3 kapısı yeşil (tsc, lint, jest 34, export android); web artıklarını silme (rm izni yok) ve RLS doğrulama (CLI/Docker yok) [~] kaldı | Kanıtla bitir ilkesi
 2026-11-04 | ceo | Tur 4 önceliği: artık silme, Input/Skeleton/ErrorState ekranlarda, Bildir/Engelle + moderasyon modülü, akış testleri | Çalışan uygulama + kritik moderasyon
 2026-11-04 | ceo | Tur 4: cto + urun-tasarim + test; moderasyon-hukuk dinlenir; kurucudan yeni yorum yok. oturum.test.tsx düzeltmesi dosya sahipliği gereği test rolüne verildi | Çakışmayı önlemek
+2026-11-04 | ceo | Tur 5: cto + urun-tasarim + test; Tur 4 teslim notu gelmediği için görevler tekrarlandı; moderasyon-hukuk dinlenir; kurucudan yeni yorum yok | Çalışan uygulama önceliği
+2026-11-04 | ceo | Tur 5 kapısı yeşil (tsc, lint, jest 46, export android); artık silme [~] (rm izni yok), iş akışı adımında silinmesi istendi | Kanıtla bitir; üç turdır aynı engel
+2026-11-04 | ceo | Tur 6 önceliği: Engelle arayüzü, denetle()'yi yazma ekranına bağlama, Segment ekranlarda, küfür listesi (Tolga) | Kritik moderasyon + çalışan uygulama
+2026-11-04 | cto | Küfür listesini CTO yazmaz; moderasyon-hukuk verir, KURALLARA eklenir | Belgede rol ayrımı böyle

@@ -1,7 +1,7 @@
 {
   "ceo": {"ad": "Arda", "unvan": "CEO", "durum": "bosta", "is": ""},
-  "urun-tasarim": {"ad": "Nehir", "unvan": "Ürün ve Tasarım", "durum": "calisiyor", "is": "Etkinlik/rotalar/sohbet/not duvarı kabul kriterleri + Segment bileşeni"},
-  "cto": {"ad": "Kaan", "unvan": "CTO (Mobil + Arka uç)", "durum": "calisiyor", "is": "Artık silme, Input/Skeleton ekranlarda, Bildir/Engelle + moderasyon modülü"},
-  "test": {"ad": "Melis", "unvan": "Test ve Kalite", "durum": "calisiyor", "is": "Giriş-profil-motor akış testleri (diğerleri bittikten sonra)"},
+  "urun-tasarim": {"ad": "Nehir", "unvan": "Ürün ve Tasarım", "durum": "bosta", "is": ""},
+  "cto": {"ad": "Kaan", "unvan": "CTO (Mobil + Arka uç)", "durum": "bosta", "is": ""},
+  "test": {"ad": "Melis", "unvan": "Test ve Kalite", "durum": "bosta", "is": ""},
   "moderasyon-hukuk": {"ad": "Tolga", "unvan": "Moderasyon ve Hukuk", "durum": "bosta", "is": ""}
 }

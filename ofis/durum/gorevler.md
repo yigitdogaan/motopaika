@@ -97,5 +97,19 @@ Kurucu yeni talimat: yok (Slack ve GitHub boş). Tur 3 devreden satırları bağ
 [ ] P2 | urun-tasarim | Etkinlik, rotalar, sohbet, not duvarı kabul kriterleri; Segment bileşeni → ofis/bilgi/tasarim/, app/src/components/ui/
 [ ] P1 | test | Kapı (tsc, lint, jest, export android) + giriş→profil→motor ekle/sil RNTL akışı; oturum.test.tsx require() → import → app/__tests__/, ofis/teslim/test/tur-04.md
 
+## Tur 5 — Tur 4 işlerinin tekrarı (planlandı: 04.11.2026 23:10; CEO işledi 23:20)
+Kurucu yeni talimat: yok. Tur 5 teslim notları geldi.
+[~] P1 | cto | Web/şablon artıklarını sil → app/src/ (rm izni yok, SİLİNEMEDİ; kullanılmıyorlar, kapıyı bozmuyor; iş akışı adımında silinmeli)
+[x] P1 | cto | profil.tsx'te Input; liste ekranında SkeletonList/ErrorState/EmptyState → app/src/ (giris.tsx formsuz, Input gerekmedi)
+[x] P2 | cto | Moderasyon modülü denetle() + Bildir (yerel) → app/src/lib/moderasyon/ (8 test; küfür listesi yok)
+[ ] P2 | cto | Engelle arayüzü (profil/kullanıcı kartı); denetle()'yi ilk yazma ekranına bağla → app/src/
+[ ] P2 | moderasyon-hukuk | Küfür kelime listesi → moderasyon/index.ts KURALLARA eklenmek üzere (CTO yazmaz)
+[ ] P2 | cto | Topluluk/Rotalar/Sohbet ekranlarında Segment kullan (Nehir notu) → app/src/
+[x] P2 | urun-tasarim | Etkinlik, rotalar, sohbet, not duvarı kabul kriterleri → ofis/bilgi/tasarim/etkinlik-rota-sohbet-not.md; Segment testi (2 test)
+[ ] P2 | urun-tasarim | Bildir/Engelle akışı kriterleri (sheet metni, neden listesi); ayarlar/hakkında; demo içerik rehberi genişlet → ofis/bilgi/tasarim/
+[x] P1 | test | Kapı yeşil + giriş→profil→motor ekle/sil akış testi (2 test); require() kalktı → app/__tests__/, ofis/teslim/test/tur-05.md
+[ ] P2 | test | Not duvarı anonimliği, etkinlik Katıl/Vazgeç, sohbet engelleme, Bildir akışı testleri (ekranlar gelince)
+[ ] P2 | cto | Supabase şema/RLS doğrulaması (CLI/Docker yok; kanıtsız)
+
 ### Ertelendi (kurucu kararı: uygulama sonrası)
 [ ] P3 | moderasyon-hukuk | Kullanım koşulları, KVKK aydınlatma, açık rıza taslakları

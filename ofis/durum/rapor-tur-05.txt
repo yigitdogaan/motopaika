@@ -1,0 +1,7 @@
+*Tur 5 raporu* — Uygulama Expo Go'da çalışır; içerik süzme ve "Bildir" eklendi, kalite kapısı yeşil.
+• *Yapılanlar:* moderasyon modülü + Bildir düğmesi, profilde Input, yükleniyor/hata/boş durum, giriş→profil→motor akış testi, etkinlik/rota/sohbet/not duvarı kriterleri
+• *Kalite:* tip ✔ · lint ✔ · Jest 46/46 ✔ · Android derleme ✔
+• *Eksik:* Engelle düğmesi, küfür listesi, telefonda/ekran görüntüsü doğrulaması, veritabanı güvenlik testi (CLI yok)
+• *Not:* eski şablon dosyaları silinemedi (izin yok), uygulamayı etkilemiyor
+*Senden istenen:* Yok.
+_Cevabını bu mesajın altına yazabilirsin; bir sonraki turda okunur._

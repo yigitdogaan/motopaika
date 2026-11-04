@@ -4,10 +4,6 @@ import { Text } from 'react-native';
 import { kullaniciAdiGecerli, motorGecerli } from '@/lib/dogrulama';
 import { OturumSaglayici, useOturum } from '@/lib/oturum';
 
-jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
-);
-
 describe('doğrulama', () => {
   it('kullanıcı adı 3–20 harf/rakam/_ olmalı', () => {
     expect(kullaniciAdiGecerli('ab')).toBe(false);

@@ -15,5 +15,7 @@ Tokenlar: `import { useTheme, spacing, radius, typography } from '@/theme';` —
 | `ErrorState` | `message?`, `onRetry?` | "Yüklenemedi" + "Tekrar dene" düğmesi (onRetry varsa). |
 | `EmptyState` | `title`, `description`, `icon?`, `actionLabel?`, `onAction?` | Üç durumdan "boş". Eylem verilirse Button çıkar. |
 
+| `Segment` | `options` ([{value,label}], 2–3 adet), `value`, `onChange`, `accessibilityLabel?` | Üstte sekme grubu; `tab` rolü + `selected`; öğe ≥ 44 px; seçili = dolgu + metin rengi. |
+
 Üç durum kuralı: liste yüklenirken `SkeletonList`, hata olunca `ErrorState`, veri yoksa `EmptyState`.
 Not (CTO): `src/constants/theme.ts` ve `src/hooks/use-theme.ts` şablon kalıntısı; yeni kod `@/theme` kullanmalı. `use-theme.ts` `@/theme/index.ts`'teki `useTheme` ile aynı adı taşıyor — şablon dosyaları temizlenirken kaldırılsın.
