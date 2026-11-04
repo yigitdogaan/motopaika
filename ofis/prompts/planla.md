@@ -11,7 +11,7 @@
    Her talimatı uygula ya da görev listesine ekle; `kararlar.md`'ye "kurucu" satırı olarak işle.
    Kurucu bir işe alımı onayladıysa rol dosyasını ve `ekip.json` kaydını oluştur.
    Slack komutu hata verirse (anahtar yok vb.) sadece GitHub ile devam et.
-4. ÖNCELİK: `CLAUDE.md` başındaki öncelik bölümüne uy (önce çalışan uygulama + Vercel önizlemesi; hukuk en sona).
+4. ÖNCELİK: `CLAUDE.md` başındaki öncelik bölümüne uy (önce telefonda Expo Go ile çalışan uygulama; hukuk en sona).
    `ofis/durum/gorevler.md`'yi güncelle: biten işleri işaretle, bu tur için her role 1–3 somut görev ver (P1/P2/P3, hedef dosya ile).
    Roller AYNI ANDA çalışır: aynı dosyayı iki role verme. Test rolü diğerleri bittikten sonra çalışır.
 5. Bu turda çalışacak rolleri sırasıyla `ofis/durum/bu-tur.json` dosyasına yaz, örnek:

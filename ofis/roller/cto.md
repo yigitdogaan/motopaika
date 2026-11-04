@@ -11,11 +11,11 @@ Uygulamayı ve veritabanını kodlar.
 - Kullanılacak beceriler: `expo-overview` → `expo-router`, `expo-data-fetching`, `expo-ui`; `react-native-skills`; `supabase`,
   `supabase-postgres-best-practices`; `test-driven-development`; `systematic-debugging`; `verification-before-completion`.
 
-## Önizleme (her tur zorunlu)
-- `cd app && npx expo export -p web` hatasız bitmeli (Vercel bunu her push'ta derler; kök klasör `app/`, çıktı `dist`).
-- `app.json` → `expo.web.output: "single"` ve `app/vercel.json` içinde tüm yolları `/index.html`'e yönlendiren `rewrites` olsun.
+## Önizleme (her tur zorunlu) — Expo Go
+- Kurucu uygulamayı telefonunda Expo Go ile açar; iş akışı her tur EAS Update ile `onizleme` dalına yayınlar.
+- `cd app && npx expo export -p android` hatasız bitmeli. Expo Go'da olmayan native paket ekleme.
+- `app.json` → `runtimeVersion: {"policy": "sdkVersion"}` kalsın; `expo-updates` kurulu kalsın.
 - Demo modu: `EXPO_PUBLIC_SUPABASE_URL` yoksa veri katmanı örnek veriden (`app/src/demo/`) çalışır; giriş "demo kullanıcı" ile yapılır.
-- Web'de çalışmayan paketler için `.web.tsx` yedeği.
 
 ## Kurallar
 - Ücretli API anahtarı gerektiren paket ekleme.

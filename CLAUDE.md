@@ -3,14 +3,16 @@
 Bu dosyayı her ajan her turda okur. Rolüne özel talimatlar `ofis/roller/<rol>.md` içindedir.
 
 ## ÖNCELİK (kurucu kararı, 04.11.2026) — her şeyden önce bunu oku
-1. **Kurucunun telefonundan kullanabileceği, çalışan bir uygulama.** Her turun sonunda web önizlemesi (Vercel) güncel ve açılır olmalı.
+1. **Kurucunun telefonundan kullanabileceği, çalışan bir uygulama.** Her turun sonunda Expo Go'da açılabilir olmalı.
 2. **Hukuk, KVKK metinleri, kullanım koşulları, avukat soruları, mağaza hazırlığı → uygulama bittikten sonra.**
    Şimdi sadece kritik olanlar yapılır: şikâyet/engelleme, temel içerik süzme, şifre/veri güvenliği (RLS).
 3. Kurucuya hukuki soru sorma; gerekiyorsa `ofis/bilgi/yayin-oncesi.md` listesine yaz.
 
-## Canlı önizleme (Vercel)
-- Her push'ta Vercel `app/` klasörünü `npx expo export -p web` ile derleyip yayınlar. **Bu derleme hiçbir turda kırılmamalı.**
-- Web'de çalışmayan yerel modüller (harita vb.) için `.web.tsx` yedeği yaz; önizleme telefonda tarayıcıdan açılır (390 px).
+## Telefonda önizleme (Expo Go) — web önizlemesi YOK
+- Kurucu uygulamayı **sadece telefonda, Expo Go** ile görür. Her tur sonunda iş akışı uygulamayı EAS Update ile `onizleme` dalına yayınlar.
+- Bu yüzden uygulama **Expo Go'da çalışmalı**: sadece Expo Go'nun içerdiği kütüphaneler (özel native modül yok).
+  Harita için `react-native-maps` kullan (Expo Go'da hazır). `app.json` → `runtimeVersion: {"policy": "sdkVersion"}`.
+- Her tur: `cd app && npx expo export -p android` hatasız bitmeli. Web desteği gerekmez.
 - Bulut veritabanı bağlanana kadar uygulama **demo modunda** çalışır: `EXPO_PUBLIC_SUPABASE_URL` tanımlı değilse örnek verilerle
   (Türkçe, gerçekçi motosiklet içerikleri) tüm ekranlar gezilebilir ve denenebilir olur.
 
@@ -21,20 +23,12 @@ Bu dosyayı her ajan her turda okur. Rolüne özel talimatlar `ofis/roller/<rol>
 - Kâr amacı gütmez. Gelir (reklam, ilan öne çıkarma, işletme profili) altyapısı hazırlanır ama kurucu onayı olmadan açılmaz.
 - Ayrıntılar: `ofis/bilgi/urun-plani.md`.
 
-## ÖNCELİK (kurucu kararı, 04.11.2026)
-1. **Önce çalışan uygulama.** Hedef: kurucunun uygulamayı telefonda ve web önizlemede (Vercel) kendisi kullanabilmesi.
-   Her tur sonunda uygulama derlenebilir ve açılabilir durumda olmalı.
-2. **Hukuk ve uzun belgeler sona.** KVKK metinleri, kullanım koşulları, avukat soruları, mağaza metinleri uygulama bitene kadar ERTELENDİ.
-   Sadece uygulamanın çalışması için kritik olanlar yapılır: RLS/veri güvenliği, şikâyet/engelleme, temel küfür ve kişisel veri süzme.
-3. **Web önizleme:** `vercel.json` ile `app/` Expo web çıktısı her push'ta Vercel'e yayınlanır. Web derlemesini bozma;
-   bulut Supabase henüz yokken uygulama **demo modunda** (örnek verilerle) açılabilmeli. `vercel.json` CTO'ya aittir; Expo web çıktı türüne (single/static) göre düzeltir.
-
 ## Teknik yığın (değiştirmek kurucu onayı ister)
 - `app/` klasöründe Expo (SDK güncel sürüm) + TypeScript + Expo Router. Paket yöneticisi: npm.
 - Arka uç: Supabase. Şema ve kurallar `supabase/migrations/` içinde SQL; her tabloda RLS açık.
   Geliştirme ve testte **yerel Supabase** (`npx supabase start`) kullanılır; gerçek bulut projesi henüz yok.
-- Harita: MapLibre / açık harita verisi. Ücretli API anahtarı gerektiren servis **kullanılmaz**.
-- Test: Jest + React Native Testing Library; ekran kontrolleri Expo web çıktısı + Playwright ile.
+- Harita: `react-native-maps` (Expo Go uyumlu). Ücretli API anahtarı gerektiren servis **kullanılmaz**.
+- Test: Jest + React Native Testing Library.
 
 ## Çalışma ilkeleri
 1. **Önce düşün, sonra kodla.** Varsayımlarını yaz. Belirsizlik varsa en basit makul seçeneği seç ve kararı `ofis/durum/kararlar.md`'ye ekle.

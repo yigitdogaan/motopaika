@@ -1,7 +1,7 @@
 # Beceriler (Claude skills)
 
 Ajanların kullandığı hazır beceriler. `.claude/skills/` klasöründe durur, her turda otomatik yüklenir.
-Son kurulum: 04.11.2026 18:39. Güncellemek için **Ofis Kurulumu** iş akışını tekrar çalıştır.
+Son kurulum: 04.11.2026 18:55. Güncellemek için **Ofis Kurulumu** iş akışını tekrar çalıştır.
 
 | Beceri | Kaynak | Ne işe yarar |
 | --- | --- | --- |
@@ -35,6 +35,7 @@ Son kurulum: 04.11.2026 18:39. Güncellemek için **Ofis Kurulumu** iş akışı
 | `expo-upgrade` |  | Guidelines for upgrading Expo SDK versions and fixing dependency issues |
 | `expo-web-to-native` |  | Migrate an existing web React app to a native iOS/Android app with Expo. Use when the user wants to turn a website into a mobile app, port a Next.js/Vite/CRA Re |
 | `frontend-design` |  | Guidance for distinctive, intentional visual design when building new UI or reshaping an existing one. Helps with aesthetic direction, typography, and making ch |
+| `graphify` |  | "Use for any question about a codebase, its architecture, file relationships, or project content — especially when graphify-out/ exists, where the question shou |
 | `handoff` |  | Compact the current conversation into a handoff document for another agent to pick up. |
 | `karpathy-guidelines` |  | Behavioral guidelines to reduce common LLM coding mistakes. Use when writing, reviewing, or refactoring code to avoid overcomplication, make surgical changes, s |
 | `ponytail` | [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) | Lazy senior dev mode: the smallest change that fully solves the task, and a reply a busy human understands in one read. Use on any coding task (writing, fixing, |

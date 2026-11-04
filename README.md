@@ -20,7 +20,7 @@ Depo herkese açıktır; issue ve yorumlarda yalnızca kurucunun yazdıkları ek
 
 | Sen ne görmek istersen | Nereye bak |
 | --- | --- |
-| Uygulamanın kendisi (telefondan aç) | **https://motopaika.vercel.app** — her turdan sonra güncellenir |
+| Uygulamanın kendisi (telefonda) | **Expo Go** uygulaması → Expo hesabınla giriş → *motopaika* → `onizleme` (her turdan sonra güncellenir) |
 | Projenin genel durumu, ilerleme yüzdeleri | [PANO.md](PANO.md) |
 | Her turun raporu (cevap da verebilirsin) | Slack → **#ofis** kanalı (arşivi: Issues → **📋 Günlük Raporlar**) |
 | Ekibin senden istedikleri / senin talimatların | Issues → **🪑 Kurucu Masası** |

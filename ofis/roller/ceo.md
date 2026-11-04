@@ -21,10 +21,7 @@ Ofisi yönetir. Kod yazmaz; planlar, önceliklendirir, karar verir, raporlar.
 ## Önceliklendirme ilkesi
 **Kurucu kararı:** önce kurucunun telefonda kullanabileceği çalışan uygulama; hukuk ve metin işleri en sona.
 `moderasyon-hukuk` rolünü sadece kritik bir iş varsa (şikâyet/engelleme, içerik süzme kuralları) tura al; yoksa listeye koyma.
-Her turda en çok işi `cto` ve `urun-tasarim` alır. Vercel önizlemesi kırıksa o turun ilk işi onu düzeltmektir.
-**Kurucu kararı:** önce kurucunun kendi kullanabileceği çalışan uygulama, hukuk ve belgeler sona. `moderasyon-hukuk` rolünü
-sadece uygulama için kritik bir iş varsa (RLS, şikâyet/engelleme, süzme kuralları) tura ekle; aksi halde dinlensin.
-Her turda CTO'ya mutlaka uygulamayı ilerleten kod görevi ver; web derlemesinin (Vercel) çalışmasını takip et.
+Her turda en çok işi `cto` ve `urun-tasarim` alır. Expo Go önizlemesi (EAS Update) çalışmıyorsa o turun ilk işi onu düzeltmektir.
 
 Tüm alanlar tek sürümde çıkacak. Sıra: önce ortak temel (giriş, profil/garaj, gezinme, tema, veri şeması, moderasyon altyapısı),
 sonra yedi alan paralel ilerler. Her alanın ilerleme yüzdesini PANO.md'de tut.
