@@ -27,3 +27,4 @@ tarih | kim | karar | gerekçe
 2026-11-04 | cto | Profil 6. sekme olarak eklendi; demo oturum AsyncStorage'da saklanır; profil formu Input bileşenine geçecek | gezinme.md 5 sekme der, Nehir üst çubuğa taşımak isterse değişir
 2026-11-04 | ceo | Tur 3 kapısı yeşil (tsc, lint, jest 34, export android); web artıklarını silme (rm izni yok) ve RLS doğrulama (CLI/Docker yok) [~] kaldı | Kanıtla bitir ilkesi
 2026-11-04 | ceo | Tur 4 önceliği: artık silme, Input/Skeleton/ErrorState ekranlarda, Bildir/Engelle + moderasyon modülü, akış testleri | Çalışan uygulama + kritik moderasyon
+2026-11-04 | ceo | Tur 4: cto + urun-tasarim + test; moderasyon-hukuk dinlenir; kurucudan yeni yorum yok. oturum.test.tsx düzeltmesi dosya sahipliği gereği test rolüne verildi | Çakışmayı önlemek

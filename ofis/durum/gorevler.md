@@ -89,5 +89,13 @@ Kurucu yeni talimat: yok. CLAUDE.md yeni önceliği: Expo Go, web yok, react-nat
 [ ] P2 | urun-tasarim | Etkinlik, rotalar, sohbet, not duvarı kabul kriterleri; segment bileşeni → ofis/bilgi/tasarim/, app/src/components/ui/
 [ ] P2 | test | Giriş → profil → motor ekle/sil RNTL akış testleri; ortak-temel.md ve forum-sorun-ikinci-el.md kriterlerini teste çevir → app/__tests__/
 
+## Tur 4 — temizlik + ekranlarda yeni bileşenler + Bildir/Engelle (planlandı: 04.11.2026 20:55)
+Kurucu yeni talimat: yok (Slack ve GitHub boş). Tur 3 devreden satırları bağlayıcıdır; moderasyon-hukuk dinlenir (modül kodunu CTO yazar).
+[ ] P1 | cto | Web/şablon artıklarını sil (Tur 3 listesi); izin yoksa teslim notuna yaz → app/src/
+[ ] P1 | cto | giris/profil formunda Input; liste ekranlarında SkeletonList/ErrorState/EmptyState → app/src/
+[ ] P2 | cto | Moderasyon modülü + Bildir/Engelle (demo modda yerel) → app/src/lib/moderasyon/
+[ ] P2 | urun-tasarim | Etkinlik, rotalar, sohbet, not duvarı kabul kriterleri; Segment bileşeni → ofis/bilgi/tasarim/, app/src/components/ui/
+[ ] P1 | test | Kapı (tsc, lint, jest, export android) + giriş→profil→motor ekle/sil RNTL akışı; oturum.test.tsx require() → import → app/__tests__/, ofis/teslim/test/tur-04.md
+
 ### Ertelendi (kurucu kararı: uygulama sonrası)
 [ ] P3 | moderasyon-hukuk | Kullanım koşulları, KVKK aydınlatma, açık rıza taslakları
