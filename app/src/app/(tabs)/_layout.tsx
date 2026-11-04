@@ -8,6 +8,7 @@ const SEKMELER = [
   { name: 'rotalar', title: 'Rotalar' },
   { name: 'etkinlik', title: 'Etkinlik' },
   { name: 'sohbet', title: 'Sohbet' },
+  { name: 'profil', title: 'Profil' },
 ] as const;
 
 export default function TabsLayout() {

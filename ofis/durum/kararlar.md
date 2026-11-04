@@ -21,3 +21,9 @@ tarih | kim | karar | gerekçe
 2026-11-04 | cto | vercel.json app/ içinde; Vercel Root Directory app olmalı; app.json web.output = single | Expo web çıktısı tek sayfa, kök klasör app/
 2026-11-04 | ceo | Kanıtsız işler [~] bırakıldı (Playwright ekran görüntüleri, Supabase şema doğrulaması) | Kanıtla bitir ilkesi
 2026-11-04 | ceo | Tur 3 önceliği: CTO auth demo + profil/garaj, MapLibre + .web.tsx, şablon artıklarını silme, şema doğrulama + RLS testi | Çalışan uygulama; ortak temel ekranları test edilebilsin
+2026-11-04 | kurucu | Yeni öncelik (CLAUDE.md): Expo Go'da telefonda çalışan uygulama; web önizlemesi/Vercel yok; EAS Update onizleme dalı; hukuk sona | Kurucu kararı 04.11.2026
+2026-11-04 | ceo | Harita MapLibre yerine react-native-maps; kapı npx expo export -p android; Vercel/web işleri düşürüldü (Tur 3 önceliği buna göre güncellendi) | CLAUDE.md ile uyum, Expo Go'da hazır
+2026-11-04 | ceo | Tur 3: cto + urun-tasarim + test; moderasyon-hukuk dinlenir; kurucudan yeni yorum yok | Çalışan uygulama önceliği
+2026-11-04 | cto | Profil 6. sekme olarak eklendi; demo oturum AsyncStorage'da saklanır; profil formu Input bileşenine geçecek | gezinme.md 5 sekme der, Nehir üst çubuğa taşımak isterse değişir
+2026-11-04 | ceo | Tur 3 kapısı yeşil (tsc, lint, jest 34, export android); web artıklarını silme (rm izni yok) ve RLS doğrulama (CLI/Docker yok) [~] kaldı | Kanıtla bitir ilkesi
+2026-11-04 | ceo | Tur 4 önceliği: artık silme, Input/Skeleton/ErrorState ekranlarda, Bildir/Engelle + moderasyon modülü, akış testleri | Çalışan uygulama + kritik moderasyon

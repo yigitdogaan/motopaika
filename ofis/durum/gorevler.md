@@ -62,5 +62,32 @@ Not: Tur 1'in "tasarım tokenları/ui" satırı dosya sahipliği gereği urun-ta
 [ ] P2 | test | Playwright tarayıcısı hazır olunca 390 px ekran görüntüleri (açık/koyu) → ofis/teslim/test/ekran/
 [ ] P2 | test | Kullanıcı adı doğrulaması (3–20, harf/rakam/_) saf fonksiyon gelince test → app/__tests__/
 
+## Tur 3 — Expo Go uyumu + ortak temel (planlandı: 04.11.2026 19:50)
+Kurucu yeni talimat: yok. CLAUDE.md yeni önceliği: Expo Go, web yok, react-native-maps, Vercel yok. Yukarıdaki MapLibre, web export, Vercel, Playwright satırları geçersiz/ertelendi; aşağıdakiler bağlayıcıdır.
+
+### CTO (Kaan) — app/ (theme, components/ui hariç), supabase/
+[~] P1 | cto | runtimeVersion sdkVersion yapıldı, `expo export -p android` hatasız; web artıkları SİLİNEMEDİ (rm izni yok) → app/ (silinecekler: explore.tsx, themed-*, app-tabs*, animated-icon*, web-badge, hint-row, external-link, constants/, hooks/, global.css, css.d.ts, ui/collapsible.tsx)
+[x] P1 | cto | Demo kullanıcı girişi + profil/garaj ekranı (marka/model) → app/src/app/ (testler geçti; ekran görüntüsü yok)
+[x] P1 | cto | Rotalar: react-native-maps haritası + demo işaretçiler → app/src/ (cihazda görsel doğrulama yok)
+[x] P2 | cto | liste-ekrani.tsx → ListItem + Tag → app/src/components/
+[~] P2 | cto | RLS testi yazıldı (supabase/tests/rls_profiles.test.sql); CLI/Docker yok, çalıştırılamadı
+
+### Ürün ve Tasarım (Nehir) — theme/, components/ui/, ofis/bilgi/tasarim/
+[x] P1 | urun-tasarim | Input, iskelet, hata bileşenleri + testler → app/src/components/ui/ (jest geçti, lint temiz)
+[x] P2 | urun-tasarim | Forum/sorun çözümü/ikinci el kabul kriterleri + telefon akış notları → ofis/bilgi/tasarim/forum-sorun-ikinci-el.md
+
+### Test (Melis)
+[x] P1 | test | Kapı: tsc, lint, jest 6 paket/34 test, `expo export -p android` yeşil → ofis/teslim/test/tur-03.md
+[x] P2 | test | Kullanıcı adı doğrulaması testi → app/__tests__/dogrulama.test.ts (19 test)
+
+### Tur 3'ten devreden / yeni (CEO işledi, 04.11.2026 20:00)
+[ ] P1 | cto | Web/şablon artıklarını sil (yukarıdaki liste; izin sorunu sürerse CEO'ya bildir)
+[ ] P1 | cto | Giriş/profil formunda Input, listelerde SkeletonList/ErrorState/EmptyState kullan → app/src/
+[ ] P2 | cto | oturum.test.tsx:8 require() uyarısını import ile düzelt → app/__tests__/
+[ ] P2 | cto | RLS testini Supabase çalışan ortamda doğrula (CLI/Docker yok)
+[ ] P2 | cto | Şikâyet/engelleme (Bildir/Engelle) + temel moderasyon modülü → app/src/lib/moderasyon/
+[ ] P2 | urun-tasarim | Etkinlik, rotalar, sohbet, not duvarı kabul kriterleri; segment bileşeni → ofis/bilgi/tasarim/, app/src/components/ui/
+[ ] P2 | test | Giriş → profil → motor ekle/sil RNTL akış testleri; ortak-temel.md ve forum-sorun-ikinci-el.md kriterlerini teste çevir → app/__tests__/
+
 ### Ertelendi (kurucu kararı: uygulama sonrası)
 [ ] P3 | moderasyon-hukuk | Kullanım koşulları, KVKK aydınlatma, açık rıza taslakları

@@ -1,8 +1,10 @@
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, Text } from 'react-native';
 
 import { EmptyState } from '@/components/ui/empty-state';
+import { ListItem } from '@/components/ui/list-item';
+import { Tag } from '@/components/ui/tag';
 import { demoModu, ogeleriGetir, type Alan } from '@/lib/veri';
-import { radius, spacing, typography, useTheme } from '@/theme';
+import { spacing, typography, useTheme } from '@/theme';
 
 export function ListeEkrani({ alan, bos }: { alan: Alan; bos: string }) {
   const c = useTheme();
@@ -12,25 +14,22 @@ export function ListeEkrani({ alan, bos }: { alan: Alan; bos: string }) {
     <FlatList
       data={ogeler}
       keyExtractor={(o) => o.id}
-      contentContainerStyle={styles.liste}
       ListHeaderComponent={
         demoModu ? (
-          <Text style={[typography.body, styles.demo, { color: c.textMuted }]}>Demo modu: örnek verilerle gösteriliyor.</Text>
+          <Text style={[typography.caption, styles.demo, { color: c.textMuted }]}>Demo modu: örnek verilerle gösteriliyor.</Text>
         ) : undefined
       }
       renderItem={({ item }) => (
-        <View style={[styles.kart, { backgroundColor: c.surface, borderColor: c.border }]}>
-          {item.etiket ? <Text style={[typography.body, { color: c.primary }]}>{item.etiket}</Text> : null}
-          <Text style={[typography.heading, { color: c.text }]}>{item.baslik}</Text>
-          <Text style={[typography.body, { color: c.textMuted }]}>{item.altBaslik}</Text>
-        </View>
+        <ListItem
+          title={item.baslik}
+          subtitle={item.altBaslik}
+          right={item.etiket ? <Tag label={item.etiket} /> : undefined}
+        />
       )}
     />
   );
 }
 
 const styles = StyleSheet.create({
-  liste: { padding: spacing.md, gap: spacing.sm },
-  demo: { marginBottom: spacing.xs },
-  kart: { borderWidth: 1, borderRadius: radius.md, padding: spacing.md, gap: spacing.xs },
+  demo: { padding: spacing.lg, paddingBottom: spacing.xs },
 });

@@ -1,5 +1,5 @@
 // Demo modu örnek verileri (EXPO_PUBLIC_SUPABASE_URL yokken kullanılır).
-export type Oge = { id: string; baslik: string; altBaslik: string; etiket?: string };
+export type Oge = { id: string; baslik: string; altBaslik: string; etiket?: string; konum?: { lat: number; lng: number } };
 
 export const demoVeri = {
   topluluk: [
@@ -16,10 +16,10 @@ export const demoVeri = {
     { id: 'i4', baslik: 'Kawasaki Versys 650 2018', altBaslik: '265.000 ₺ · Antalya', etiket: 'Motor' },
   ],
   rotalar: [
-    { id: 'r1', baslik: 'Şile – Ağva sahil yolu', altBaslik: '92 km · Virajlı · Manzara', etiket: 'İstanbul' },
-    { id: 'r2', baslik: 'Bolu – Abant – Gölcük', altBaslik: '78 km · Orman · Mola: Abant', etiket: 'Bolu' },
-    { id: 'r3', baslik: 'Datça yarımadası turu', altBaslik: '110 km · Deniz manzarası', etiket: 'Muğla' },
-    { id: 'r4', baslik: 'Karadeniz – Zigana geçidi', altBaslik: '64 km · Dağ yolu · Dikkat: sis', etiket: 'Gümüşhane' },
+    { id: 'r1', baslik: 'Şile – Ağva sahil yolu', altBaslik: '92 km · Virajlı · Manzara', etiket: 'İstanbul', konum: { lat: 41.1767, lng: 29.6122 } },
+    { id: 'r2', baslik: 'Bolu – Abant – Gölcük', altBaslik: '78 km · Orman · Mola: Abant', etiket: 'Bolu', konum: { lat: 40.6, lng: 31.2833 } },
+    { id: 'r3', baslik: 'Datça yarımadası turu', altBaslik: '110 km · Deniz manzarası', etiket: 'Muğla', konum: { lat: 36.75, lng: 27.68 } },
+    { id: 'r4', baslik: 'Karadeniz – Zigana geçidi', altBaslik: '64 km · Dağ yolu · Dikkat: sis', etiket: 'Gümüşhane', konum: { lat: 40.625, lng: 39.4 } },
   ],
   etkinlik: [
     { id: 'e1', baslik: 'Pazar sabahı Şile kahvaltı sürüşü', altBaslik: '09 Kas 2026 · 08:00 · 23 katılımcı', etiket: 'İstanbul' },

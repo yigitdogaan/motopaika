@@ -1,8 +1,11 @@
 {
   "expo": {
     "name": "app",
-    "slug": "app",
+    "slug": "motopaika",
     "version": "1.0.0",
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "app",
@@ -37,6 +40,15 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "owner": "yigitdogan29",
+    "extra": {
+      "eas": {
+        "projectId": "f4de9c95-58f1-45ab-8ed5-33e34754da24"
+      }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/f4de9c95-58f1-45ab-8ed5-33e34754da24"
     }
   }
 }

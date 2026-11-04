@@ -1,38 +1,37 @@
 # Motopaika Pano
 
-Son güncelleme: 04.11.2026 18:30 (İstanbul), Tur 02
+Son güncelleme: 04.11.2026 20:00 (İstanbul), Tur 03
 
-**Durum:** Uygulama artık açılıyor: beş sekme örnek (demo) verilerle gezilebiliyor ve web derlemesi başarılı. Ekran görüntüsü ve harita henüz yok.
+**Durum:** Uygulama artık Expo Go için hazırlandı: demo girişi, profil/garaj ve harita (Rotalar) eklendi; Android derlemesi hatasız. Telefonda henüz görsel doğrulama yapılmadı.
 
 ## Alanlar
 
 | Alan | İlerleme % | Bu tur | Sıradaki |
 | --- | --- | --- | --- |
-| Ortak temel | 35 | Hatalar düzeldi, web derlemesi ve demo modu çalışıyor, tasarım bileşenleri hazır, ilk veritabanı şeması yazıldı | Giriş, profil ve garaj ekranları; şemayı denemek |
-| Bilgi ve forum | 8 | Demo listede örnek konular görünüyor | Kabul kriterleri, konu detayı |
-| Sorun çözümü | 6 | Demo listede örnek sorunlar | Kabul kriterleri |
-| İkinci el | 6 | Demo listede örnek ilanlar | Kabul kriterleri, ilan şeması |
-| Rotalar | 5 | Şimdilik liste olarak açılıyor | Harita (MapLibre) |
-| Buluşma ve etkinlik | 5 | Demo listede örnek etkinlikler | Kabul kriterleri |
-| Not duvarı | 5 | Değişiklik yok | Anonimlik şeması |
-| Canlı sohbet | 4 | Sohbet sekmesi demo içerikle açılıyor | Gerçek zamanlı sohbet tasarımı |
-| Moderasyon ve hukuk | 30 | Dinlendi (öncelik uygulamada) | Şikâyet/engelleme, küfür süzme modülü |
+| Ortak temel | 50 | Demo giriş, profil + garaj (marka/model), Input/yükleniyor/hata bileşenleri, Expo Go ayarı | Eski web dosyalarını silmek, formlarda yeni bileşenler |
+| Bilgi ve forum | 10 | Kabul kriterleri yazıldı | Konu detayı, yazma ekranı |
+| Sorun çözümü | 8 | Kabul kriterleri yazıldı | Sorun detayı, çözüm işareti |
+| İkinci el | 8 | Kabul kriterleri yazıldı | İlan şeması ve detay |
+| Rotalar | 20 | Harita ve demo rota işaretçileri eklendi | Telefonda deneme, rota detayı |
+| Buluşma ve etkinlik | 5 | Değişiklik yok | Kabul kriterleri |
+| Not duvarı | 5 | Değişiklik yok | Anonimlik şeması, kabul kriterleri |
+| Canlı sohbet | 4 | Değişiklik yok | Sohbet tasarımı |
+| Moderasyon ve hukuk | 30 | Dinlendi (hukuk uygulama sonrasına ertelendi) | Bildir/Engelle ve küfür süzme |
 
 ## Ekip
 
 | Kişi | Rol | Bu tur yaptığı |
 | --- | --- | --- |
-| Arda | CEO | Planladı, görevleri işledi, bu raporu yazdı |
-| Nehir | Ürün ve Tasarım | Düğme, kart, liste satırı, etiket, avatar bileşenleri; demo içerik rehberi |
-| Kaan | CTO | Tip ve lint hatalarını düzeltti, vercel.json ve web derlemesi, demo modu, Supabase ilk şema |
-| Melis | Test ve Kalite | Kalite kapısını çalıştırdı; ekran betiği hazır ama tarayıcı izni olmadığı için görüntü alamadı |
+| Arda | CEO | Notları işledi, görevleri ve bu panoyu güncelledi |
+| Nehir | Ürün ve Tasarım | Input, iskelet, hata bileşenleri + testler; forum/sorun/ikinci el kabul kriterleri |
+| Kaan | CTO | Expo Go ayarı, demo giriş, profil/garaj, harita, liste ekranı; veritabanı güvenlik testi yazdı |
+| Melis | Test ve Kalite | Kalite kapısını çalıştırdı; kullanıcı adı testleri (19 test) |
 | Tolga | Moderasyon ve Hukuk | Bu tur dinlendi |
 
 ## Senden istenen
 
-1. **Vercel'de proje kök klasörü (Root Directory) `app` olmalı.** Varsayılan: sen Vercel panelinde ayarlarsın; ayarlanmazsa önizleme açılmaz.
-2. **Ekran görüntüsü için tarayıcı indirme izni (Playwright).** Varsayılan: izin verilir; yoksa ekran görüntüsü alınamaz.
+Yok. (Ekip kendi kararlarıyla devam ediyor.)
 
 ## Kalite
 
-Tip kontrolü temiz · lint temiz · Jest 7/7 geçti · web derlemesi başarılı · Supabase testi yok (şema henüz çalıştırılıp denenmedi) · ekran görüntüsü yok.
+Tip kontrolü temiz · lint temiz · Jest 34/34 geçti · Android derlemesi başarılı · veritabanı güvenlik testi yazıldı ama çalıştırılamadı · telefonda/ekran görüntüsü doğrulaması yok.

@@ -1,7 +1,23 @@
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import { useColorScheme } from 'react-native';
 
+import { OturumSaglayici, useOturum } from '@/lib/oturum';
 import { palette } from '@/theme';
+
+function Rotalar() {
+  const { kullanici, hazir } = useOturum();
+  if (!hazir) return null;
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Protected guard={!!kullanici}>
+        <Stack.Screen name="(tabs)" />
+      </Stack.Protected>
+      <Stack.Protected guard={!kullanici}>
+        <Stack.Screen name="giris" />
+      </Stack.Protected>
+    </Stack>
+  );
+}
 
 export default function RootLayout() {
   const light = useColorScheme() === 'light';
@@ -13,7 +29,9 @@ export default function RootLayout() {
   };
   return (
     <ThemeProvider value={theme}>
-      <Stack screenOptions={{ headerShown: false }} />
+      <OturumSaglayici>
+        <Rotalar />
+      </OturumSaglayici>
     </ThemeProvider>
   );
 }
