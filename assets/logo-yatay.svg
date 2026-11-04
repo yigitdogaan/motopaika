@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 320" role="img" aria-label="Motopaika">
+  <rect width="1280" height="320" fill="#16181D"/>
+  <g transform="translate(40 40) scale(0.47)">
+    <path d="M96 368 L96 176 Q96 144 124 160 L256 288 L388 160 Q416 144 416 176 L416 368"
+          fill="none" stroke="#F25C05" stroke-width="56" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M96 368 L96 176 Q96 144 124 160 L256 288 L388 160 Q416 144 416 176 L416 368"
+          fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="22 26"/>
+  </g>
+  <text x="300" y="200" font-family="Arial Black, Helvetica, Arial, sans-serif" font-weight="900" font-size="132" fill="#FFFFFF" letter-spacing="-2">moto<tspan fill="#F25C05">paika</tspan></text>
+</svg>

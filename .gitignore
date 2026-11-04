@@ -1,0 +1,14 @@
+node_modules/
+.expo/
+dist/
+web-build/
+coverage/
+test-results/
+playwright-report/
+.env
+.env.local
+.env.*.local
+supabase/.temp/
+supabase/.branches/
+*.log
+.DS_Store
