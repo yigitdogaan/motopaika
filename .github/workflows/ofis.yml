@@ -2,7 +2,7 @@ name: Motopaika Ofis
 
 on:
   schedule:
-    - cron: "0 7-16 * * *"   # her gün 10:00-19:00 İstanbul, saat başı (10 tur)
+    - cron: "0 7-16 * * *"   # her gün 10:00-19:00 İstanbul, saat başı
   workflow_dispatch:
 
 permissions:
@@ -11,60 +11,137 @@ permissions:
 
 concurrency:
   group: motopaika-ofis
-  cancel-in-progress: false
+  cancel-in-progress: false   # süren tur kesilmez; sonraki tur sırada bekler
+
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+  CLAUDE_CODE_DISABLE_BACKGROUND_TASKS: "1"
+  SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+  SLACK_KANAL: ofis
+  ARACLAR: "Skill,Read,Write,Edit,MultiEdit,Glob,Grep,TodoWrite,Task,WebSearch,WebFetch,Bash(npm:*),Bash(npx:*),Bash(node:*),Bash(ls:*),Bash(cat:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(mkdir:*),Bash(cp:*),Bash(mv:*),Bash(date:*),Bash(jq:*),Bash(docker:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(gh issue:*),Bash(python3 ofis/scripts/slack.py:*)"
+  # Değişiklikleri yamaya çevirir (node_modules vb. hariç): bash -c "$YAMA" <dosya>
+  YAMA: |
+    git add -A -- . ':!.github' ':!**/node_modules' ':!**/.expo' ':!**/dist' ':!**/web-build' ':!**/coverage' ':!**/test-results' ':!**/playwright-report'
+    git diff --cached --binary HEAD > "$0"
+    echo "yama: $0 ($(wc -c < "$0") bayt)"
+  # Klasördeki yamaları sırayla uygular ve her birini yerel commit yapar
+  UYGULA: |
+    git config user.name "motopaika-ofis"
+    git config user.email "235531527+yigitdogaan@users.noreply.github.com"
+    git update-index -q --refresh || true
+    for p in $(ls "$0"/*.patch 2>/dev/null | sort); do
+      [ -s "$p" ] || continue
+      git apply --index --3way "$p" || git apply --index --reject "$p" || echo "::warning::$(basename $p) tam uygulanamadı"
+      git add -A -- . ':!.github' >/dev/null 2>&1 || true
+      git commit -qm "$(basename $p)" --allow-empty
+    done
 
 jobs:
-  tur:
+  planla:
     runs-on: ubuntu-latest
-    timeout-minutes: 58
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-      CLAUDE_CODE_DISABLE_BACKGROUND_TASKS: "1"
-      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-      SLACK_KANAL: ofis
-      ARACLAR: "Skill,Read,Write,Edit,MultiEdit,Glob,Grep,TodoWrite,Task,WebSearch,WebFetch,Bash(npm:*),Bash(npx:*),Bash(node:*),Bash(ls:*),Bash(cat:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(mkdir:*),Bash(cp:*),Bash(mv:*),Bash(date:*),Bash(jq:*),Bash(docker:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(gh issue:*),Bash(python3 ofis/scripts/slack.py:*)"
+    timeout-minutes: 30
+    outputs:
+      roller: ${{ steps.roller.outputs.roller }}
+      test: ${{ steps.roller.outputs.test }}
     steps:
       - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
+      - run: npm install -g @anthropic-ai/claude-code
+      - name: Arda (CEO) turu planlıyor
+        run: |
+          claude -p "ofis/prompts/planla.md dosyasını oku ve eksiksiz uygula. Tarih için 'date' kullan (İstanbul = UTC+3)." \
+            --model sonnet --max-turns 60 --allowedTools "$ARACLAR" || echo "::warning::Planlama tamamlanamadı"
+      - id: roller
+        run: |
+          echo "roller=$(jq -c '[.[] | select(. != "test" and . != "ceo")]' ofis/durum/bu-tur.json 2>/dev/null || echo '[]')" >> "$GITHUB_OUTPUT"
+          echo "test=$(jq -r 'index("test") != null' ofis/durum/bu-tur.json 2>/dev/null || echo false)" >> "$GITHUB_OUTPUT"
+      - name: Planı yamaya çevir
+        run: mkdir -p /tmp/y && bash -c "$YAMA" /tmp/y/00-plan.patch
+      - uses: actions/upload-artifact@v4
+        with: { name: yama-00-plan, path: /tmp/y/00-plan.patch, retention-days: 3 }
 
-      - name: Araçları kur (Claude Code, Playwright)
+  calis:
+    needs: planla
+    if: needs.planla.outputs.roller != '' && needs.planla.outputs.roller != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        rol: ${{ fromJSON(needs.planla.outputs.roller) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { name: yama-00-plan, path: /tmp/once }
+      - run: bash -c "$UYGULA" /tmp/once
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install -g @anthropic-ai/claude-code
+      - name: ${{ matrix.rol }} çalışıyor
+        run: |
+          claude -p "ROL = ${{ matrix.rol }}. ofis/prompts/calis.md dosyasını oku ve eksiksiz uygula. Tarih için 'date' kullan (İstanbul = UTC+3)." \
+            --model sonnet --max-turns 200 --allowedTools "$ARACLAR" || echo "::warning::${{ matrix.rol }} tamamlanamadı"
+      - name: İşi yamaya çevir
+        if: always()
+        run: mkdir -p /tmp/y && bash -c "$YAMA" "/tmp/y/10-${{ matrix.rol }}.patch"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: "yama-10-${{ matrix.rol }}", path: "/tmp/y/10-${{ matrix.rol }}.patch", retention-days: 3 }
+
+  test:
+    needs: [planla, calis]
+    if: always() && needs.planla.outputs.test == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { pattern: "yama-*", path: /tmp/once, merge-multiple: true }
+      - run: bash -c "$UYGULA" /tmp/once
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Araçlar
         run: |
           npm install -g @anthropic-ai/claude-code
           npx -y playwright@latest install --with-deps chromium >/dev/null 2>&1 || echo "Playwright kurulamadı"
-          test -n "$CLAUDE_CODE_OAUTH_TOKEN" || { echo "::error::CLAUDE_CODE_OAUTH_TOKEN secret'ı eksik. README'deki kurulum adımına bak."; exit 1; }
-
-      - name: Arda (CEO) turu planlıyor
+      - name: Melis (Test) kalite kapısı
         run: |
-          timeout 6m claude -p "ofis/prompts/planla.md dosyasını oku ve eksiksiz uygula. Tarih için 'date' kullan (İstanbul = UTC+3)." \
-            --model sonnet --max-turns 30 --allowedTools "$ARACLAR" || echo "::warning::Planlama tamamlanamadı"
-
-      - name: Ekip çalışıyor
-        run: |
-          for rol in $(jq -r '.[]' ofis/durum/bu-tur.json 2>/dev/null); do
-            [ -f "ofis/roller/$rol.md" ] || { echo "::warning::$rol rol dosyası yok, atlandı"; continue; }
-            echo "::group::$rol"
-            timeout 9m claude -p "ROL = $rol. ofis/prompts/calis.md dosyasını oku ve eksiksiz uygula. Tarih için 'date' kullan (İstanbul = UTC+3)." \
-              --model sonnet --max-turns 80 --allowedTools "$ARACLAR" || echo "::warning::$rol tamamlanamadı"
-            echo "::endgroup::"
-          done
-
-      - name: Arda (CEO) raporluyor
+          claude -p "ROL = test. ofis/prompts/calis.md dosyasını oku ve eksiksiz uygula. Tarih için 'date' kullan (İstanbul = UTC+3)." \
+            --model sonnet --max-turns 200 --allowedTools "$ARACLAR" || echo "::warning::test tamamlanamadı"
+      - name: İşi yamaya çevir
         if: always()
-        run: |
-          timeout 5m claude -p "ofis/prompts/rapor.md dosyasını oku ve eksiksiz uygula. Tarih için 'date' kullan (İstanbul = UTC+3)." \
-            --model sonnet --max-turns 30 --allowedTools "$ARACLAR" || echo "::warning::Rapor tamamlanamadı"
+        run: mkdir -p /tmp/y && bash -c "$YAMA" /tmp/y/20-test.patch
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: yama-20-test, path: /tmp/y/20-test.patch, retention-days: 3 }
 
+  rapor:
+    needs: [planla, calis, test]
+    if: always() && needs.planla.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/download-artifact@v4
+        with: { pattern: "yama-*", path: /tmp/once, merge-multiple: true }
+      - run: bash -c "$UYGULA" /tmp/once
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install -g @anthropic-ai/claude-code
+      - name: Arda (CEO) raporluyor
+        run: |
+          claude -p "ofis/prompts/rapor.md dosyasını oku ve eksiksiz uygula. Tarih için 'date' kullan (İstanbul = UTC+3)." \
+            --model sonnet --max-turns 60 --allowedTools "$ARACLAR" || echo "::warning::Rapor tamamlanamadı"
       - name: Kaydet (tek commit)
         if: always()
         run: |
-          git config user.name "motopaika-ofis"
-          git config user.email "235531527+yigitdogaan@users.noreply.github.com"
           git checkout -- .github 2>/dev/null || true
           git add -A -- . ':!.github' ':!**/node_modules' ':!**/.expo' ':!**/dist' ':!**/web-build' ':!**/coverage' ':!**/test-results' ':!**/playwright-report'
+          git commit -qm "rapor" --allow-empty
+          git reset --soft "$GITHUB_SHA"
           git diff --cached --quiet && exit 0
           TUR=$(jq -r '.tur' ofis/durum/ayarlar.json 2>/dev/null || echo "?")
           git commit -m "Tur $TUR — $(TZ=Europe/Istanbul date '+%d.%m.%Y %H:%M')"
