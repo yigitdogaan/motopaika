@@ -71,6 +71,13 @@ jobs:
           print(len(satir), "beceri")
           PY2
 
+      - name: Graphify (kod bilgi grafiği) becerisi
+        env: { GRAPHIFY_BACKEND: none }
+        run: |
+          pipx install graphifyy || pip install --user graphifyy
+          graphify claude install --project || echo "::warning::graphify kurulamadı"
+          git status --short
+
       - name: Kurucu Masası ve Günlük Raporlar issue'larını aç
         run: |
           set -e
@@ -93,4 +100,4 @@ jobs:
           git add -A
           git diff --cached --quiet && exit 0
           git commit -m "Ofis kurulumu: beceriler ve iletişim kanalları"
-          git push
+          git pull --rebase origin main && git push
