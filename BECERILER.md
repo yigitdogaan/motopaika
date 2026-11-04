@@ -1,7 +1,7 @@
 # Beceriler (Claude skills)
 
 Ajanların kullandığı hazır beceriler. `.claude/skills/` klasöründe durur, her turda otomatik yüklenir.
-Son kurulum: 04.11.2026 18:28. Güncellemek için **Ofis Kurulumu** iş akışını tekrar çalıştır.
+Son kurulum: 04.11.2026 18:39. Güncellemek için **Ofis Kurulumu** iş akışını tekrar çalıştır.
 
 | Beceri | Kaynak | Ne işe yarar |
 | --- | --- | --- |
