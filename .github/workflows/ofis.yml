@@ -21,7 +21,9 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
       CLAUDE_CODE_DISABLE_BACKGROUND_TASKS: "1"
-      ARACLAR: "Skill,Read,Write,Edit,MultiEdit,Glob,Grep,TodoWrite,Task,WebSearch,WebFetch,Bash(npm:*),Bash(npx:*),Bash(node:*),Bash(ls:*),Bash(cat:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(mkdir:*),Bash(cp:*),Bash(mv:*),Bash(date:*),Bash(jq:*),Bash(docker:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(gh issue:*)"
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_KANAL: ofis
+      ARACLAR: "Skill,Read,Write,Edit,MultiEdit,Glob,Grep,TodoWrite,Task,WebSearch,WebFetch,Bash(npm:*),Bash(npx:*),Bash(node:*),Bash(ls:*),Bash(cat:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(mkdir:*),Bash(cp:*),Bash(mv:*),Bash(date:*),Bash(jq:*),Bash(docker:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(gh issue:*),Bash(python3 ofis/scripts/slack.py:*)"
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
