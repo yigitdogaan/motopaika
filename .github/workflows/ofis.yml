@@ -1,0 +1,71 @@
+name: Motopaika Ofis
+
+on:
+  schedule:
+    - cron: "47 17 * * *"   # her gün 20:47 İstanbul
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: motopaika-ofis
+  cancel-in-progress: false
+
+jobs:
+  tur:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      CLAUDE_CODE_DISABLE_BACKGROUND_TASKS: "1"
+      ARACLAR: "Skill,Read,Write,Edit,MultiEdit,Glob,Grep,TodoWrite,Task,WebSearch,WebFetch,Bash(npm:*),Bash(npx:*),Bash(node:*),Bash(ls:*),Bash(cat:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(mkdir:*),Bash(cp:*),Bash(mv:*),Bash(date:*),Bash(jq:*),Bash(docker:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(gh issue:*)"
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+
+      - name: Araçları kur (Claude Code, Playwright)
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          npx -y playwright@latest install --with-deps chromium >/dev/null 2>&1 || echo "Playwright kurulamadı"
+          test -n "$CLAUDE_CODE_OAUTH_TOKEN" || { echo "::error::CLAUDE_CODE_OAUTH_TOKEN secret'ı eksik. README'deki kurulum adımına bak."; exit 1; }
+
+      - name: Arda (CEO) turu planlıyor
+        run: |
+          timeout 25m claude -p "ofis/prompts/planla.md dosyasını oku ve eksiksiz uygula. Tarih için 'date' kullan (İstanbul = UTC+3)." \
+            --model sonnet --max-turns 60 --allowedTools "$ARACLAR" || echo "::warning::Planlama tamamlanamadı"
+
+      - name: Ekip çalışıyor
+        run: |
+          for rol in $(jq -r '.[]' ofis/durum/bu-tur.json 2>/dev/null); do
+            [ -f "ofis/roller/$rol.md" ] || { echo "::warning::$rol rol dosyası yok, atlandı"; continue; }
+            echo "::group::$rol"
+            timeout 35m claude -p "ROL = $rol. ofis/prompts/calis.md dosyasını oku ve eksiksiz uygula. Tarih için 'date' kullan (İstanbul = UTC+3)." \
+              --model sonnet --max-turns 150 --allowedTools "$ARACLAR" || echo "::warning::$rol tamamlanamadı"
+            echo "::endgroup::"
+          done
+
+      - name: Arda (CEO) raporluyor
+        if: always()
+        run: |
+          timeout 20m claude -p "ofis/prompts/rapor.md dosyasını oku ve eksiksiz uygula. Tarih için 'date' kullan (İstanbul = UTC+3)." \
+            --model sonnet --max-turns 60 --allowedTools "$ARACLAR" || echo "::warning::Rapor tamamlanamadı"
+
+      - name: Kaydet (tek commit)
+        if: always()
+        run: |
+          git config user.name "motopaika-ofis"
+          git config user.email "235531527+yigitdogaan@users.noreply.github.com"
+          git checkout -- .github 2>/dev/null || true
+          git add -A -- . ':!.github' ':!**/node_modules' ':!**/.expo' ':!**/dist' ':!**/web-build' ':!**/coverage' ':!**/test-results' ':!**/playwright-report'
+          git diff --cached --quiet && exit 0
+          TUR=$(jq -r '.tur' ofis/durum/ayarlar.json 2>/dev/null || echo "?")
+          git commit -m "Tur $TUR — $(TZ=Europe/Istanbul date '+%d.%m.%Y %H:%M')"
+          git stash -u >/dev/null 2>&1 || true
+          for i in 1 2 3; do git pull --rebase origin main && git push origin HEAD:main && exit 0; sleep 10; done
+          exit 1
