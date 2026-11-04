@@ -27,8 +27,6 @@ jobs:
         run: |
           set -e
           mkdir -p .claude/skills /tmp/src
-          echo "| Beceri | Kaynak | Ne işe yarar |" > /tmp/liste.md
-          echo "| --- | --- | --- |" >> /tmp/liste.md
           kur () {  # $1 = repo, kalanlar = istenen beceri adları (* = hepsi; kısmi eşleşme)
             repo="$1"; shift
             dir="/tmp/src/${repo//\//_}"
@@ -42,8 +40,7 @@ jobs:
               [ $ok = 1 ] || continue
               [ -e ".claude/skills/$ad" ] && continue
               cp -r "$d" ".claude/skills/$ad"
-              acik=$(awk '/^description:/{sub(/^description:[ ]*/,""); gsub(/\|/,"/"); print; exit}' "$f" | cut -c1-160)
-              echo "| \`$ad\` | [$repo](https://github.com/$repo) | $acik |" >> /tmp/liste.md
+              echo "$ad=$repo" >> .claude/skills/.kaynaklar
             done
           }
           kur expo/skills '*'
@@ -53,15 +50,26 @@ jobs:
           kur mattpocock/skills handoff
           kur anthropics/skills frontend-design
           kur forrestchang/andrej-karpathy-skills '*'
-          {
-            echo "# Beceriler (Claude skills)"
-            echo
-            echo "Ajanların kullandığı hazır beceriler. \`.claude/skills/\` klasöründe durur, her turda otomatik yüklenir."
-            echo "Kurulum tarihi: $(TZ=Europe/Istanbul date '+%d.%m.%Y %H:%M'). Güncellemek için **Ofis Kurulumu** iş akışını tekrar çalıştır."
-            echo
-            cat /tmp/liste.md
-          } > BECERILER.md
-          echo "Kurulan beceri sayısı: $(ls .claude/skills | wc -l)"
+          kur DietrichGebert/ponytail ponytail
+          python3 - <<'PY2'
+          import os, re, datetime
+          kay = {}
+          if os.path.exists('.claude/skills/.kaynaklar'):
+              for l in open('.claude/skills/.kaynaklar'):
+                  if '=' in l: k, v = l.strip().split('=', 1); kay[k] = v
+          satir = []
+          for d in sorted(os.listdir('.claude/skills')):
+              f = f'.claude/skills/{d}/SKILL.md'
+              if not os.path.exists(f): continue
+              m = re.search(r'^description:\s*(?:[>|][-+]?\s*\n)?(.*?)(?=\n[A-Za-z_-]+:|\n---)', open(f).read(), re.S | re.M)
+              acik = ' '.join(m.group(1).split()).replace('|', '/')[:160] if m else ''
+              r = kay.get(d, '')
+              satir.append(f"| `{d}` | {f'[{r}](https://github.com/{r})' if r else ''} | {acik} |")
+          t = datetime.datetime.utcnow() + datetime.timedelta(hours=3)
+          open('BECERILER.md', 'w').write("# Beceriler (Claude skills)\n\nAjanların kullandığı hazır beceriler. `.claude/skills/` klasöründe durur, her turda otomatik yüklenir.\n"
+              f"Son kurulum: {t:%d.%m.%Y %H:%M}. Güncellemek için **Ofis Kurulumu** iş akışını tekrar çalıştır.\n\n| Beceri | Kaynak | Ne işe yarar |\n| --- | --- | --- |\n" + "\n".join(satir) + "\n")
+          print(len(satir), "beceri")
+          PY2
 
       - name: Kurucu Masası ve Günlük Raporlar issue'larını aç
         run: |
