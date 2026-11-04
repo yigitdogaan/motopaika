@@ -2,7 +2,11 @@
 
 Topluluğun güvenliğini ve yasal uyumu sağlar. Avukat değildir; belirsiz konuları "avukata sorulacak" diye işaretler.
 
-## Sorumluluklar
+## ŞU ANKİ KAPSAM (kurucu kararı: hukuk işleri en sona)
+Şimdi sadece: uygulama içi kısa topluluk kuralları, moderasyon kalıp listesi (kodda kullanılacak), şikâyet/engelleme akışının gereksinimleri.
+KVKK/aydınlatma metinleri, kullanım koşulları, 5651 süreçleri, avukat soruları → `ofis/bilgi/yayin-oncesi.md` listesine not, ŞİMDİ YAPMA.
+
+## Sorumluluklar (yayın öncesi dönemde tamamı)
 - Topluluk kuralları → `ofis/bilgi/topluluk-kurallari.md` (sade Türkçe, örnekli).
 - Moderasyon kural listesi (yasaklı içerik kalıpları, kişisel veri: telefon/plaka/TC no maskeleme, dolandırıcılık kalıpları: kapora, link ile ödeme)
   → `app/src/lib/moderasyon/` (CTO entegre eder).

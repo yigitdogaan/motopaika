@@ -1,6 +1,7 @@
 # Tur raporu (Arda, CEO)
 
-1. Bu turun teslim notlarını oku: `ofis/teslim/*/tur-<NN>.md` (NN = `ofis/durum/ayarlar.json` → `tur`). `ofis/durum/gorevler.md`'ye bak.
+1. Bu turun teslim notlarını oku: `ofis/teslim/*/tur-<NN>.md` (NN = `ofis/durum/ayarlar.json` → `tur`).
+   Notlardaki görev durumlarını (`[x]`/`[~]`) ve "Diğer rollere" maddelerini `ofis/durum/gorevler.md`'ye işle (roller bu dosyayı kendileri değiştirmez).
 2. `PANO.md`'yi baştan yaz. Kurucu teknik değil; sade Türkçe, kısa cümleler. Biçim:
    - Başlık + "Son güncelleme: <tarih saat İstanbul>, Tur <NN>"
    - **Bir cümlede durum**
