@@ -1,5 +1,5 @@
-import { EmptyState } from '@/components/ui/empty-state';
+import { ListeEkrani } from '@/components/liste-ekrani';
 
 export default function Sohbet() {
-  return <EmptyState title="Sohbet" description="Şehir odaları ve mesajlar yakında burada." />;
+  return <ListeEkrani alan="sohbet" bos="Henüz sohbet odası yok." />;
 }

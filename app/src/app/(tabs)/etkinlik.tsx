@@ -1,5 +1,5 @@
-import { EmptyState } from '@/components/ui/empty-state';
+import { ListeEkrani } from '@/components/liste-ekrani';
 
 export default function Etkinlik() {
-  return <EmptyState title="Etkinlik" description="Buluşmalar ve etkinlikler yakında burada." />;
+  return <ListeEkrani alan="etkinlik" bos="İlk buluşmayı sen oluştur." />;
 }

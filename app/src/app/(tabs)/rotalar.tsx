@@ -1,5 +1,6 @@
-import { EmptyState } from '@/components/ui/empty-state';
+import { ListeEkrani } from '@/components/liste-ekrani';
 
+// Harita görünümü (MapLibre, .web.tsx yedeğiyle) sonraki turda eklenecek.
 export default function Rotalar() {
-  return <EmptyState title="Rotalar" description="Sürüş rotaları ve harita yakında burada." />;
+  return <ListeEkrani alan="rotalar" bos="İlk rotayı sen ekle." />;
 }

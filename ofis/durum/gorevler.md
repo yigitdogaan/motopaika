@@ -32,3 +32,35 @@ Biçim: `[ ]` yapılacak · `[~]` sürüyor/kanıt eksik · `[x]` bitti — `P1 
 [ ] P1 | cto | [Yüksek] `tsc --noEmit` 3 hata: animated-icon.web.tsx (*.module.css tipi yok), app-tabs.web.tsx:38 ref tipi, constants/theme.ts '@/global.css' tipi yok → css d.ts ekle / şablon dosyaları sadeleştir
 [ ] P2 | cto | [Orta] supabase/ klasörü yok; Supabase testleri çalıştırılamıyor (kapıda boş)
 [ ] P2 | test | Kapı yeşil olunca ortak-temel.md testleri ve Playwright 390 px ekran görüntüleri → ofis/teslim/test/ekran/
+
+## Tur 2 — çalışan uygulama + Vercel önizleme (planlandı: 04.11.2026 18:18)
+Kurucu yeni talimat: yok (Slack boş; GitHub'da yigitdogaan yorumu yok). Öncelik: CLAUDE.md — önce çalışan uygulama, hukuk sona.
+Not: Tur 1'in "tasarım tokenları/ui" satırı dosya sahipliği gereği urun-tasarim'e devredildi. moderasyon-hukuk bu turda dinleniyor.
+
+### CTO (Kaan) — app/ (theme ve components/ui hariç), supabase/, vercel.json
+[x] P1 | cto | tsc 3 hata + lint 1 hata düzelt; kapı yeşil → app/src/ (tsc, lint temiz; Melis doğruladı)
+[x] P1 | cto | vercel.json ve `npx expo export -p web` → app/vercel.json, app/app.json (export başarılı; Vercel Root Directory = app ayarı doğrulanmadı)
+[x] P1 | cto | Demo modu: 5 sekme örnek verilerle açılıyor → app/src/demo/, app/src/lib/veri.ts (harita yedeği aşağıda)
+[~] P2 | cto | supabase/ ilk şema: profiles, motorcycles, cities; RLS açık → supabase/migrations/ (yazıldı; `supabase start` ile doğrulanmadı, RLS testi yok)
+
+### Ürün ve Tasarım (Nehir) — theme/, components/ui/, ofis/bilgi/tasarim/
+[x] P1 | urun-tasarim | Tema tokenları + Button, Card, ListItem, Tag, Avatar, EmptyState; API notu → app/src/components/ui/, ofis/bilgi/tasarim/ui-api.md (jest 6 test, eslint temiz)
+[x] P2 | urun-tasarim | Demo modu örnek içerik rehberi → ofis/bilgi/tasarim/demo-icerik.md
+
+### Test (Melis) — CTO ve tasarım bittikten sonra
+[x] P1 | test | Kapıyı çalıştır → ofis/teslim/test/tur-02.md (tsc, lint temiz; jest 7/7; export başarılı)
+[~] P2 | test | Playwright 390 px ekran görüntüleri → ofis/teslim/test/ekran/ (betik hazır: ekran-cek.mjs; tarayıcı indirme izni verilmedi, görüntü yok)
+[~] P2 | test | ortak-temel.md testlerinden uygulanabilenler → app/__tests__/ (kayıt/giriş/profil/garaj ekranları henüz yok)
+
+### Tur 2'den devreden / yeni (CEO işledi, 04.11.2026 18:30)
+[ ] P1 | cto | Auth (demo kullanıcı) + profil/garaj ekranı → app/src/app/
+[ ] P1 | cto | Harita: MapLibre + .web.tsx yedeği (Rotalar) → app/src/
+[ ] P2 | cto | Şablon artıklarını sil (explore rotası, themed-*, app-tabs*, constants/, hooks/, animated-icon*, web-badge, hint-row, external-link, global.css; @/theme ile çakışan constants/theme.ts ve hooks/use-theme.ts dahil) → app/src/
+[ ] P2 | cto | liste-ekrani.tsx geçici kart yerine Card/ListItem kullan → app/src/components/
+[ ] P2 | cto | supabase start ile şemayı doğrula + supabase/tests/ içinde RLS testi (başkasının profilini güncelleyemez)
+[ ] P2 | urun-tasarim | Input, iskelet (yükleniyor), hata (Tekrar dene) bileşenleri; forum/sorun çözümü/ikinci el kabul kriterleri → app/src/components/ui/, ofis/bilgi/tasarim/
+[ ] P2 | test | Playwright tarayıcısı hazır olunca 390 px ekran görüntüleri (açık/koyu) → ofis/teslim/test/ekran/
+[ ] P2 | test | Kullanıcı adı doğrulaması (3–20, harf/rakam/_) saf fonksiyon gelince test → app/__tests__/
+
+### Ertelendi (kurucu kararı: uygulama sonrası)
+[ ] P3 | moderasyon-hukuk | Kullanım koşulları, KVKK aydınlatma, açık rıza taslakları

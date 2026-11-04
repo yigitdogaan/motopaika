@@ -15,3 +15,9 @@ tarih | kim | karar | gerekçe
 2026-11-04 | moderasyon-hukuk | Not duvarında ilk sürümde fotoğraf yok; yaş sınırı 18+ varsayımı; moderasyon ilk 2 hafta İNCELEME modunda ölçülür | Hedefleme riskini ve yanlış pozitifi azaltmak; avukat/kurucu onayına açık
 2026-11-04 | ceo | Tur 1 raporu yazıldı; kurucuya 3 soru (veri sorumlusu, hukuki e-posta + sunucu bölgesi, 18+) varsayılanlarla iletildi | Kurucuyu beklemeden devam; varsayılan: şahıs, yer tutucu e-posta, AB, 18+
 2026-11-04 | ceo | Sonraki turda CTO önceliği: 3 tsc + 1 lint hatası, sonra supabase/ ilk şema | Kalite kapısı yeşil olmadan yeni özellik yok
+2026-11-04 | ceo | Tur 2: CTO + urun-tasarim + test; moderasyon-hukuk dinlenir; öncelik kalite kapısı, vercel.json, demo modu | CLAUDE.md önceliği: önce çalışan uygulama
+2026-11-04 | ceo | Tasarım tokenları/ui işi CTO'dan urun-tasarim'e alındı | Dosya sahipliği (theme, components/ui)
+2026-11-04 | ceo | Tur 2 raporu yazıldı; kurucuya 2 istek iletildi: Vercel Root Directory = app, Playwright tarayıcı indirme izni (varsayılan: ikisi de verilir) | Önizleme açılması ve ekran kanıtı bunlara bağlı
+2026-11-04 | cto | vercel.json app/ içinde; Vercel Root Directory app olmalı; app.json web.output = single | Expo web çıktısı tek sayfa, kök klasör app/
+2026-11-04 | ceo | Kanıtsız işler [~] bırakıldı (Playwright ekran görüntüleri, Supabase şema doğrulaması) | Kanıtla bitir ilkesi
+2026-11-04 | ceo | Tur 3 önceliği: CTO auth demo + profil/garaj, MapLibre + .web.tsx, şablon artıklarını silme, şema doğrulama + RLS testi | Çalışan uygulama; ortak temel ekranları test edilebilsin

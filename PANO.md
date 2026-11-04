@@ -1,39 +1,38 @@
 # Motopaika Pano
 
-Son güncelleme: 04.11.2026 16:50 (İstanbul), Tur 01
+Son güncelleme: 04.11.2026 18:30 (İstanbul), Tur 02
 
-**Durum:** İlk tur bitti. Tasarım, topluluk kuralları ve test kurulumu hazır; uygulama iskeleti var ama henüz kalite kontrolünden geçmiyor.
+**Durum:** Uygulama artık açılıyor: beş sekme örnek (demo) verilerle gezilebiliyor ve web derlemesi başarılı. Ekran görüntüsü ve harita henüz yok.
 
 ## Alanlar
 
 | Alan | İlerleme % | Bu tur | Sıradaki |
 | --- | --- | --- | --- |
-| Ortak temel | 15 | Tasarım sistemi, gezinme, kayıt/profil/garaj kabul kriterleri yazıldı. Expo iskeleti geldi. | Hataları düzelt, Supabase şeması, giriş ekranları |
-| Bilgi ve forum | 3 | Ekran listesi çıktı | Kabul kriterleri, şema |
-| Sorun çözümü | 3 | Ekran listesi çıktı | Kabul kriterleri, şema |
-| İkinci el | 3 | Dolandırıcılık uyarısı kurallara girdi | Kabul kriterleri, ilan şeması |
-| Rotalar | 2 | Ekran listesi çıktı | Harita seçimi ve şema |
-| Buluşma ve etkinlik | 2 | Ekran listesi çıktı | Kabul kriterleri |
-| Not duvarı | 5 | Hedefleme yasağı ve fotoğrafsız karar | Anonimlik şeması |
-| Canlı sohbet | 2 | Ekran listesi çıktı | Realtime tasarımı |
-| Moderasyon ve hukuk | 30 | Topluluk kuralları, filtre kalıpları, 5651/KVKK notları | Kullanım koşulları, aydınlatma metni, kod modülü |
+| Ortak temel | 35 | Hatalar düzeldi, web derlemesi ve demo modu çalışıyor, tasarım bileşenleri hazır, ilk veritabanı şeması yazıldı | Giriş, profil ve garaj ekranları; şemayı denemek |
+| Bilgi ve forum | 8 | Demo listede örnek konular görünüyor | Kabul kriterleri, konu detayı |
+| Sorun çözümü | 6 | Demo listede örnek sorunlar | Kabul kriterleri |
+| İkinci el | 6 | Demo listede örnek ilanlar | Kabul kriterleri, ilan şeması |
+| Rotalar | 5 | Şimdilik liste olarak açılıyor | Harita (MapLibre) |
+| Buluşma ve etkinlik | 5 | Demo listede örnek etkinlikler | Kabul kriterleri |
+| Not duvarı | 5 | Değişiklik yok | Anonimlik şeması |
+| Canlı sohbet | 4 | Sohbet sekmesi demo içerikle açılıyor | Gerçek zamanlı sohbet tasarımı |
+| Moderasyon ve hukuk | 30 | Dinlendi (öncelik uygulamada) | Şikâyet/engelleme, küfür süzme modülü |
 
 ## Ekip
 
 | Kişi | Rol | Bu tur yaptığı |
 | --- | --- | --- |
-| Arda | CEO | Planladı, bu raporu yazdı |
-| Nehir | Ürün ve Tasarım | Tasarım sistemi, 5 sekmeli gezinme, ortak temel kriterleri |
-| Kaan | CTO | Teslim notu yok. Expo iskeleti `app/` içinde duruyor; görevleri açık |
-| Melis | Test ve Kalite | Jest kurdu, ilk test geçti, kalite komutlarını yazdı, 4 hata buldu |
-| Tolga | Moderasyon ve Hukuk | Topluluk kuralları, moderasyon kalıpları, hukuk notları |
+| Arda | CEO | Planladı, görevleri işledi, bu raporu yazdı |
+| Nehir | Ürün ve Tasarım | Düğme, kart, liste satırı, etiket, avatar bileşenleri; demo içerik rehberi |
+| Kaan | CTO | Tip ve lint hatalarını düzeltti, vercel.json ve web derlemesi, demo modu, Supabase ilk şema |
+| Melis | Test ve Kalite | Kalite kapısını çalıştırdı; ekran betiği hazır ama tarayıcı izni olmadığı için görüntü alamadı |
+| Tolga | Moderasyon ve Hukuk | Bu tur dinlendi |
 
 ## Senden istenen
 
-1. **Veri sorumlusu kim olacak (şahıs / dernek)?** Varsayılan: şahıs (kurucu adına); hukuk metinleri buna göre taslak yazılır.
-2. **Hukuki iletişim e-posta adresi ve sunucu bölgesi.** Varsayılan: yer tutucu adres, AB bölgesi; yayından önce senin onayınla değişir.
-3. **Yaş sınırı 18+ uygun mu?** Varsayılan: 18+.
+1. **Vercel'de proje kök klasörü (Root Directory) `app` olmalı.** Varsayılan: sen Vercel panelinde ayarlarsın; ayarlanmazsa önizleme açılmaz.
+2. **Ekran görüntüsü için tarayıcı indirme izni (Playwright).** Varsayılan: izin verilir; yoksa ekran görüntüsü alınamaz.
 
 ## Kalite
 
-Jest 1/1 geçti · tip kontrolü 3 hata · lint 1 hata · Supabase testi çalışmadı (`supabase/` yok) → kapı henüz yeşil değil.
+Tip kontrolü temiz · lint temiz · Jest 7/7 geçti · web derlemesi başarılı · Supabase testi yok (şema henüz çalıştırılıp denenmedi) · ekran görüntüsü yok.

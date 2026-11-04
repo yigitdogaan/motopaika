@@ -1,6 +1,6 @@
-import { EmptyState } from '@/components/ui/empty-state';
+import { ListeEkrani } from '@/components/liste-ekrani';
 
 // Alt bölümler (Konular · Sorunlar · Not duvarı) sonraki turda segment olarak eklenecek.
 export default function Topluluk() {
-  return <EmptyState title="Topluluk" description="Konular, sorunlar ve not duvarı yakında burada." />;
+  return <ListeEkrani alan="topluluk" bos="İlk konuyu sen aç." />;
 }

@@ -1,5 +1,5 @@
-import { EmptyState } from '@/components/ui/empty-state';
+import { ListeEkrani } from '@/components/liste-ekrani';
 
 export default function IkinciEl() {
-  return <EmptyState title="İkinci el" description="Motor, parça ve ekipman ilanları yakında burada." />;
+  return <ListeEkrani alan="ikinciEl" bos="İlk ilanı sen ver." />;
 }
