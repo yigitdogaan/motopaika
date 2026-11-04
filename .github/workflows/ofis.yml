@@ -19,10 +19,12 @@ env:
   CLAUDE_CODE_DISABLE_BACKGROUND_TASKS: "1"
   SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
   SLACK_KANAL: ofis
-  ARACLAR: "Skill,Read,Write,Edit,MultiEdit,Glob,Grep,TodoWrite,Task,WebSearch,WebFetch,Bash(npm:*),Bash(npx:*),Bash(node:*),Bash(ls:*),Bash(cat:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(mkdir:*),Bash(cp:*),Bash(mv:*),Bash(date:*),Bash(jq:*),Bash(docker:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(gh issue:*),Bash(python3 ofis/scripts/slack.py:*)"
+  GRAPHIFY_BACKEND: none          # kod grafiği tamamen yerel; dışarı veri gitmez
+  GRAPHIFY_QUERY_LOG_DISABLE: "1"
+  ARACLAR: "Skill,Read,Write,Edit,MultiEdit,Glob,Grep,TodoWrite,Task,WebSearch,WebFetch,Bash(npm:*),Bash(npx:*),Bash(node:*),Bash(ls:*),Bash(cat:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(mkdir:*),Bash(cp:*),Bash(mv:*),Bash(date:*),Bash(jq:*),Bash(docker:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(gh issue:*),Bash(python3 ofis/scripts/slack.py:*),Bash(graphify:*)"
   # Değişiklikleri yamaya çevirir (node_modules vb. hariç): bash -c "$YAMA" <dosya>
   YAMA: |
-    git add -A -- . ':!.github' ':!**/node_modules' ':!**/.expo' ':!**/dist' ':!**/web-build' ':!**/coverage' ':!**/test-results' ':!**/playwright-report'
+    git add -A -- . ':!.github' ':!**/node_modules' ':!**/.expo' ':!**/dist' ':!**/web-build' ':!**/coverage' ':!**/test-results' ':!**/playwright-report' ':!**/graphify-out'
     git diff --cached --binary HEAD > "$0"
     echo "yama: $0 ($(wc -c < "$0") bayt)"
   # Klasördeki yamaları sırayla uygular ve her birini yerel commit yapar
@@ -48,7 +50,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
-      - run: npm install -g @anthropic-ai/claude-code
+      - run: npm install -g @anthropic-ai/claude-code && pipx install graphifyy >/dev/null 2>&1 || pip install --user graphifyy
       - name: Arda (CEO) turu planlıyor
         run: |
           claude -p "ofis/prompts/planla.md dosyasını oku ve eksiksiz uygula. Tarih için 'date' kullan (İstanbul = UTC+3)." \
@@ -78,7 +80,7 @@ jobs:
       - run: bash -c "$UYGULA" /tmp/once
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
-      - run: npm install -g @anthropic-ai/claude-code
+      - run: npm install -g @anthropic-ai/claude-code && pipx install graphifyy >/dev/null 2>&1 || pip install --user graphifyy
       - name: ${{ matrix.rol }} çalışıyor
         run: |
           claude -p "ROL = ${{ matrix.rol }}. ofis/prompts/calis.md dosyasını oku ve eksiksiz uygula. Tarih için 'date' kullan (İstanbul = UTC+3)." \
@@ -105,6 +107,7 @@ jobs:
       - name: Araçlar
         run: |
           npm install -g @anthropic-ai/claude-code
+          pipx install graphifyy >/dev/null 2>&1 || pip install --user graphifyy
           npx -y playwright@latest install --with-deps chromium >/dev/null 2>&1 || echo "Playwright kurulamadı"
       - name: Melis (Test) kalite kapısı
         run: |
@@ -130,7 +133,7 @@ jobs:
       - run: bash -c "$UYGULA" /tmp/once
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
-      - run: npm install -g @anthropic-ai/claude-code
+      - run: npm install -g @anthropic-ai/claude-code && pipx install graphifyy >/dev/null 2>&1 || pip install --user graphifyy
       - name: Arda (CEO) raporluyor
         run: |
           claude -p "ofis/prompts/rapor.md dosyasını oku ve eksiksiz uygula. Tarih için 'date' kullan (İstanbul = UTC+3)." \
@@ -139,7 +142,7 @@ jobs:
         if: always()
         run: |
           git checkout -- .github 2>/dev/null || true
-          git add -A -- . ':!.github' ':!**/node_modules' ':!**/.expo' ':!**/dist' ':!**/web-build' ':!**/coverage' ':!**/test-results' ':!**/playwright-report'
+          git add -A -- . ':!.github' ':!**/node_modules' ':!**/.expo' ':!**/dist' ':!**/web-build' ':!**/coverage' ':!**/test-results' ':!**/playwright-report' ':!**/graphify-out'
           git commit -qm "rapor" --allow-empty
           git reset --soft "$GITHUB_SHA"
           git diff --cached --quiet && exit 0
