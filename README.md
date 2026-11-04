@@ -14,14 +14,14 @@ Depo herkese açıktır; issue ve yorumlarda yalnızca kurucunun yazdıkları ek
  Her gün 10:00–19:00 arası, her saat başı (günde 10 tur)  ──►  OFİS TURU başlar
    1. Arda (CEO) planlar      → kim ne yapacak, PANO.md'ye yazar
    2. Çalışanlar sırayla işler → kod, tasarım, test, kurallar
-   3. Arda raporlar           → "Günlük Raporlar" issue'suna yazar, sana e-posta gelir
+   3. Arda raporlar           → Slack #ofis kanalına yazar; cevabını altına yazarsın
    4. Her şey TEK commit olarak kaydedilir
 ```
 
 | Sen ne görmek istersen | Nereye bak |
 | --- | --- |
 | Projenin genel durumu, ilerleme yüzdeleri | [PANO.md](PANO.md) |
-| Her turun raporu | Issues → **📋 Günlük Raporlar** |
+| Her turun raporu (cevap da verebilirsin) | Slack → **#ofis** kanalı (arşivi: Issues → **📋 Günlük Raporlar**) |
 | Ekibin senden istedikleri / senin talimatların | Issues → **🪑 Kurucu Masası** |
 | Ekip kim, ne yapıyor | [ofis/roller](ofis/roller) |
 | Verilen kararlar | [ofis/durum/kararlar.md](ofis/durum/kararlar.md) |
@@ -29,7 +29,7 @@ Depo herkese açıktır; issue ve yorumlarda yalnızca kurucunun yazdıkları ek
 | Bütçe | [ofis/bilgi/butce.md](ofis/bilgi/butce.md) |
 
 ### Ekibe talimat vermek
-**🪑 Kurucu Masası** issue'suna yorum yaz. Bir sonraki turda CEO okur ve uygular. Sadece senin (yigitdogaan) yorumların talimat sayılır.
+Slack'te **#ofis** kanalına yaz ya da bir raporun altına cevap ver. Alternatif: **🪑 Kurucu Masası** issue'suna yorum yaz. Bir sonraki turda CEO okur ve uygular. Sadece senin (yigitdogaan) yorumların talimat sayılır.
 
 ### Turu hemen başlatmak
 Actions → **Motopaika Ofis** → **Run workflow**.

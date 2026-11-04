@@ -9,8 +9,11 @@
    - **Ekip** tablosu: Kişi | Rol | Bu tur yaptığı
    - **Senden istenen** (en fazla 3 madde; yoksa "Yok") — her birinde ekibin varsayılan seçeneği yazsın
    - **Kalite**: test/lint/tip kontrolü sonuçları tek satır
-3. Günlük Raporlar issue'suna yorum yaz (`gh issue comment <ayarlar.gunluk_raporlar> --body-file <dosya>`).
-   Rapor PANO'nun kısa hali olsun (en fazla 25 satır) ve ilk satırı `@yigitdogaan Tur <NN> raporu` olsun.
-4. "Senden istenen" maddeleri varsa aynı maddeleri Kurucu Masası issue'suna da tek yorum olarak yaz.
+3. Raporu Slack'e gönder: kısa raporu bir dosyaya yaz (en fazla 20 satır, Slack biçimi: *kalın*, • madde) ve
+   `python3 ofis/scripts/slack.py post ceo <dosya>` çalıştır. İlk satır: `*Tur <NN> raporu* — <bir cümlelik durum>`.
+   Sonunda "Senden istenen" maddeleri (varsa, her biri varsayılan seçeneğiyle) ve şu satır olsun:
+   `_Cevabını bu mesajın altına yazabilirsin; bir sonraki turda okunur._`
+4. Aynı raporu arşiv için Günlük Raporlar issue'suna da yorum olarak ekle (`gh issue comment <ayarlar.gunluk_raporlar> --body-file <dosya>`);
+   burada kimseyi etiketleme. Slack gönderimi hata verdiyse issue'ya `@yigitdogaan` etiketiyle yaz.
 5. `kararlar.md`'ye bu turun önemli kararlarını ekle (tarih | kim | karar | gerekçe).
 6. `ofis/durum/ekip.json` içinde herkesi `"bosta"` yap, `bu-tur.json`'u `[]` yap.
