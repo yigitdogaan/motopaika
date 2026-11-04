@@ -2,7 +2,7 @@ name: Motopaika Ofis
 
 on:
   schedule:
-    - cron: "47 17 * * *"   # her gün 20:47 İstanbul
+    - cron: "0 7-16 * * *"   # her gün 10:00-19:00 İstanbul, saat başı (10 tur)
   workflow_dispatch:
 
 permissions:
@@ -16,7 +16,7 @@ concurrency:
 jobs:
   tur:
     runs-on: ubuntu-latest
-    timeout-minutes: 150
+    timeout-minutes: 58
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -37,24 +37,24 @@ jobs:
 
       - name: Arda (CEO) turu planlıyor
         run: |
-          timeout 25m claude -p "ofis/prompts/planla.md dosyasını oku ve eksiksiz uygula. Tarih için 'date' kullan (İstanbul = UTC+3)." \
-            --model sonnet --max-turns 60 --allowedTools "$ARACLAR" || echo "::warning::Planlama tamamlanamadı"
+          timeout 6m claude -p "ofis/prompts/planla.md dosyasını oku ve eksiksiz uygula. Tarih için 'date' kullan (İstanbul = UTC+3)." \
+            --model sonnet --max-turns 30 --allowedTools "$ARACLAR" || echo "::warning::Planlama tamamlanamadı"
 
       - name: Ekip çalışıyor
         run: |
           for rol in $(jq -r '.[]' ofis/durum/bu-tur.json 2>/dev/null); do
             [ -f "ofis/roller/$rol.md" ] || { echo "::warning::$rol rol dosyası yok, atlandı"; continue; }
             echo "::group::$rol"
-            timeout 35m claude -p "ROL = $rol. ofis/prompts/calis.md dosyasını oku ve eksiksiz uygula. Tarih için 'date' kullan (İstanbul = UTC+3)." \
-              --model sonnet --max-turns 150 --allowedTools "$ARACLAR" || echo "::warning::$rol tamamlanamadı"
+            timeout 9m claude -p "ROL = $rol. ofis/prompts/calis.md dosyasını oku ve eksiksiz uygula. Tarih için 'date' kullan (İstanbul = UTC+3)." \
+              --model sonnet --max-turns 80 --allowedTools "$ARACLAR" || echo "::warning::$rol tamamlanamadı"
             echo "::endgroup::"
           done
 
       - name: Arda (CEO) raporluyor
         if: always()
         run: |
-          timeout 20m claude -p "ofis/prompts/rapor.md dosyasını oku ve eksiksiz uygula. Tarih için 'date' kullan (İstanbul = UTC+3)." \
-            --model sonnet --max-turns 60 --allowedTools "$ARACLAR" || echo "::warning::Rapor tamamlanamadı"
+          timeout 5m claude -p "ofis/prompts/rapor.md dosyasını oku ve eksiksiz uygula. Tarih için 'date' kullan (İstanbul = UTC+3)." \
+            --model sonnet --max-turns 30 --allowedTools "$ARACLAR" || echo "::warning::Rapor tamamlanamadı"
 
       - name: Kaydet (tek commit)
         if: always()
