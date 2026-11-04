@@ -19,6 +19,7 @@ env:
   CLAUDE_CODE_DISABLE_BACKGROUND_TASKS: "1"
   SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
   SLACK_KANAL: ofis
+  EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
   GRAPHIFY_BACKEND: none          # kod grafiği tamamen yerel; dışarı veri gitmez
   GRAPHIFY_QUERY_LOG_DISABLE: "1"
   ARACLAR: "Skill,Read,Write,Edit,MultiEdit,Glob,Grep,TodoWrite,Task,WebSearch,WebFetch,Bash(npm:*),Bash(npx:*),Bash(node:*),Bash(ls:*),Bash(cat:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(mkdir:*),Bash(cp:*),Bash(mv:*),Bash(date:*),Bash(jq:*),Bash(docker:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(gh issue:*),Bash(python3 ofis/scripts/slack.py:*),Bash(graphify:*)"
@@ -138,6 +139,18 @@ jobs:
         run: |
           claude -p "ofis/prompts/rapor.md dosyasını oku ve eksiksiz uygula. Tarih için 'date' kullan (İstanbul = UTC+3)." \
             --model sonnet --max-turns 60 --allowedTools "$ARACLAR" || echo "::warning::Rapor tamamlanamadı"
+      - name: Telefona yayınla (Expo Go önizlemesi)
+        if: always() && env.EXPO_TOKEN != ''
+        working-directory: app
+        run: |
+          [ -f package.json ] || { echo "app/ yok, atlandı"; exit 0; }
+          P=f4de9c95-58f1-45ab-8ed5-33e34754da24
+          jq --arg p "$P" '.expo.owner="yigitdogan29" | .expo.slug="motopaika" | .expo.extra.eas.projectId=$p
+            | .expo.runtimeVersion={"policy":"sdkVersion"} | .expo.updates.url=("https://u.expo.dev/"+$p)' app.json > /tmp/a.json && mv /tmp/a.json app.json
+          npm install --no-audit --no-fund >/dev/null 2>&1 || npm install
+          grep -q '"expo-updates"' package.json || npx expo install expo-updates
+          TUR=$(jq -r '.tur' ../ofis/durum/ayarlar.json 2>/dev/null || echo "?")
+          npx -y eas-cli@latest update --branch onizleme --message "Tur $TUR" --non-interactive || echo "::warning::Expo önizlemesi yayınlanamadı"
       - name: Kaydet (tek commit)
         if: always()
         run: |
