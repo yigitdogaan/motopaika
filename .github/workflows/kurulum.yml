@@ -1,0 +1,88 @@
+name: Ofis Kurulumu (tek seferlik)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  kur:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ofis dosyalarını paketten çıkar
+        run: |
+          if [ -f ofis-paketi.b64 ]; then
+            base64 -d ofis-paketi.b64 | tar xz
+            rm ofis-paketi.b64
+          fi
+
+      - name: Becerileri indir ve .claude/skills altına kur
+        run: |
+          set -e
+          mkdir -p .claude/skills /tmp/src
+          echo "| Beceri | Kaynak | Ne işe yarar |" > /tmp/liste.md
+          echo "| --- | --- | --- |" >> /tmp/liste.md
+          kur () {  # $1 = repo, kalanlar = istenen beceri adları (* = hepsi; kısmi eşleşme)
+            repo="$1"; shift
+            dir="/tmp/src/${repo//\//_}"
+            git clone --depth 1 "https://github.com/$repo" "$dir" >/dev/null 2>&1 || { echo "UYARI: $repo indirilemedi"; return 0; }
+            find "$dir" -name SKILL.md -not -path '*/node_modules/*' | while read -r f; do
+              d=$(dirname "$f"); ad=$(basename "$d")
+              ok=0
+              for w in "$@"; do
+                if [ "$w" = "*" ] || [[ "$ad" == *"$w"* ]]; then ok=1; fi
+              done
+              [ $ok = 1 ] || continue
+              [ -e ".claude/skills/$ad" ] && continue
+              cp -r "$d" ".claude/skills/$ad"
+              acik=$(awk '/^description:/{sub(/^description:[ ]*/,""); gsub(/\|/,"/"); print; exit}' "$f" | cut -c1-160)
+              echo "| \`$ad\` | [$repo](https://github.com/$repo) | $acik |" >> /tmp/liste.md
+            done
+          }
+          kur expo/skills '*'
+          kur supabase/agent-skills '*'
+          kur vercel-labs/agent-skills react-native composition-patterns web-design-guidelines
+          kur obra/superpowers brainstorming writing-plans executing-plans test-driven-development systematic-debugging verification-before-completion requesting-code-review receiving-code-review
+          kur mattpocock/skills handoff
+          kur anthropics/skills frontend-design
+          kur forrestchang/andrej-karpathy-skills '*'
+          {
+            echo "# Beceriler (Claude skills)"
+            echo
+            echo "Ajanların kullandığı hazır beceriler. \`.claude/skills/\` klasöründe durur, her turda otomatik yüklenir."
+            echo "Kurulum tarihi: $(TZ=Europe/Istanbul date '+%d.%m.%Y %H:%M'). Güncellemek için **Ofis Kurulumu** iş akışını tekrar çalıştır."
+            echo
+            cat /tmp/liste.md
+          } > BECERILER.md
+          echo "Kurulan beceri sayısı: $(ls .claude/skills | wc -l)"
+
+      - name: Kurucu Masası ve Günlük Raporlar issue'larını aç
+        run: |
+          set -e
+          A=ofis/durum/ayarlar.json
+          if [ "$(jq -r '.kurucu_masasi' $A)" = "null" ]; then
+            gh label create ofis --color F25C05 --description "Yapay zekâ ofisi" 2>/dev/null || true
+            printf '%s\n' "Bu issue ekiple konuşma kanalın." "" "- **Talimat vermek için** buraya yorum yaz. Her tur başında CEO (Arda) okur ve uygular." "- Sadece @yigitdogaan yorumları talimat sayılır." "- Ekip senden bir karar istediğinde de buraya yazar." "- Yeni işe alım önerileri burada sorulur; onaylamak için \"onaylıyorum\" yazman yeterli." > /tmp/masa.md
+            k=$(gh issue create --label ofis --title "🪑 Kurucu Masası" --body-file /tmp/masa.md | grep -o '[0-9]*$')
+            r=$(gh issue create --label ofis --title "📋 Günlük Raporlar" --body "Her ofis turunun sonunda CEO buraya rapor yazar. Ayrıntılı durum için depodaki PANO.md dosyasına bak." | grep -o '[0-9]*$')
+            gh issue pin "$k" || true
+            gh issue pin "$r" || true
+            jq --argjson k "$k" --argjson r "$r" '.kurucu_masasi=$k | .gunluk_raporlar=$r' $A > /tmp/a.json && mv /tmp/a.json $A
+          fi
+          cat $A
+
+      - name: Kaydet
+        run: |
+          git config user.name "motopaika-ofis"
+          git config user.email "235531527+yigitdogaan@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m "Ofis kurulumu: beceriler ve iletişim kanalları"
+          git push
