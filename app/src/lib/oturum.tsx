@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import { motorGecerli } from './dogrulama';
+import { supabase } from './supabase';
 
 export type Motor = { id: string; marka: string; model: string };
 type Kullanici = { id: string; ad: string; sehir: string };
@@ -13,6 +14,8 @@ const DEMO: Kullanici = { id: 'demo', ad: 'demo_surucu', sehir: 'İstanbul' };
 type Baglam = Kayit & {
   hazir: boolean;
   girisYap: () => void;
+  epostaGiris: (eposta: string, sifre: string) => Promise<string | null>;
+  kayitOl: (eposta: string, sifre: string, kullaniciAdi: string) => Promise<string | null>;
   cikisYap: () => void;
   motorEkle: (marka: string, model: string) => boolean;
   motorSil: (id: string) => void;
@@ -28,10 +31,44 @@ export function OturumSaglayici({ children }: { children: ReactNode }) {
   useEffect(() => {
     AsyncStorage.getItem(ANAHTAR)
       .then((s) => {
-        if (s) setDurum(JSON.parse(s) as Kayit);
+        if (s) {
+          const k = JSON.parse(s) as Kayit;
+          setDurum(supabase ? { ...k, kullanici: null } : k);
+        }
       })
       .catch(() => {})
-      .finally(() => setHazir(true));
+      .finally(() => {
+        if (!supabase) setHazir(true);
+      });
+  }, []);
+
+  // Gerçek oturum (Supabase yapılandırıldıysa): oturum değişince profili yükle / yoksa oluştur.
+  useEffect(() => {
+    if (!supabase) return;
+    const db = supabase;
+    const yukle = async (u: { id: string; user_metadata?: Record<string, unknown> } | null) => {
+      if (!u) {
+        setDurum((d) => ({ ...d, kullanici: null }));
+        setHazir(true);
+        return;
+      }
+      let { data: p } = await db.from('profiles').select('username, display_name').eq('id', u.id).maybeSingle();
+      if (!p) {
+        const ad = String(u.user_metadata?.username ?? `surucu_${u.id.slice(0, 6)}`);
+        const { data } = await db.from('profiles').insert({ id: u.id, username: ad }).select('username, display_name').single();
+        p = data;
+      }
+      setDurum((d) => ({
+        ...d,
+        kullanici: { id: u.id, ad: p?.display_name ?? p?.username ?? 'Sürücü', sehir: '' },
+      }));
+      setHazir(true);
+    };
+    db.auth.getSession().then(({ data }) => yukle(data.session?.user ?? null));
+    const { data: abone } = db.auth.onAuthStateChange((_olay, oturum) => {
+      setTimeout(() => yukle(oturum?.user ?? null), 0);
+    });
+    return () => abone.subscription.unsubscribe();
   }, []);
 
   const guncelle = useCallback((fn: (d: Kayit) => Kayit) => {
@@ -47,7 +84,25 @@ export function OturumSaglayici({ children }: { children: ReactNode }) {
       ...durum,
       hazir,
       girisYap: () => guncelle((d) => ({ ...d, kullanici: DEMO })),
-      cikisYap: () => guncelle((d) => ({ ...d, kullanici: null })),
+      cikisYap: () => {
+        if (supabase) supabase.auth.signOut();
+        else guncelle((d) => ({ ...d, kullanici: null }));
+      },
+      epostaGiris: async (eposta, sifre) => {
+        if (!supabase) return 'Supabase yapılandırılmamış.';
+        const { error } = await supabase.auth.signInWithPassword({ email: eposta.trim(), password: sifre });
+        return error ? error.message : null;
+      },
+      kayitOl: async (eposta, sifre, kullaniciAdi) => {
+        if (!supabase) return 'Supabase yapılandırılmamış.';
+        const { data, error } = await supabase.auth.signUp({
+          email: eposta.trim(),
+          password: sifre,
+          options: { data: { username: kullaniciAdi.trim() } },
+        });
+        if (error) return error.message;
+        return data.session ? null : 'Kayıt oldu. E-postana gelen doğrulama bağlantısına tıkla, sonra giriş yap.';
+      },
       motorEkle: (marka, model) => {
         if (!motorGecerli(marka, model)) return false;
         const motor = { id: String(Date.now()), marka: marka.trim(), model: model.trim() };
