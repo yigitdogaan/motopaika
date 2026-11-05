@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
 
+import { AcilisKatmani } from '@/components/acilis-ekrani';
 import { AkisSaglayici } from '@/lib/akis';
 import { BildirimSaglayici } from '@/lib/bildirim';
 import { pushDinleyicileriKur, pushKaydet } from '@/lib/push';
@@ -17,8 +18,9 @@ function Rotalar() {
     pushKaydet();
     return pushDinleyicileriKur((yol) => router.push(yol as never));
   }, [kullanici, router]);
-  if (!hazir) return null;
   return (
+    <>
+    {hazir ? (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={!!kullanici}>
         <Stack.Screen name="(tabs)" />
@@ -40,6 +42,9 @@ function Rotalar() {
         <Stack.Screen name="giris" options={{ animation: 'fade' }} />
       </Stack.Protected>
     </Stack>
+    ) : null}
+    <AcilisKatmani hazir={hazir} />
+    </>
   );
 }
 

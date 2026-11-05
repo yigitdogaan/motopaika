@@ -23,6 +23,7 @@ const opts = {
   format: 'esm', target: 'es2022', jsx: 'automatic', define, loader: { '.css': 'css' }, logLevel: 'info',
 };
 copyFileSync('index.html', 'dist/index.html');
+for (const f of ['favicon.svg', 'favicon-48.png']) if (existsSync(f)) copyFileSync(f, `dist/${f}`);
 
 if (serve) {
   const ctx = await context(opts);
