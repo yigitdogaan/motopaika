@@ -55,7 +55,8 @@ export function OturumSaglayici({ children }: { children: ReactNode }) {
       let { data: p } = await db.from('profiles').select('username, display_name').eq('id', u.id).maybeSingle();
       if (!p) {
         const ad = String(u.user_metadata?.username ?? `surucu_${u.id.slice(0, 6)}`);
-        const { data } = await db.from('profiles').insert({ id: u.id, username: ad }).select('username, display_name').single();
+        const gorunen = String(u.user_metadata?.full_name ?? u.user_metadata?.name ?? '').trim();
+        const { data } = await db.from('profiles').insert({ id: u.id, username: ad, display_name: gorunen || null }).select('username, display_name').single();
         p = data;
       }
       setDurum((d) => ({
