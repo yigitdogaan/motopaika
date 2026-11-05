@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Easing, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Animated, Easing, Keyboard, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, Line, RadialGradient, Rect, Stop } from 'react-native-svg';
 
@@ -98,7 +98,7 @@ function SosyalDugme({ saglayici, mesgul, onPress }: { saglayici: Saglayici; mes
         pressed && { opacity: 0.8 },
       ]}>
       {apple ? <AppleLogo boyut={20} renk="#000000" /> : <GoogleG boyut={20} />}
-      <Text style={[styles.sosyalYazi, { color: apple ? '#000000' : c.text }]}>{apple ? 'Apple ile devam et' : 'Google ile devam et'}</Text>
+      <Text style={[styles.sosyalYazi, { color: apple ? '#000000' : c.text }]}>{apple ? 'Apple' : 'Google'}</Text>
     </Pressable>
   );
 }
@@ -116,6 +116,12 @@ export default function Giris() {
   const [kod, setKod] = useState('');
   const [mesaj, setMesaj] = useState<{ yazi: string; iyi?: boolean } | null>(null);
   const [mesgul, setMesgul] = useState(false);
+  const [klavye, setKlavye] = useState(false);
+  useEffect(() => {
+    const a = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () => setKlavye(true));
+    const b = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () => setKlavye(false));
+    return () => { a.remove(); b.remove(); };
+  }, []);
 
   // Giriş animasyonu (JS sürücüsü: Android'de native-driver sorunlarından kaçınmak için)
   const anim = useRef(new Animated.Value(0)).current;
@@ -171,31 +177,37 @@ export default function Giris() {
     if (hata) setMesaj({ yazi: hata });
   };
 
-  const hero = Math.max(260, Math.min(340, height * 0.36));
+  const kucuk = height < 740;
   const kayitMi = mod === 'kayit';
   const sifreMod = mod === 'sifre-eposta' || mod === 'sifre-kod';
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={[styles.kap, { backgroundColor: c.bg }]}>
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} bounces={false}>
-        {/* HERO */}
-        <View style={{ height: hero + insets.top, paddingTop: insets.top }}>
-          <Arkaplan en={width} boy={hero + insets.top} />
+      <View style={styles.scroll}>
+        {/* HERO: kalan alanı doldurur; klavye açılınca yalnız logo kalır */}
+        <View style={{ flex: 1, minHeight: 0, paddingTop: insets.top, overflow: 'hidden' }}>
+          <Arkaplan en={width} boy={height} />
           <Animated.View
             style={[styles.heroIc, { opacity: anim, transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) }] }]}>
-            <RoteriLogo yukseklik={30} renk={c.text} />
-            <Text style={[styles.slogan, { color: c.text, fontFamily: fontSerif }]}>
-              Yolda yalnız{'\n'}değilsin<Text style={{ color: c.primary }}>.</Text>
-            </Text>
-            <Text style={[styles.altSlogan, { color: c.textMuted }]}>Türkiye'nin motosiklet topluluğuna katıl.</Text>
-            <View style={styles.ozellikler}>
-              {OZELLIKLER.map((o) => (
-                <View key={o.yazi} style={[styles.ozellik, { backgroundColor: c.surface, borderColor: c.border }]}>
-                  <Ikon ad={o.ikon} boyut={14} renk={c.primary} />
-                  <Text style={[styles.ozellikYazi, { color: c.text }]}>{o.yazi}</Text>
-                </View>
-              ))}
-            </View>
+            <RoteriLogo yukseklik={klavye ? 22 : 30} renk={c.text} />
+            {!klavye ? (
+              <>
+                <Text style={[styles.slogan, { color: c.text, fontFamily: fontSerif, fontSize: kucuk ? 30 : 38, lineHeight: kucuk ? 36 : 44 }]}>
+                  Yolda yalnız{'\n'}değilsin<Text style={{ color: c.primary }}>.</Text>
+                </Text>
+                {!kucuk ? <Text style={[styles.altSlogan, { color: c.textMuted }]}>Türkiye'nin motosiklet topluluğuna katıl.</Text> : null}
+                {!kucuk ? (
+                  <View style={styles.ozellikler}>
+                    {OZELLIKLER.map((o) => (
+                      <View key={o.yazi} style={[styles.ozellik, { backgroundColor: c.surface, borderColor: c.border }]}>
+                        <Ikon ad={o.ikon} boyut={14} renk={c.primary} />
+                        <Text style={[styles.ozellikYazi, { color: c.text }]}>{o.yazi}</Text>
+                      </View>
+                    ))}
+                  </View>
+                ) : null}
+              </>
+            ) : null}
           </Animated.View>
         </View>
 
@@ -203,7 +215,7 @@ export default function Giris() {
         <Animated.View
           style={[
             styles.kart,
-            { backgroundColor: c.surface, borderColor: c.border, paddingBottom: insets.bottom + spacing.xl, opacity: anim, transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [40, 0] }) }] },
+            { backgroundColor: c.surface, borderColor: c.border, paddingBottom: insets.bottom + spacing.lg, opacity: anim, transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [40, 0] }) }] },
           ]}>
           <View style={[styles.tutamac, { backgroundColor: c.border }]} />
 
@@ -237,7 +249,7 @@ export default function Giris() {
               </Pressable>
             </View>
           ) : (
-            <View style={{ gap: spacing.md }}>
+            <View style={{ gap: 10 }}>
               <View style={[styles.sekmeler, { backgroundColor: c.surfaceAlt }]} accessibilityRole="tablist">
                 {(['giris', 'kayit'] as const).map((m) => {
                   const secili = mod === m;
@@ -249,8 +261,10 @@ export default function Giris() {
                 })}
               </View>
 
-              <SosyalDugme saglayici="apple" mesgul={mesgul} onPress={() => sosyal('apple')} />
-              <SosyalDugme saglayici="google" mesgul={mesgul} onPress={() => sosyal('google')} />
+              <View style={styles.sosyalSatir}>
+                <SosyalDugme saglayici="apple" mesgul={mesgul} onPress={() => sosyal('apple')} />
+                <SosyalDugme saglayici="google" mesgul={mesgul} onPress={() => sosyal('google')} />
+              </View>
 
               <View style={styles.ayirac}>
                 <View style={[styles.cizgi, { backgroundColor: c.border }]} />
@@ -272,11 +286,11 @@ export default function Giris() {
               {mesaj ? <Mesaj m={mesaj} /> : null}
               <Birincil etiket={kayitMi ? 'Hesap oluştur' : 'Giriş yap'} mesgul={mesgul} pasif={!girisGecerli} onPress={gonder} />
 
-              <Text style={[styles.yasal, { color: c.textMuted }]}>Devam ederek Kullanım Koşulları'nı ve Gizlilik Politikası'nı kabul etmiş olursun.</Text>
+              {!klavye ? <Text style={[styles.yasal, { color: c.textMuted }]}>Devam ederek Kullanım Koşulları'nı ve Gizlilik Politikası'nı kabul etmiş olursun.</Text> : null}
             </View>
           )}
         </Animated.View>
-      </ScrollView>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -308,26 +322,27 @@ function Birincil({ etiket, mesgul, pasif, onPress }: { etiket: string; mesgul: 
 
 const styles = StyleSheet.create({
   kap: { flex: 1 },
-  scroll: { flexGrow: 1 },
+  scroll: { flex: 1 },
   heroIc: { flex: 1, paddingHorizontal: spacing.xl, paddingTop: spacing.lg, gap: spacing.md },
   slogan: { fontSize: 38, lineHeight: 44, fontWeight: '800', marginTop: spacing.lg, letterSpacing: -0.5 },
   altSlogan: { fontSize: 15, lineHeight: 21 },
   ozellikler: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xs },
   ozellik: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 6, borderRadius: radius.full, borderWidth: 1 },
   ozellikYazi: { fontSize: 12.5, fontWeight: '700' },
-  kart: { flex: 1, borderTopLeftRadius: radius.xl + 4, borderTopRightRadius: radius.xl + 4, borderWidth: 1, borderBottomWidth: 0, paddingHorizontal: spacing.xl, paddingTop: spacing.md },
-  tutamac: { alignSelf: 'center', width: 38, height: 4, borderRadius: 2, marginBottom: spacing.lg },
+  kart: { borderTopLeftRadius: radius.xl + 4, borderTopRightRadius: radius.xl + 4, borderWidth: 1, borderBottomWidth: 0, paddingHorizontal: spacing.xl, paddingTop: spacing.sm },
+  tutamac: { alignSelf: 'center', width: 38, height: 4, borderRadius: 2, marginBottom: spacing.md },
   baslik: { fontSize: 22, fontWeight: '800' },
   aciklama: { fontSize: 14, lineHeight: 20 },
   sekmeler: { flexDirection: 'row', padding: 4, borderRadius: radius.md + 2 },
-  sekme: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 11, borderRadius: radius.md - 2 },
+  sekme: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 9, borderRadius: radius.md - 2 },
   sekmeYazi: { fontSize: 14.5, fontWeight: '800' },
-  sosyal: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, height: 52, borderRadius: radius.md, borderWidth: 1 },
+  sosyal: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, height: 48, borderRadius: radius.md, borderWidth: 1 },
   sosyalYazi: { fontSize: 15.5, fontWeight: '700' },
+  sosyalSatir: { flexDirection: 'row', gap: spacing.md },
   ayirac: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginVertical: 2 },
   cizgi: { flex: 1, height: StyleSheet.hairlineWidth },
   ayiracYazi: { fontSize: 12.5, fontWeight: '600' },
-  alan: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 52, borderRadius: radius.md, borderWidth: 1.5, paddingHorizontal: spacing.md },
+  alan: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 48, borderRadius: radius.md, borderWidth: 1.5, paddingHorizontal: spacing.md },
   girdi: { flex: 1, fontSize: 16, height: '100%' },
   ipucu: { fontSize: 12, marginTop: -6 },
   sifreUnuttum: { alignSelf: 'flex-end', marginTop: -4, paddingVertical: 2 },
@@ -335,7 +350,7 @@ const styles = StyleSheet.create({
   baglantiYazi: { fontSize: 13.5, fontWeight: '700' },
   mesaj: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, borderWidth: 1, borderRadius: radius.md, padding: spacing.md },
   mesajYazi: { flex: 1, fontSize: 13.5, lineHeight: 19 },
-  birincil: { height: 52, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
+  birincil: { height: 50, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
   birincilYazi: { fontSize: 16.5, fontWeight: '800' },
   yasal: { fontSize: 11.5, lineHeight: 16, textAlign: 'center', marginTop: spacing.xs },
 });
