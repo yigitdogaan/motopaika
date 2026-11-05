@@ -1,5 +1,6 @@
 import { avatarAdresi } from './profil';
 import { supabase } from './supabase';
+import { hizUyarisi } from './yonetim';
 
 export type MesajTuru = 'text' | 'image' | 'location';
 export type Oda = {
@@ -27,13 +28,24 @@ type MesajSatir = {
   profiles: { username: string; display_name: string | null } | null;
 };
 const MESAJ_ALANLARI = 'id, sender_id, body, created_at, kind, media_path, lat, lng, profiles(username, display_name)';
-const medyaAdresi = (yol: string | null) => (yol && supabase ? supabase.storage.from('chat-media').getPublicUrl(yol).data.publicUrl : undefined);
+/** chat-media özel kovadır: fotoğraflar 1 saatlik imzalı adreslerle gösterilir. */
+async function imzaliAdresler(yollar: string[]): Promise<Map<string, string>> {
+  const harita = new Map<string, string>();
+  if (!supabase || !yollar.length) return harita;
+  const { data } = await supabase.storage.from('chat-media').createSignedUrls([...new Set(yollar)], 3600);
+  for (const d of data ?? []) if (d.path && d.signedUrl) harita.set(d.path, d.signedUrl);
+  return harita;
+}
 
 const adi = (p: MesajSatir['profiles']) => p?.display_name ?? p?.username ?? 'Sürücü';
-const donustur = (m: MesajSatir): Mesaj => ({
+const donustur = (m: MesajSatir, adresler: Map<string, string>): Mesaj => ({
   id: m.id, yazarId: m.sender_id, yazar: adi(m.profiles), metin: m.body, zaman: m.created_at,
-  tur: m.kind ?? 'text', fotoUrl: medyaAdresi(m.media_path), enlem: m.lat ?? undefined, boylam: m.lng ?? undefined,
+  tur: m.kind ?? 'text', fotoUrl: m.media_path ? adresler.get(m.media_path) : undefined, enlem: m.lat ?? undefined, boylam: m.lng ?? undefined,
 });
+async function donusturHepsi(satirlar: MesajSatir[]): Promise<Mesaj[]> {
+  const adresler = await imzaliAdresler(satirlar.flatMap((m) => (m.media_path ? [m.media_path] : [])));
+  return satirlar.map((m) => donustur(m, adresler));
+}
 
 export async function odalarim(): Promise<Oda[]> {
   if (!supabase) return [];
@@ -119,12 +131,13 @@ export async function mesajlariGetir(odaId: string): Promise<Mesaj[]> {
     .eq('room_id', odaId)
     .order('created_at', { ascending: false })
     .limit(100);
-  return ((data ?? []) as unknown as MesajSatir[]).map(donustur);
+  return donusturHepsi((data ?? []) as unknown as MesajSatir[]);
 }
 
 export async function mesajGonder(odaId: string, kullaniciId: string, metin: string): Promise<boolean> {
   if (!supabase) return false;
   const { error } = await supabase.from('chat_messages').insert({ room_id: odaId, sender_id: kullaniciId, body: metin.trim() });
+  hizUyarisi(error);
   return !error;
 }
 
@@ -166,7 +179,7 @@ export function mesajlariDinle(odaId: string, yeni: (m: Mesaj) => void): () => v
         .select(MESAJ_ALANLARI)
         .eq('id', (p.new as { id: string }).id)
         .single();
-      if (data) yeni(donustur(data as unknown as MesajSatir));
+      if (data) yeni((await donusturHepsi([data as unknown as MesajSatir]))[0]);
     })
     .subscribe();
   return () => {

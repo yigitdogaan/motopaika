@@ -3,6 +3,7 @@ import { useRouter, type Href } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { suz } from '@/lib/moderasyon/uygula';
 import { Ikon } from '@/components/ikon';
 import { OnayKutusu } from '@/components/onay-kutusu';
 import { ZaferIsareti } from '@/components/zafer-isareti';
@@ -207,7 +208,8 @@ export function GonderiKarti({ g, detay = false }: { g: AkisGonderisi; detay?: b
             />
             <Pressable
               onPress={() => {
-                const t = yorum;
+                const t = suz(yorum.trim(), 'forum');
+                if (t === null) return;
                 setYorum('');
                 yorumEkle(g.id, t);
               }}

@@ -1,5 +1,5 @@
 import { Alert } from 'react-native';
-import { kisitUyarisi } from './yonetim';
+import { hizUyarisi, kisitUyarisi } from './yonetim';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import { ben, demoGonderiler, type Gonderi, type KategoriId } from '@/demo/akis';
@@ -280,7 +280,7 @@ export function AkisSaglayici({ children }: { children: ReactNode }) {
           has_photo: !!yol,
           photo_path: yol,
         });
-        if (yazHata && !(await kisitUyarisi())) Alert.alert('Paylaşılamadı', 'İnternet bağlantını kontrol edip tekrar dene.');
+        if (yazHata && !hizUyarisi(yazHata) && !(await kisitUyarisi())) Alert.alert('Paylaşılamadı', 'İnternet bağlantını kontrol edip tekrar dene.');
         await yenile();
         return;
       }
@@ -337,7 +337,7 @@ export function AkisSaglayici({ children }: { children: ReactNode }) {
       if (!uid) return;
       const hata = await istekGonder(id, uid);
       if (hata) {
-        if (await kisitUyarisi()) return;
+        if (hizUyarisi(hata) || (await kisitUyarisi())) return;
         Alert.alert('İstek gönderilemedi', `${hata}\n\nSupabase'de tüm migration dosyaları çalıştırıldı mı?`);
         return;
       }
@@ -417,7 +417,8 @@ export function AkisSaglayici({ children }: { children: ReactNode }) {
       const t = metin.trim();
       if (!t) return;
       if (supabase && uid) {
-        await supabase.from('post_comments').insert({ post_id: id, author_id: uid, body: t });
+        const { error: yorumHata } = await supabase.from('post_comments').insert({ post_id: id, author_id: uid, body: t });
+        if (yorumHata && !hizUyarisi(yorumHata)) await kisitUyarisi();
         await yorumlariYukle(id);
         return;
       }

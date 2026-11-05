@@ -10,6 +10,7 @@ import { Ikon } from '@/components/ikon';
 import { KonumHaritasi } from '@/components/konum-haritasi';
 import { useAkis } from '@/lib/akis';
 import { mevcutKonum } from '@/lib/konum';
+import { suz } from '@/lib/moderasyon/uygula';
 import { kisitUyarisi } from '@/lib/yonetim';
 import { useOturum } from '@/lib/oturum';
 import {
@@ -118,8 +119,10 @@ export default function Sohbet() {
   };
 
   const gonder = async () => {
-    const t = metin.trim();
-    if (!t || !id || !ben) return;
+    const ham = metin.trim();
+    if (!ham || !id || !ben) return;
+    const t = suz(ham, 'sohbet');
+    if (t === null) return;
     setMetin('');
     if (!(await mesajGonder(id, ben, t))) {
       setMetin(t);

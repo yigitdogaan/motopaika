@@ -46,3 +46,11 @@ export async function kisitUyarisi(): Promise<boolean> {
   Alert.alert(satir.kind === 'ban' ? 'Hesabın yasaklı' : 'Hesabın askıda', kisitMetni({ tur: satir.kind, neden: satir.reason, bitis: satir.ends_at }));
   return true;
 }
+
+/** Veritabanı hız sınırına takıldıysa (çok hızlı gönderim) kullanıcıya bildirir; true dönerse hata ele alındı demektir. */
+export function hizUyarisi(hata: { message?: string } | string | null | undefined): boolean {
+  const m = typeof hata === 'string' ? hata : hata?.message;
+  if (!m || !m.includes('cok hizli')) return false;
+  Alert.alert('Biraz yavaş', 'Kısa sürede çok fazla işlem yaptın. Lütfen biraz bekleyip tekrar dene.');
+  return true;
+}

@@ -11,6 +11,7 @@ import { Dugme, Hap } from '@/components/yol-ui';
 import { gonderiKategorileri, type KategoriId } from '@/demo/akis';
 import { useAkis } from '@/lib/akis';
 import { mevcutKonum, yerAdindanKonum } from '@/lib/konum';
+import { suz } from '@/lib/moderasyon/uygula';
 import { gunEtiketi, planliZamanYazi } from '@/lib/zaman';
 import { radius, spacing, useTheme } from '@/theme';
 
@@ -64,6 +65,9 @@ export default function YeniGonderi() {
 
   const paylas = async () => {
     if (!kategori || !hazir || mesgul) return;
+    const baglam = anonim && !surus ? 'notDuvari' : 'forum';
+    const temiz = suz(metin, baglam);
+    if (temiz === null) return;
     setMesgul(true);
     // Elle yazılan yer için koordinat bul: buluşma pini haritada görünsün.
     const n = nokta ?? (konum.trim() ? await yerAdindanKonum(konum.trim()) : null);
@@ -71,7 +75,7 @@ export default function YeniGonderi() {
       anonim: anonim && !surus,
       kategori,
       konum,
-      metin,
+      metin: temiz,
       surusTuru: surus ? (planli ? 'planli' : 'anlik') : undefined,
       baslangic: surus ? (planli ? baslangic.toISOString() : new Date().toISOString()) : undefined,
       fotoUri, enlem: n?.lat, boylam: n?.lng, sehir: n?.sehir });
