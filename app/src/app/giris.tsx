@@ -189,10 +189,10 @@ export default function Giris() {
           <Arkaplan en={width} boy={height} />
           <Animated.View
             style={[styles.heroIc, { opacity: anim, transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) }] }]}>
-            <RoteriLogo yukseklik={klavye ? 22 : 30} renk={c.text} />
+            <RoteriLogo yukseklik={klavye ? 30 : kucuk ? 44 : 54} renk={c.text} />
             {!klavye ? (
               <>
-                <Text style={[styles.slogan, { color: c.text, fontFamily: fontSerif, fontSize: kucuk ? 30 : 38, lineHeight: kucuk ? 36 : 44 }]}>
+                <Text style={[styles.slogan, { color: c.text, fontFamily: fontSerif, fontSize: kucuk ? 24 : 30, lineHeight: kucuk ? 30 : 36 }]}>
                   Yolda yalnız{'\n'}değilsin<Text style={{ color: c.primary }}>.</Text>
                 </Text>
                 {!kucuk ? <Text style={[styles.altSlogan, { color: c.textMuted }]}>Türkiye'nin motosiklet topluluğuna katıl.</Text> : null}
