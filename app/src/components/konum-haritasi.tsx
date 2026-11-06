@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ikon } from '@/components/ikon';
 import { Hap } from '@/components/yol-ui';
 import { konumBilgisi, mevcutKonum, type Konum } from '@/lib/konum';
-import { radius, spacing, useTheme } from '@/theme';
+import { radius, spacing, useTema, useTheme } from '@/theme';
 
 const KOYU_STIL = [
   { elementType: 'geometry', stylers: [{ color: '#1a1a1a' }] },
@@ -35,6 +35,7 @@ export function KonumHaritasi({
   onGps?: () => Promise<boolean>;
 }) {
   const c = useTheme();
+  const { koyu } = useTema();
   const insets = useSafeAreaInsets();
   const [pin, setPin] = useState<{ lat: number; lng: number } | null>(null);
   const [pinAdi, setPinAdi] = useState('');
@@ -92,8 +93,8 @@ export function KonumHaritasi({
           <MapView
             style={StyleSheet.absoluteFill}
             initialRegion={bolge}
-            userInterfaceStyle="dark"
-            customMapStyle={KOYU_STIL}
+            userInterfaceStyle={koyu ? 'dark' : 'light'}
+            customMapStyle={koyu ? KOYU_STIL : undefined}
             showsUserLocation
             showsCompass={false}
             toolbarEnabled={false}

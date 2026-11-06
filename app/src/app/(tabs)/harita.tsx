@@ -12,7 +12,7 @@ import { pasifMi, useAkis } from '@/lib/akis';
 import { planliZamanYazi } from '@/lib/zaman';
 import { odaIdBul } from '@/lib/sohbet';
 import { supabase } from '@/lib/supabase';
-import { radius, spacing, useTheme } from '@/theme';
+import { radius, spacing, useTema, useTheme } from '@/theme';
 
 // İstanbul ve çevresi başlangıç görünümü; Expo Go'da hazır react-native-maps (API anahtarı gerektirmez).
 const ISTANBUL = { latitude: 41.08, longitude: 29.2, latitudeDelta: 0.75, longitudeDelta: 0.95 };
@@ -39,6 +39,7 @@ function konumaGit(b: Bulusma) {
 /** Harita / Radar: aktif buluşma pinleri, pine dokununca detay kartı. */
 export default function Harita() {
   const c = useTheme();
+  const { koyu } = useTema();
   const router = useRouter();
   const bosluk = useAltMenuBosluk();
   const [seciliId, setSeciliId] = useState<string | null>(null);
@@ -99,8 +100,8 @@ export default function Harita() {
         <MapView
           style={StyleSheet.absoluteFill}
           initialRegion={ISTANBUL}
-          userInterfaceStyle="dark"
-          customMapStyle={KOYU_STIL}
+          userInterfaceStyle={koyu ? 'dark' : 'light'}
+          customMapStyle={koyu ? KOYU_STIL : undefined}
           showsUserLocation
           showsCompass={false}
           toolbarEnabled={false}

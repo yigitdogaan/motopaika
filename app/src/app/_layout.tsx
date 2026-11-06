@@ -1,4 +1,4 @@
-import { DarkTheme, Stack, ThemeProvider, useRouter } from 'expo-router';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
@@ -8,7 +8,7 @@ import { AkisSaglayici } from '@/lib/akis';
 import { BildirimSaglayici } from '@/lib/bildirim';
 import { pushDinleyicileriKur, pushKaydet } from '@/lib/push';
 import { OturumSaglayici, useOturum } from '@/lib/oturum';
-import { palette } from '@/theme';
+import { TemaSaglayici, useTema } from '@/theme';
 
 function Rotalar() {
   const { kullanici, hazir } = useOturum();
@@ -49,15 +49,16 @@ function Rotalar() {
   );
 }
 
-export default function RootLayout() {
-  const c = palette.dark;
+function Kok() {
+  const { koyu, renkler: c } = useTema();
+  const taban = koyu ? DarkTheme : DefaultTheme;
   const theme = {
-    ...DarkTheme,
-    colors: { ...DarkTheme.colors, primary: c.primary, background: c.bg, card: c.surface, text: c.text, border: c.border },
+    ...taban,
+    colors: { ...taban.colors, primary: c.primary, background: c.bg, card: c.surface, text: c.text, border: c.border },
   };
   return (
     <ThemeProvider value={theme}>
-      <StatusBar style="light" />
+      <StatusBar style={koyu ? 'light' : 'dark'} />
       <OturumSaglayici>
         <AkisSaglayici>
           <BildirimSaglayici>
@@ -66,5 +67,13 @@ export default function RootLayout() {
         </AkisSaglayici>
       </OturumSaglayici>
     </ThemeProvider>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <TemaSaglayici>
+      <Kok />
+    </TemaSaglayici>
   );
 }

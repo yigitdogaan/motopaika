@@ -31,7 +31,7 @@ export const palette = {
     info: '#4DA3FF',
   },
   light: {
-    primary: '#F25C05',
+    primary: '#C28600',
     onPrimary: '#16181D',
     onAccent: '#FFFFFF',
     header: '#1E3731',

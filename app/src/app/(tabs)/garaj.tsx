@@ -74,6 +74,7 @@ export default function Garaj() {
 
 function DemoGaraj() {
   const c = useTheme();
+  const router = useRouter();
   const bosluk = useAltMenuBosluk();
   const [ustD, setUstD] = useState(110);
   const { gonderiler } = useAkis();
@@ -102,7 +103,19 @@ function DemoGaraj() {
 
   return (
     <View style={[styles.ekran, { backgroundColor: c.bg }]}>
-      <EkranUstu baslik="Profil ve Garaj" onYukseklik={setUstD} />
+      <EkranUstu
+        baslik="Profil ve Garaj"
+        onYukseklik={setUstD}
+        sol={
+          <Pressable
+            onPress={() => router.push('/ayarlar' as Href)}
+            accessibilityRole="button"
+            accessibilityLabel="Ayarlar"
+            style={{ width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: c.border, backgroundColor: c.surface, alignItems: 'center', justifyContent: 'center' }}>
+            <Ikon ad="ayarlar" boyut={20} renk={c.text} />
+          </Pressable>
+        }
+      />
       <ScrollView contentContainerStyle={[styles.icerik, { paddingTop: ustD + spacing.sm, paddingBottom: bosluk }]} keyboardShouldPersistTaps="handled">
         <View style={styles.profil}>
           <View style={[styles.avatar, { borderColor: c.primary, backgroundColor: c.surface }]}>

@@ -17,7 +17,7 @@ import {
   fotoMesajiGonder, istekYanitla, konumMesajiGonder, mesajGonder, mesajlariDinle, mesajlariGetir, odaBilgisi, odaUyeleri, okunduYap,
   sahipIstekleri, type Mesaj, type OdaUye, type SahipIstek,
 } from '@/lib/sohbet';
-import { radius, spacing, useTheme } from '@/theme';
+import { radius, spacing, useTema, useTheme } from '@/theme';
 
 const saatYazi = (iso: string) => new Date(iso).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
 const haritadaAc = (lat: number, lng: number) => Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`);
@@ -40,6 +40,7 @@ function Avatar({ ad, url, boyut = 40, grup = false }: { ad: string; url?: strin
 /** Sohbet: birebir ya da grup. Üstte kişi/grup bilgisi, mesajlarda metin, fotoğraf ve konum. */
 export default function Sohbet() {
   const c = useTheme();
+  const { koyu } = useTema();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { kullanici } = useOturum();
@@ -274,7 +275,7 @@ export default function Sohbet() {
                         pitchEnabled={false}
                         rotateEnabled={false}
                         toolbarEnabled={false}
-                        userInterfaceStyle="dark">
+                        userInterfaceStyle={koyu ? 'dark' : 'light'}>
                         <Marker coordinate={{ latitude: m.enlem, longitude: m.boylam }} pinColor={c.primary} />
                       </MapView>
                     </View>

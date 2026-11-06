@@ -17,7 +17,7 @@ import { engelle } from '@/lib/profil';
 import { PUSH_AYAR, pushAc, pushKapat } from '@/lib/push';
 import { hesabiSil } from '@/lib/sifre';
 import { supabase } from '@/lib/supabase';
-import { radius, spacing, useTheme } from '@/theme';
+import { radius, spacing, useTema, useTheme, type TemaTercihi } from '@/theme';
 
 const KURALLAR = [
   'Saygılı ol: hakaret, nefret söylemi ve tehdit yasaktır.',
@@ -80,6 +80,61 @@ function AltSayfa({ gorunur, baslik, onKapat, children }: { gorunur: boolean; ba
         </View>
       </View>
     </Modal>
+  );
+}
+
+const TEMA_SECENEKLERI: { id: TemaTercihi; ad: string; aciklama: string }[] = [
+  { id: 'koyu', ad: 'Koyu', aciklama: 'Siyah zemin' },
+  { id: 'acik', ad: 'Açık', aciklama: 'Beyaz zemin' },
+  { id: 'sistem', ad: 'Sistem', aciklama: 'Cihazı izle' },
+];
+
+/** Küçük ekran önizlemesi: seçeneğin nasıl görüneceğini gösterir. */
+function TemaOnizleme({ id }: { id: TemaTercihi }) {
+  const c = useTheme();
+  const yuz = (zemin: string, kart: string, cizgi: string) => (
+    <View style={{ flex: 1, backgroundColor: zemin, padding: 6, gap: 4 }}>
+      <View style={{ height: 5, width: '55%', borderRadius: 3, backgroundColor: c.primary }} />
+      <View style={{ height: 14, borderRadius: 4, backgroundColor: kart }} />
+      <View style={{ height: 4, width: '80%', borderRadius: 2, backgroundColor: cizgi }} />
+    </View>
+  );
+  const koyu = yuz('#121212', '#2A2A2A', '#555555');
+  const acik = yuz('#FFFFFF', '#E8EAEE', '#B8BDC6');
+  return (
+    <View style={{ height: 54, borderRadius: radius.sm, overflow: 'hidden', flexDirection: 'row', borderWidth: StyleSheet.hairlineWidth, borderColor: c.border }}>
+      {id === 'koyu' ? koyu : id === 'acik' ? acik : <>{koyu}{acik}</>}
+    </View>
+  );
+}
+
+function TemaSecici() {
+  const c = useTheme();
+  const { tercih, tercihDegistir } = useTema();
+  return (
+    <View style={{ flexDirection: 'row', gap: spacing.sm, padding: spacing.md }} accessibilityRole="radiogroup">
+      {TEMA_SECENEKLERI.map((s) => {
+        const secili = tercih === s.id;
+        return (
+          <Pressable
+            key={s.id}
+            onPress={() => tercihDegistir(s.id)}
+            accessibilityRole="radio"
+            accessibilityState={{ selected: secili }}
+            accessibilityLabel={`${s.ad} tema, ${s.aciklama}`}
+            style={({ pressed }) => [
+              { flex: 1, gap: spacing.sm, padding: spacing.sm, borderRadius: radius.md, borderWidth: 2, borderColor: secili ? c.primary : c.border, backgroundColor: c.bg },
+              pressed && { opacity: 0.8 },
+            ]}>
+            <TemaOnizleme id={s.id} />
+            <View style={{ alignItems: 'center' }}>
+              <Text style={{ color: secili ? c.primary : c.text, fontSize: 14, fontWeight: '700' }}>{s.ad}</Text>
+              <Text style={{ color: c.textMuted, fontSize: 11 }}>{s.aciklama}</Text>
+            </View>
+          </Pressable>
+        );
+      })}
+    </View>
   );
 }
 
@@ -197,6 +252,10 @@ export default function Ayarlar() {
       </View>
 
       <ScrollView contentContainerStyle={[styles.icerik, { paddingBottom: insets.bottom + spacing.xxl }]} showsVerticalScrollIndicator={false}>
+        <Bolum baslik="Görünüm">
+          <TemaSecici />
+        </Bolum>
+
         {gercek ? (
           <>
             <View style={[styles.profilKart, { backgroundColor: c.surface, borderColor: c.border }]}>

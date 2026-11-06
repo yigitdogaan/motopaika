@@ -11,7 +11,7 @@ import { saglayiciyaGiris, type Saglayici } from '@/lib/oauth';
 import { useOturum } from '@/lib/oturum';
 import { sifirlamaKoduGonder, sifreyiYenile } from '@/lib/sifre';
 import { supabase } from '@/lib/supabase';
-import { fontSerif, radius, spacing, useTheme } from '@/theme';
+import { fontSerif, radius, spacing, useTema, useTheme } from '@/theme';
 
 type Mod = 'giris' | 'kayit' | 'sifre-eposta' | 'sifre-kod';
 
@@ -84,7 +84,11 @@ function Alan({
 
 function SosyalDugme({ saglayici, mesgul, onPress }: { saglayici: Saglayici; mesgul: boolean; onPress: () => void }) {
   const c = useTheme();
+  const { koyu } = useTema();
   const apple = saglayici === 'apple';
+  // Apple yönergesi: koyu zeminde beyaz, açık zeminde siyah düğme.
+  const appleZemin = koyu ? '#FFFFFF' : '#000000';
+  const appleYazi = koyu ? '#000000' : '#FFFFFF';
   return (
     <Pressable
       onPress={onPress}
@@ -93,12 +97,12 @@ function SosyalDugme({ saglayici, mesgul, onPress }: { saglayici: Saglayici; mes
       accessibilityLabel={apple ? 'Apple ile devam et' : 'Google ile devam et'}
       style={({ pressed }) => [
         styles.sosyal,
-        apple ? { backgroundColor: '#FFFFFF', borderColor: '#FFFFFF' } : { backgroundColor: c.surfaceAlt, borderColor: c.border },
+        apple ? { backgroundColor: appleZemin, borderColor: appleZemin } : { backgroundColor: c.surfaceAlt, borderColor: c.border },
         mesgul && { opacity: 0.5 },
         pressed && { opacity: 0.8 },
       ]}>
-      {apple ? <AppleLogo boyut={20} renk="#000000" /> : <GoogleG boyut={20} />}
-      <Text style={[styles.sosyalYazi, { color: apple ? '#000000' : c.text }]}>{apple ? 'Apple' : 'Google'}</Text>
+      {apple ? <AppleLogo boyut={20} renk={appleYazi} /> : <GoogleG boyut={20} />}
+      <Text style={[styles.sosyalYazi, { color: apple ? appleYazi : c.text }]}>{apple ? 'Apple' : 'Google'}</Text>
     </Pressable>
   );
 }
