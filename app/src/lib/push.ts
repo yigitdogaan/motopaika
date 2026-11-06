@@ -17,8 +17,8 @@ export async function pushKaydet(zorla = false): Promise<string | null> {
   try {
     if (!supabase || !Device.isDevice) return null;
     if (!zorla && (await AsyncStorage.getItem(PUSH_AYAR)) === 'kapali') return null;
-    // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-explicit-any
-    const N: any = require('expo-notifications');
+    const N = bildirimModulu();
+    if (!N) return null;
 
     if (Platform.OS === 'android') {
       await N.setNotificationChannelAsync('default', { name: 'Genel', importance: N.AndroidImportance.MAX, lightColor: '#FFB800' });
@@ -44,6 +44,23 @@ export async function pushSil(token: string | null) {
   } catch {}
 }
 
+/**
+ * `expo-notifications` yalnızca yerel modülleri (ExpoApplication, ExpoPushTokenManager) varsa yüklenir.
+ * Expo Go'da ya da eski bir geliştirme sürümünde yoksa modülü hiç içeri almayıp null döner; böylece kırmızı hata ekranı çıkmaz.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function bildirimModulu(): any {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { requireOptionalNativeModule } = require('expo-modules-core');
+    if (!requireOptionalNativeModule?.('ExpoApplication') || !requireOptionalNativeModule?.('ExpoPushTokenManager')) return null;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    return require('expo-notifications');
+  } catch {
+    return null;
+  }
+}
+
 const islenen = new Set<string>();
 type PushVeri = { tur?: string; postId?: string | null; odaId?: string | null };
 
@@ -60,8 +77,8 @@ export function pushHedef(veri: PushVeri | null | undefined): string {
  */
 export function pushDinleyicileriKur(git: (yol: string) => void): () => void {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-explicit-any
-    const N: any = require('expo-notifications');
+    const N = bildirimModulu();
+    if (!N) return () => {};
     N.setNotificationHandler({
       handleNotification: async () => ({ shouldShowBanner: true, shouldShowList: true, shouldPlaySound: true, shouldSetBadge: false }),
     });
