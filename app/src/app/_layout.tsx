@@ -37,6 +37,7 @@ function Rotalar() {
         <Stack.Screen name="sohbet/[id]" options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="profil/[id]" options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="bildirimler" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="ayarlar" options={{ animation: 'slide_from_right' }} />
       </Stack.Protected>
       <Stack.Protected guard={!kullanici}>
         <Stack.Screen name="giris" options={{ animation: 'fade' }} />

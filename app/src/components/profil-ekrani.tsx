@@ -7,13 +7,10 @@ import { Alert, Animated, Easing, Modal, Pressable, ScrollView, StyleSheet, Text
 import { useAltMenuBosluk } from '@/components/alt-menu';
 import { Ikon } from '@/components/ikon';
 import { MotorDetayi } from '@/components/motor-detayi';
-import { OnayKutusu } from '@/components/onay-kutusu';
 import { Dugme, Hap } from '@/components/yol-ui';
 import { kategoriRenkleri, type KategoriId } from '@/demo/akis';
 import { useOturum } from '@/lib/oturum';
 import { dmAc } from '@/lib/sohbet';
-import { hesabiSil } from '@/lib/sifre';
-import { supabase } from '@/lib/supabase';
 import {
   avatarYukle,
   engelle,
@@ -56,7 +53,6 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
   const c = useTheme();
   const bosluk = useAltMenuBosluk();
   const { kullanici, cikisYap } = useOturum();
-  const [silAcik, setSilAcik] = useState(false);
   const router = useRouter();
   const benim = kullanici?.id === id;
 
@@ -333,25 +329,6 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
       />
 
       {benim ? <Dugme etiket="Çıkış yap" ikon="cikis" tur="kontur" onPress={cikisYap} style={styles.cikis} /> : null}
-      {benim && supabase ? (
-        <Pressable onPress={() => setSilAcik(true)} accessibilityRole="button" accessibilityLabel="Hesabımı sil" hitSlop={10} style={{ alignSelf: 'center', paddingVertical: spacing.md }}>
-          <Text style={{ color: c.danger, fontSize: 13, fontWeight: '700' }}>Hesabımı sil</Text>
-        </Pressable>
-      ) : null}
-      <OnayKutusu
-        gorunur={silAcik}
-        baslik="Hesabın silinsin mi?"
-        mesaj="Profilin, gönderilerin, yorumların, mesajların ve motorların kalıcı olarak silinir. Bu işlem geri alınamaz."
-        onayEtiketi="Hesabımı sil"
-        ikon="sil"
-        tehlikeli
-        onOnay={async () => {
-          setSilAcik(false);
-          const hata = await hesabiSil();
-          if (hata) Alert.alert('Hesap silinemedi', hata);
-        }}
-        onKapat={() => setSilAcik(false)}
-      />
 
       <Modal visible={duzenle} animationType="slide" transparent onRequestClose={() => setDuzenle(false)}>
         <View style={styles.perde}>

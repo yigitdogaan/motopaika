@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useRouter, type Href } from 'expo-router';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { useAltMenuBosluk } from '@/components/alt-menu';
 import { EkranUstu } from '@/components/ekran-ustu';
@@ -46,11 +47,24 @@ function MotorKarti({ m, onSil }: { m: Motor; onSil?: () => void }) {
 export default function Garaj() {
   const { kullanici } = useOturum();
   const c = useTheme();
+  const router = useRouter();
   const [ust, setUst] = useState(110);
   if (supabase && kullanici) {
     return (
       <View style={{ flex: 1, backgroundColor: c.bg }}>
-        <EkranUstu baslik="Profil ve Garaj" onYukseklik={setUst} />
+        <EkranUstu
+          baslik="Profil ve Garaj"
+          onYukseklik={setUst}
+          sol={
+            <Pressable
+              onPress={() => router.push('/ayarlar' as Href)}
+              accessibilityRole="button"
+              accessibilityLabel="Ayarlar"
+              style={{ width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: c.border, backgroundColor: c.surface, alignItems: 'center', justifyContent: 'center' }}>
+              <Ikon ad="ayarlar" boyut={20} renk={c.text} />
+            </Pressable>
+          }
+        />
         <ProfilEkrani id={kullanici.id} ustBosluk={ust} />
       </View>
     );

@@ -42,6 +42,7 @@ const IKONLAR = {
   gonder: { ios: 'paperplane.fill', android: 'send' },
   garaj: { ios: 'wrench.and.screwdriver.fill', android: 'build' },
   cikis: { ios: 'rectangle.portrait.and.arrow.right', android: 'logout' },
+  ayarlar: { ios: 'gearshape.fill', android: 'settings' },
 } as const;
 
 // `dolu={false}` istenince iOS'ta kullanılan çizgi (içi boş) sürümler.
