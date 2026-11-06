@@ -44,7 +44,20 @@ export async function pushSil(token: string | null) {
   } catch {}
 }
 
-/** Uygulama açıkken de bildirimin banner olarak görünmesini sağlar; bildirime dokununca ilgili ekrana gider. */
+const islenen = new Set<string>();
+type PushVeri = { tur?: string; postId?: string | null; odaId?: string | null };
+
+/** Bildirimin taşıdığı veriye göre doğru ekranı seçer: mesaj → sohbet, selam/yorum → gönderi, gerisi → bildirimler. */
+export function pushHedef(veri: PushVeri | null | undefined): string {
+  if (veri?.odaId) return `/sohbet/${veri.odaId}`;
+  if (veri?.postId && (veri.tur === 'salute' || veri.tur === 'comment')) return `/gonderi/${veri.postId}`;
+  return '/bildirimler';
+}
+
+/**
+ * Uygulama açıkken de bildirimin banner olarak görünmesini sağlar; bildirime dokununca ilgili ekrana gider.
+ * Uygulama kapalıyken bildirime dokunarak açıldıysa o bildirimin hedefine de gider.
+ */
 export function pushDinleyicileriKur(git: (yol: string) => void): () => void {
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-explicit-any
@@ -52,7 +65,18 @@ export function pushDinleyicileriKur(git: (yol: string) => void): () => void {
     N.setNotificationHandler({
       handleNotification: async () => ({ shouldShowBanner: true, shouldShowList: true, shouldPlaySound: true, shouldSetBadge: false }),
     });
-    const abone = N.addNotificationResponseReceivedListener(() => git('/bildirimler'));
+    const ac = (yanit: { notification?: { request?: { identifier?: string; content?: { data?: PushVeri } } } } | null) => {
+      if (!yanit) return;
+      // Aynı bildirime (soğuk açılış yanıtı) birden fazla kez yönlenmeyi önle.
+      const kimlik = yanit.notification?.request?.identifier;
+      if (kimlik) {
+        if (islenen.has(kimlik)) return;
+        islenen.add(kimlik);
+      }
+      git(pushHedef(yanit.notification?.request?.content?.data));
+    };
+    N.getLastNotificationResponseAsync?.().then(ac).catch(() => {});
+    const abone = N.addNotificationResponseReceivedListener(ac);
     return () => abone.remove();
   } catch {
     return () => {};
