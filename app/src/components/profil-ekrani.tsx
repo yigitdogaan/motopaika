@@ -212,8 +212,8 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
     ]);
   };
 
-  if (bulunamadi) return <Text style={[styles.bos, { color: c.textMuted }]}>Profil bulunamadı.</Text>;
-  if (!profil) return <Text style={[styles.bos, { color: c.textMuted }]}>Yükleniyor...</Text>;
+  if (bulunamadi) return <Text style={[styles.bos, { color: c.textMuted, marginTop: (ustBosluk ?? 0) + spacing.lg }]}>Profil bulunamadı.</Text>;
+  if (!profil) return <Text style={[styles.bos, { color: c.textMuted, marginTop: (ustBosluk ?? 0) + spacing.lg }]}>Yükleniyor...</Text>;
 
   const selam = gonderiler.reduce((t, g) => t + g.selam, 0);
   const stat = [
