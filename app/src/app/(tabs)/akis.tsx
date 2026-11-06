@@ -121,6 +121,7 @@ export default function Akis() {
                   placeholderTextColor={c.textMuted}
                   returnKeyType="search"
                   autoCorrect={false}
+                  autoCapitalize="none"
                   style={[styles.araGirdi, { color: c.text }]}
                 />
                 {ara ? (

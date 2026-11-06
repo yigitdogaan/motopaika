@@ -64,6 +64,7 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
   const [gonderiler, setGonderiler] = useState<GonderiOzeti[]>([]);
   const [engelli, setEngelli] = useState(false);
   const [bulunamadi, setBulunamadi] = useState(false);
+  const [yuklemeHatasi, setYuklemeHatasi] = useState<string | null>(null);
   const [sekme, setSekme] = useState<Sekme>('garaj');
 
   const [marka, setMarka] = useState('');
@@ -90,12 +91,20 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
   const [kaydediyor, setKaydediyor] = useState(false);
 
   const yukle = useCallback(async () => {
-    const [p, m, g] = await Promise.all([profilGetir(id), motorlariGetir(id), gonderileriGetir(id, benim)]);
-    if (!p) return setBulunamadi(true);
-    setProfil(p);
-    setMotorlar(m);
-    setGonderiler(g);
-    if (kullanici && !benim) setEngelli(await engelliMi(kullanici.id, id));
+    setYuklemeHatasi(null);
+    try {
+      // Profil bilgisi hemen çizilsin; garaj ve gönderiler ayrı ayrı yüklenir, biri başarısız olsa da ekran açılır.
+      const p = await profilGetir(id);
+      if (!p) return setBulunamadi(true);
+      setBulunamadi(false);
+      setProfil(p);
+      const [m, g] = await Promise.all([motorlariGetir(id).catch(() => null), gonderileriGetir(id, benim).catch(() => null)]);
+      if (m) setMotorlar(m);
+      if (g) setGonderiler(g);
+      if (kullanici && !benim) setEngelli(await engelliMi(kullanici.id, id).catch(() => false));
+    } catch (e) {
+      setYuklemeHatasi(e instanceof Error ? e.message : 'Bağlantı kurulamadı.');
+    }
   }, [id, benim, kullanici]);
 
   useFocusEffect(
@@ -212,6 +221,16 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
     ]);
   };
 
+  if (yuklemeHatasi && !profil) {
+    return (
+      <View style={{ marginTop: (ustBosluk ?? 0) + spacing.lg, padding: spacing.lg, gap: spacing.md, alignItems: 'center' }}>
+        <Text style={[styles.bos, { color: c.textMuted, marginTop: 0, padding: 0 }]}>Profil yüklenemedi. {yuklemeHatasi}</Text>
+        <Pressable onPress={yukle} accessibilityRole="button" accessibilityLabel="Yeniden dene">
+          <Text style={{ color: c.primary, fontWeight: '700', fontSize: 15 }}>Yeniden dene</Text>
+        </Pressable>
+      </View>
+    );
+  }
   if (bulunamadi) return <Text style={[styles.bos, { color: c.textMuted, marginTop: (ustBosluk ?? 0) + spacing.lg }]}>Profil bulunamadı.</Text>;
   if (!profil) return <Text style={[styles.bos, { color: c.textMuted, marginTop: (ustBosluk ?? 0) + spacing.lg }]}>Yükleniyor...</Text>;
 

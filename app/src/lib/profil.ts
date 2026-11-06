@@ -105,7 +105,9 @@ export async function motorlariGetir(id: string): Promise<GarajMotor[]> {
 /** HEAD ile dosya boyutuna bakar; ağ hatasında fotoğrafı saklı tutar. */
 async function fotoSaglamMi(url: string): Promise<boolean> {
   try {
-    const r = await fetch(url, { method: 'HEAD' });
+    const kontrol = new AbortController();
+    const zamanAsimi = setTimeout(() => kontrol.abort(), 4000);
+    const r = await fetch(url, { method: 'HEAD', signal: kontrol.signal }).finally(() => clearTimeout(zamanAsimi));
     if (!r.ok) return false;
     const baslik = r.headers.get('content-length');
     return baslik === null ? true : Number(baslik) >= 5 * 1024;
