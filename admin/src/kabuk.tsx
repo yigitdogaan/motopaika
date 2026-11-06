@@ -1,3 +1,4 @@
+import { Logo } from './ui/logo';
 import { useEffect, useState } from 'react';
 import { DEMO, ROL_AD, ROL_SIRA, cikisYap, oturumEmail, rpc, type Rol } from './api';
 import { baglanti, useYol } from './router';
@@ -58,7 +59,7 @@ export function Kabuk({ rol }: { rol: Rol }) {
       {DEMO && <div className="demo-bant">DEMO MODU — sahte veri gösteriliyor. Gerçek veri için .env dosyasını doldur.</div>}
       <div className="kabuk">
         <aside className={'yan' + (acik ? ' acik' : '')} onClick={() => setAcik(false)}>
-          <div className="marka"><i>R</i> Roteri Yönetim</div>
+          <div className="marka"><Logo yukseklik={18} /><span className="marka-ek">Yönetim</span></div>
           {ogeler.map((o) => (
             <a key={o.yol} href={baglanti(o.yol)} className={'menu' + (o.yol === aktif.yol ? ' on' : '')}>
               <Ikon ad={o.ikon} /> {o.ad}

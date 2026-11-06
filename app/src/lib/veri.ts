@@ -1,7 +1,7 @@
 import { demoVeri, type Oge } from '@/demo/veri';
 
 /** Bulut veritabanı bağlı değilse uygulama demo modunda çalışır. */
-export const demoModu = !process.env.EXPO_PUBLIC_SUPABASE_URL;
+export const demoModu = process.env.EXPO_PUBLIC_DEMO === '1' || !process.env.EXPO_PUBLIC_SUPABASE_URL;
 
 export type Alan = keyof typeof demoVeri;
 

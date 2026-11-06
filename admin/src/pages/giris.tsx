@@ -1,3 +1,4 @@
+import { Logo } from '../ui/logo';
 import { useState } from 'react';
 import { DEMO, cikisYap, girisYap, hataMetni } from '../api';
 
@@ -22,7 +23,7 @@ export function Giris({ yetkisiz }: { yetkisiz?: boolean }) {
   return (
     <div className="giris">
       <form className="kart col" onSubmit={gonder}>
-        <div className="row"><span className="marka" style={{ padding: 0 }}><i>R</i></span><div><h2>Roteri Yönetim</h2><div className="muted sm">Yalnız yetkili hesaplar</div></div></div>
+        <div className="col" style={{ gap: 6 }}><Logo yukseklik={26} /><div><h2>Yönetim</h2><div className="muted sm">Yalnız yetkili hesaplar</div></div></div>
         {DEMO && <div className="duyuru warning sm">Demo modu: .env tanımlı değil. Herhangi bir e-posta/şifreyle girebilirsin.</div>}
         <label className="alan">E-posta<input className="girdi" type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required={!DEMO} autoFocus /></label>
         <label className="alan">Şifre<input className="girdi" type="password" autoComplete="current-password" value={sifre} onChange={(e) => setSifre(e.target.value)} required={!DEMO} /></label>

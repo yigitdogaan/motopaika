@@ -57,7 +57,7 @@ export function EkranUstu({
       <View style={[styles.kap, { paddingTop: insets.top + spacing.lg }]}>
         <View style={styles.yanBos}>{sol}</View>
         <View style={styles.orta}>
-          <RoteriLogo yukseklik={22} renk={c.text} />
+          <RoteriLogo yukseklik={22} renk={c.text} isaret={c.primary} />
           {konumAlani ? (
             <KonumAlani />
           ) : (

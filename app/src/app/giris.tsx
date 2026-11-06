@@ -189,7 +189,7 @@ export default function Giris() {
           <Arkaplan en={width} boy={height} />
           <Animated.View
             style={[styles.heroIc, { opacity: anim, transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) }] }]}>
-            <RoteriLogo yukseklik={klavye ? 30 : kucuk ? 44 : 54} renk={c.text} />
+            <RoteriLogo yukseklik={klavye ? 30 : kucuk ? 44 : 54} renk={c.text} isaret={c.primary} />
             {!klavye ? (
               <>
                 <Text style={[styles.slogan, { color: c.text, fontFamily: fontSerif, fontSize: kucuk ? 24 : 30, lineHeight: kucuk ? 30 : 36 }]}>
