@@ -1,8 +1,8 @@
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useFocusEffect, useRouter, type Href } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Alert, Animated, Easing, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { useAltMenuBosluk } from '@/components/alt-menu';
 import { Ikon } from '@/components/ikon';
@@ -71,6 +71,13 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
   const [marka, setMarka] = useState('');
   const [model, setModel] = useState('');
   const [yil, setYil] = useState('');
+  const [ekleAcik, setEkleAcik] = useState(false);
+  const [ekleYukseklik, setEkleYukseklik] = useState(190);
+  const ekleAnim = useRef(new Animated.Value(0)).current;
+  const ekleDegistir = (ac: boolean) => {
+    setEkleAcik(ac);
+    Animated.timing(ekleAnim, { toValue: ac ? 1 : 0, duration: 280, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start();
+  };
 
   const [duzenle, setDuzenle] = useState(false);
   const [ad, setAd] = useState('');
@@ -134,6 +141,7 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
     setMarka('');
     setModel('');
     setYil('');
+    ekleDegistir(false);
     setMotorlar(await motorlariGetir(id));
   };
 
@@ -232,8 +240,8 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
       </View>
 
       <View style={styles.sekmeler}>
-        <Hap etiket={benim ? 'Garajım' : 'Garaj'} ikon="garaj" secili={sekme === 'garaj'} onPress={() => setSekme('garaj')} />
-        <Hap etiket={benim ? 'Gönderilerim' : 'Gönderiler'} ikon="korna" secili={sekme === 'gonderiler'} onPress={() => setSekme('gonderiler')} />
+        <Hap style={styles.yarim} etiket={benim ? 'Garajım' : 'Garaj'} ikon="garaj" secili={sekme === 'garaj'} onPress={() => setSekme('garaj')} />
+        <Hap style={styles.yarim} etiket={benim ? 'Gönderilerim' : 'Gönderiler'} ikon="korna" secili={sekme === 'gonderiler'} onPress={() => setSekme('gonderiler')} />
       </View>
 
       {sekme === 'garaj' ? (
@@ -267,14 +275,26 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
           ))}
 
           {benim ? (
-            <View style={[styles.ekleKart, { backgroundColor: c.surface, borderColor: c.border }]}>
-              <Text style={[styles.ekleBaslik, { color: c.text }]}>Garaja motor ekle</Text>
-              <View style={styles.ekleSatir}>
-                <TextInput value={marka} onChangeText={setMarka} placeholder="Marka (ör. Honda)" placeholderTextColor={c.textMuted} style={girdi} />
-                <TextInput value={model} onChangeText={setModel} placeholder="Model (ör. CB650R)" placeholderTextColor={c.textMuted} style={girdi} />
-              </View>
-              <TextInput value={yil} onChangeText={setYil} placeholder="Yıl (isteğe bağlı)" placeholderTextColor={c.textMuted} keyboardType="number-pad" maxLength={4} style={girdi} />
-              <Dugme etiket="Garaja ekle" ikon="arti" onPress={motorEkle} pasif={!marka.trim() || !model.trim()} />
+            <View>
+              <Dugme etiket={ekleAcik ? 'Kapat' : 'Garaja motor ekle'} ikon={ekleAcik ? 'kapat' : 'arti'} tur={ekleAcik ? 'kontur' : 'dolu'} onPress={() => ekleDegistir(!ekleAcik)} />
+              <Animated.View
+                style={{
+                  height: ekleAnim.interpolate({ inputRange: [0, 1], outputRange: [0, ekleYukseklik] }),
+                  opacity: ekleAnim,
+                  overflow: 'hidden',
+                }}
+                pointerEvents={ekleAcik ? 'auto' : 'none'}>
+                <View
+                  style={[styles.ekleKart, styles.ekleIc, { backgroundColor: c.surface, borderColor: c.border }]}
+                  onLayout={(e) => setEkleYukseklik(e.nativeEvent.layout.height + spacing.md)}>
+                  <View style={styles.ekleSatir}>
+                    <TextInput value={marka} onChangeText={setMarka} placeholder="Marka (ör. Honda)" placeholderTextColor={c.textMuted} style={girdi} />
+                    <TextInput value={model} onChangeText={setModel} placeholder="Model (ör. CB650R)" placeholderTextColor={c.textMuted} style={girdi} />
+                  </View>
+                  <TextInput value={yil} onChangeText={setYil} placeholder="Yıl (isteğe bağlı)" placeholderTextColor={c.textMuted} keyboardType="number-pad" maxLength={4} style={girdi} />
+                  <Dugme etiket="Motoru ekle" ikon="tik" onPress={motorEkle} pasif={!marka.trim() || !model.trim()} />
+                </View>
+              </Animated.View>
             </View>
           ) : null}
         </View>
@@ -395,6 +415,7 @@ const styles = StyleSheet.create({
   deger: { fontSize: 24, fontWeight: '900' },
   etiket: { fontSize: 12, fontWeight: '800', letterSpacing: 1 },
   sekmeler: { flexDirection: 'row', gap: spacing.sm },
+  yarim: { flex: 1, justifyContent: 'center', paddingHorizontal: spacing.sm },
   liste: { gap: spacing.md },
   motor: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.lg, borderRadius: radius.lg, borderWidth: 1.5 },
   motorIkon: { width: 58, height: 58, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
@@ -402,6 +423,7 @@ const styles = StyleSheet.create({
   motorAd: { fontSize: 18, fontWeight: '900' },
   motorAlt: { fontSize: 13.5 },
   sil: { minHeight: 36, paddingHorizontal: spacing.md },
+  ekleIc: { position: 'absolute', top: spacing.md, left: 0, right: 0 },
   ekleKart: { padding: spacing.lg, borderRadius: radius.lg, borderWidth: StyleSheet.hairlineWidth, gap: spacing.md },
   ekleBaslik: { fontSize: 16, fontWeight: '800' },
   ekleSatir: { flexDirection: 'row', gap: spacing.sm },

@@ -48,9 +48,11 @@ export function Hap({
   onPress,
   ikon,
   renk,
+  style,
 }: {
   etiket: string;
   secili: boolean;
+  style?: StyleProp<ViewStyle>;
   onPress: () => void;
   ikon?: IkonAdi;
   /** Kategori vurgu rengi: seçiliyken dolgu, değilken ince kenarlık olur. */
@@ -66,6 +68,7 @@ export function Hap({
       style={[
         styles.hap,
         secili ? { backgroundColor: vurgu, borderColor: vurgu } : { backgroundColor: c.surface, borderColor: renk ? `${renk}88` : c.border },
+        style,
       ]}>
       {ikon ? <Ikon ad={ikon} boyut={14} renk={secili ? c.onPrimary : c.textMuted} /> : null}
       <Text style={[styles.hapYazi, { color: secili ? c.onPrimary : c.text }]}>{etiket}</Text>
