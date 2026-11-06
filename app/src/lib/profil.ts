@@ -12,7 +12,8 @@ export type Profil = {
   avatarUrl?: string;
 };
 export type MotorFoto = { id: string; yol: string; url: string };
-export type GarajMotor = { id: string; marka: string; model: string; yil: number | null; fotolar: MotorFoto[] };
+export type GarajMotor = { id: string; marka: string; model: string; yil: number | null; km: number | null; lakap: string | null; fotolar: MotorFoto[] };
+export type MotorAlanlari = { marka: string; model: string; yil: number | null; km: number | null; lakap: string };
 export const MOTOR_FOTO_MAKS = 8;
 export type GonderiOzeti = { id: string; metin: string; konum: string; zaman: string; selam: number; kategori: string; anonim: boolean };
 
@@ -76,15 +77,17 @@ export async function motorlariGetir(id: string): Promise<GarajMotor[]> {
   if (!supabase) return [];
   const { data } = await supabase
     .from('motorcycles')
-    .select('id, brand, model, year, motorcycle_photos(id, path, position, created_at)')
+    .select('id, brand, model, year, km, nickname, motorcycle_photos(id, path, position, created_at)')
     .eq('owner_id', id)
     .order('created_at');
   type F = { id: string; path: string; position: number; created_at: string };
-  const motorlar = (data ?? []).map((m: { id: string; brand: string; model: string; year: number | null; motorcycle_photos: F[] | null }) => ({
+  const motorlar = (data ?? []).map((m: { id: string; brand: string; model: string; year: number | null; km: number | null; nickname: string | null; motorcycle_photos: F[] | null }) => ({
     id: m.id,
     marka: m.brand,
     model: m.model,
     yil: m.year,
+    km: m.km,
+    lakap: m.nickname,
     fotolar: [...(m.motorcycle_photos ?? [])]
       .sort((a, b) => a.position - b.position || a.created_at.localeCompare(b.created_at))
       .map((f) => ({ id: f.id, yol: f.path, url: motorFotoAdresi(f.path) })),
@@ -148,9 +151,25 @@ export async function motorKapakYap(motorId: string, fotoId: string): Promise<bo
   return !error;
 }
 
-export async function motorEkleDb(uid: string, marka: string, model: string, yil: number | null): Promise<string | null> {
+export async function motorEkleDb(uid: string, a: MotorAlanlari): Promise<string | null> {
   if (!supabase) return 'Supabase yapılandırılmamış.';
-  const { error } = await supabase.from('motorcycles').insert({ owner_id: uid, brand: marka.trim(), model: model.trim(), year: yil });
+  const { error } = await supabase.from('motorcycles').insert({
+    owner_id: uid,
+    brand: a.marka.trim(),
+    model: a.model.trim(),
+    year: a.yil,
+    km: a.km,
+    nickname: a.lakap.trim() || null,
+  });
+  return error ? error.message : null;
+}
+
+export async function motorGuncelleDb(id: string, a: MotorAlanlari): Promise<string | null> {
+  if (!supabase) return 'Supabase yapılandırılmamış.';
+  const { error } = await supabase
+    .from('motorcycles')
+    .update({ brand: a.marka.trim(), model: a.model.trim(), year: a.yil, km: a.km, nickname: a.lakap.trim() || null })
+    .eq('id', id);
   return error ? error.message : null;
 }
 

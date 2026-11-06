@@ -10,6 +10,7 @@ import { MotorDetayi } from '@/components/motor-detayi';
 import { Dugme, Hap } from '@/components/yol-ui';
 import { kategoriRenkleri, type KategoriId } from '@/demo/akis';
 import { useOturum } from '@/lib/oturum';
+import { kmCoz, kmYazi, rozetleriHesapla } from '@/lib/rozetler';
 import { dmAc } from '@/lib/sohbet';
 import {
   avatarYukle,
@@ -18,6 +19,7 @@ import {
   gonderileriGetir,
   gonderiSil,
   motorEkleDb,
+  motorGuncelleDb,
   motorlariGetir,
   motorSilDb,
   profilGetir,
@@ -67,8 +69,12 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
   const [marka, setMarka] = useState('');
   const [model, setModel] = useState('');
   const [yil, setYil] = useState('');
+  const [lakap, setLakap] = useState('');
+  const [km, setKm] = useState('');
+  /** Doluysa ekleme formu bu motoru düzenler. */
+  const [duzenlenenMotor, setDuzenlenenMotor] = useState<string | null>(null);
   const [ekleAcik, setEkleAcik] = useState(false);
-  const [ekleYukseklik, setEkleYukseklik] = useState(190);
+  const [ekleYukseklik, setEkleYukseklik] = useState(270);
   const ekleAnim = useRef(new Animated.Value(0)).current;
   const ekleDegistir = (ac: boolean) => {
     setEkleAcik(ac);
@@ -129,16 +135,36 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
     yukle();
   };
 
-  const motorEkle = async () => {
-    const y = yil.trim() ? Number(yil) : null;
-    if (y !== null && (!Number.isInteger(y) || y < 1950 || y > 2100)) return Alert.alert('Geçersiz yıl', 'Yılı 1950 ile 2100 arasında gir ya da boş bırak.');
-    const hata = await motorEkleDb(id, marka, model, y);
-    if (hata) return Alert.alert('Motor eklenemedi', hata);
+  const motorFormunuTemizle = () => {
     setMarka('');
     setModel('');
     setYil('');
+    setLakap('');
+    setKm('');
+    setDuzenlenenMotor(null);
+  };
+
+  const motorKaydet = async () => {
+    const y = yil.trim() ? Number(yil) : null;
+    if (y !== null && (!Number.isInteger(y) || y < 1950 || y > 2100)) return Alert.alert('Geçersiz yıl', 'Yılı 1950 ile 2100 arasında gir ya da boş bırak.');
+    const k = kmCoz(km);
+    if (k === undefined) return Alert.alert('Geçersiz kilometre', 'Kilometreyi rakamla ve en fazla 2.000.000 olarak gir ya da boş bırak.');
+    const alanlar = { marka, model, yil: y, km: k, lakap };
+    const hata = duzenlenenMotor ? await motorGuncelleDb(duzenlenenMotor, alanlar) : await motorEkleDb(id, alanlar);
+    if (hata) return Alert.alert(duzenlenenMotor ? 'Motor güncellenemedi' : 'Motor eklenemedi', `${hata}\n\nSupabase'de 18. migration çalıştırıldı mı?`);
+    motorFormunuTemizle();
     ekleDegistir(false);
     setMotorlar(await motorlariGetir(id));
+  };
+
+  const motorDuzenle = (m: GarajMotor) => {
+    setDuzenlenenMotor(m.id);
+    setMarka(m.marka);
+    setModel(m.model);
+    setYil(m.yil ? String(m.yil) : '');
+    setLakap(m.lakap ?? '');
+    setKm(m.km != null ? String(m.km) : '');
+    ekleDegistir(true);
   };
 
   const motorSil = (m: GarajMotor) =>
@@ -195,6 +221,9 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
     { deger: String(gonderiler.length), etiket: 'Gönderi' },
     { deger: String(gonderiler.filter((g) => g.kategori === 'surus').length), etiket: 'Buluşma' },
   ];
+  const rozetler = rozetleriHesapla({ selam, gonderi: gonderiler.length, bulusma: gonderiler.filter((g) => g.kategori === 'surus').length, motor: motorlar.length });
+  // Başkasının profilinde yalnız kazanılanlar; kendi profilinde kazanılmayanlar da ilerlemeyle görünür.
+  const gorunenRozetler = benim ? rozetler : rozetler.filter((r) => r.kazanildi);
   const girdi = [styles.girdi, { color: c.text, backgroundColor: c.surfaceAlt, borderColor: c.border }];
 
   return (
@@ -235,6 +264,26 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
         ))}
       </View>
 
+      {gorunenRozetler.length ? (
+        <View style={styles.rozetBolum}>
+          <Text style={[styles.etiket, { color: c.textMuted }]}>ROZETLER · {rozetler.filter((r) => r.kazanildi).length}/{rozetler.length}</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rozetSerit}>
+            {gorunenRozetler.map((r) => (
+              <View
+                key={r.id}
+                accessible
+                accessibilityLabel={`${r.ad}: ${r.kazanildi ? 'kazanıldı' : `${r.ilerleme.mevcut} / ${r.ilerleme.hedef}`}. ${r.aciklama}`}
+                style={[styles.rozetKart, { backgroundColor: c.surface, borderColor: r.kazanildi ? c.primary : c.border, opacity: r.kazanildi ? 1 : 0.55 }]}>
+                <Text style={[styles.rozetAd, { color: r.kazanildi ? c.primary : c.text }]} numberOfLines={1}>{r.ad}</Text>
+                <Text style={[styles.rozetAlt, { color: c.textMuted }]} numberOfLines={2}>
+                  {r.kazanildi ? r.aciklama : `${r.ilerleme.mevcut}/${r.ilerleme.hedef} · ${r.aciklama}`}
+                </Text>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+      ) : null}
+
       <View style={styles.sekmeler}>
         <Hap style={styles.yarim} etiket={benim ? 'Garajım' : 'Garaj'} ikon="garaj" secili={sekme === 'garaj'} onPress={() => setSekme('garaj')} />
         <Hap style={styles.yarim} etiket={benim ? 'Gönderilerim' : 'Gönderiler'} ikon="korna" secili={sekme === 'gonderiler'} onPress={() => setSekme('gonderiler')} />
@@ -261,18 +310,32 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
                 <Text style={[styles.motorAd, { color: c.text }]} numberOfLines={1}>
                   {m.marka} {m.model}
                 </Text>
+                {m.lakap ? <Text style={[styles.motorLakap, { color: c.primary }]} numberOfLines={1}>“{m.lakap}”</Text> : null}
                 <Text style={[styles.motorAlt, { color: c.textMuted }]}>
-                  {m.yil ?? 'Yıl belirtilmedi'}
+                  {[m.yil ?? 'Yıl belirtilmedi', kmYazi(m.km)].filter(Boolean).join('  •  ')}
                   {m.fotolar.length ? `  •  ${m.fotolar.length} fotoğraf` : benim ? '  •  Fotoğraf ekle ›' : ''}
                 </Text>
               </View>
-              {benim ? <Dugme etiket="Sil" tur="kontur" onPress={() => motorSil(m)} style={styles.sil} /> : null}
+              {benim ? (
+                <View style={styles.motorEylem}>
+                  <Dugme etiket="Düzenle" tur="kontur" onPress={() => motorDuzenle(m)} style={styles.sil} />
+                  <Dugme etiket="Sil" tur="kontur" onPress={() => motorSil(m)} style={styles.sil} />
+                </View>
+              ) : null}
             </Pressable>
           ))}
 
           {benim ? (
             <View>
-              <Dugme etiket={ekleAcik ? 'Kapat' : 'Garaja motor ekle'} ikon={ekleAcik ? 'kapat' : 'arti'} tur={ekleAcik ? 'kontur' : 'dolu'} onPress={() => ekleDegistir(!ekleAcik)} />
+              <Dugme
+                etiket={ekleAcik ? 'Kapat' : 'Garaja motor ekle'}
+                ikon={ekleAcik ? 'kapat' : 'arti'}
+                tur={ekleAcik ? 'kontur' : 'dolu'}
+                onPress={() => {
+                  if (ekleAcik) motorFormunuTemizle();
+                  ekleDegistir(!ekleAcik);
+                }}
+              />
               <Animated.View
                 style={{
                   height: ekleAnim.interpolate({ inputRange: [0, 1], outputRange: [0, ekleYukseklik] }),
@@ -287,8 +350,12 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
                     <TextInput value={marka} onChangeText={setMarka} placeholder="Marka (ör. Honda)" placeholderTextColor={c.textMuted} style={girdi} />
                     <TextInput value={model} onChangeText={setModel} placeholder="Model (ör. CB650R)" placeholderTextColor={c.textMuted} style={girdi} />
                   </View>
-                  <TextInput value={yil} onChangeText={setYil} placeholder="Yıl (isteğe bağlı)" placeholderTextColor={c.textMuted} keyboardType="number-pad" maxLength={4} style={girdi} />
-                  <Dugme etiket="Motoru ekle" ikon="tik" onPress={motorEkle} pasif={!marka.trim() || !model.trim()} />
+                  <View style={styles.ekleSatir}>
+                    <TextInput value={yil} onChangeText={setYil} placeholder="Yıl (isteğe bağlı)" placeholderTextColor={c.textMuted} keyboardType="number-pad" maxLength={4} style={girdi} />
+                    <TextInput value={km} onChangeText={setKm} placeholder="Kilometre (isteğe bağlı)" placeholderTextColor={c.textMuted} keyboardType="number-pad" maxLength={9} style={girdi} />
+                  </View>
+                  <TextInput value={lakap} onChangeText={setLakap} placeholder="Lakap (ör. Kara Şimşek)" placeholderTextColor={c.textMuted} maxLength={30} style={girdi} />
+                  <Dugme etiket={duzenlenenMotor ? 'Değişiklikleri kaydet' : 'Motoru ekle'} ikon="tik" onPress={motorKaydet} pasif={!marka.trim() || !model.trim()} />
                 </View>
               </Animated.View>
             </View>
@@ -399,6 +466,13 @@ const styles = StyleSheet.create({
   motorYazi: { flex: 1, gap: 5 },
   motorAd: { fontSize: 18, fontWeight: '900' },
   motorAlt: { fontSize: 13.5 },
+  motorLakap: { fontSize: 14, fontWeight: '700' },
+  motorEylem: { gap: spacing.sm },
+  rozetBolum: { gap: spacing.sm },
+  rozetSerit: { gap: spacing.sm },
+  rozetKart: { width: 150, padding: spacing.md, borderRadius: radius.lg, borderWidth: 1.5, gap: 4 },
+  rozetAd: { fontSize: 14, fontWeight: '900' },
+  rozetAlt: { fontSize: 12, lineHeight: 16 },
   sil: { minHeight: 36, paddingHorizontal: spacing.md },
   ekleIc: { position: 'absolute', top: spacing.md, left: 0, right: 0 },
   ekleKart: { padding: spacing.lg, borderRadius: radius.lg, borderWidth: StyleSheet.hairlineWidth, gap: spacing.md },
