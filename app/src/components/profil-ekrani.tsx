@@ -371,7 +371,7 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
                   </View>
                   <View style={styles.ekleSatir}>
                     <TextInput value={yil} onChangeText={setYil} placeholder="Yıl (isteğe bağlı)" placeholderTextColor={c.textMuted} keyboardType="number-pad" maxLength={4} style={girdi} />
-                    <TextInput value={km} onChangeText={setKm} placeholder="Kilometre (isteğe bağlı)" placeholderTextColor={c.textMuted} keyboardType="number-pad" maxLength={9} style={girdi} />
+                    <TextInput value={km} onChangeText={setKm} placeholder="Kilometre" placeholderTextColor={c.textMuted} keyboardType="number-pad" maxLength={9} style={girdi} />
                   </View>
                   <TextInput value={lakap} onChangeText={setLakap} placeholder="Lakap (ör. Kara Şimşek)" placeholderTextColor={c.textMuted} maxLength={30} style={girdi} />
                   <Dugme etiket={duzenlenenMotor ? 'Değişiklikleri kaydet' : 'Motoru ekle'} ikon="tik" onPress={motorKaydet} pasif={!marka.trim() || !model.trim()} />
