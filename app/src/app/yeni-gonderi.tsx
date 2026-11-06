@@ -9,7 +9,7 @@ import { Ikon } from '@/components/ikon';
 import { KonumHaritasi } from '@/components/konum-haritasi';
 import { Dugme, Hap } from '@/components/yol-ui';
 import { gonderiKategorileri, type KategoriId } from '@/demo/akis';
-import { useAkis } from '@/lib/akis';
+import { MAKS_FOTO, useAkis } from '@/lib/akis';
 import { mevcutKonum, yerAdindanKonum } from '@/lib/konum';
 import { suz } from '@/lib/moderasyon/uygula';
 import { gunEtiketi, planliZamanYazi } from '@/lib/zaman';
@@ -28,7 +28,7 @@ export default function YeniGonderi() {
   const [kategori, setKategori] = useState<KategoriId | null>(null);
   const [konum, setKonum] = useState('');
   const [metin, setMetin] = useState('');
-  const [fotoUri, setFotoUri] = useState<string | null>(null);
+  const [fotoUriler, setFotoUriler] = useState<string[]>([]);
   const [nokta, setNokta] = useState<{ lat: number; lng: number; sehir?: string } | null>(null);
   const [mesgul, setMesgul] = useState(false);
   const [planli, setPlanli] = useState(false);
@@ -59,8 +59,18 @@ export default function YeniGonderi() {
   };
 
   const fotoSec = async () => {
-    const r = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.7, allowsEditing: false });
-    if (!r.canceled) setFotoUri(r.assets[0].uri);
+    const kalan = MAKS_FOTO - fotoUriler.length;
+    if (kalan <= 0) return;
+    const r = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 0.7,
+      allowsEditing: false,
+      allowsMultipleSelection: true,
+      selectionLimit: kalan,
+    });
+    if (r.canceled) return;
+    // Aynı fotoğraf iki kez eklenmesin; sınırı aşan fazlalık kesilir.
+    setFotoUriler((o) => [...o, ...r.assets.map((a) => a.uri).filter((u) => !o.includes(u))].slice(0, MAKS_FOTO));
   };
 
   const paylas = async () => {
@@ -78,7 +88,7 @@ export default function YeniGonderi() {
       metin: temiz,
       surusTuru: surus ? (planli ? 'planli' : 'anlik') : undefined,
       baslangic: surus ? (planli ? baslangic.toISOString() : new Date().toISOString()) : undefined,
-      fotoUri, enlem: n?.lat, boylam: n?.lng, sehir: n?.sehir });
+      fotoUriler, enlem: n?.lat, boylam: n?.lng, sehir: n?.sehir });
     setMesgul(false);
     router.back();
   };
@@ -204,16 +214,27 @@ export default function YeniGonderi() {
           </Text>
         </View>
 
-        {fotoUri ? (
-          <View style={[styles.foto, { backgroundColor: c.surfaceAlt, borderColor: c.primary }]}>
-            <Image source={{ uri: fotoUri }} style={styles.onizleme} contentFit="cover" />
-            <Text style={[styles.fotoYazi, { color: c.text }]}>Fotoğraf eklendi</Text>
-            <Pressable onPress={() => setFotoUri(null)} hitSlop={10} accessibilityRole="button" accessibilityLabel="Fotoğrafı kaldır">
-              <Ikon ad="kapat" boyut={18} renk={c.textMuted} />
-            </Pressable>
+        {fotoUriler.length > 0 ? (
+          <View style={styles.fotoSerit}>
+            {fotoUriler.map((uri, i) => (
+              <View key={uri} style={[styles.fotoKutu, { borderColor: i === 0 ? c.primary : c.border }]}>
+                <Image source={{ uri }} style={styles.fotoKucuk} contentFit="cover" />
+                <Pressable
+                  onPress={() => setFotoUriler((o) => o.filter((u) => u !== uri))}
+                  hitSlop={8}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${i + 1}. fotoğrafı kaldır`}
+                  style={[styles.fotoSil, { backgroundColor: c.bg }]}>
+                  <Ikon ad="kapat" boyut={14} renk={c.text} />
+                </Pressable>
+              </View>
+            ))}
           </View>
+        ) : null}
+        {fotoUriler.length < MAKS_FOTO ? (
+          <Dugme etiket={fotoUriler.length ? `Fotoğraf Ekle (${fotoUriler.length}/${MAKS_FOTO})` : 'Fotoğraf Ekle'} ikon="foto" tur="kontur" onPress={fotoSec} />
         ) : (
-          <Dugme etiket="Fotoğraf Ekle" ikon="foto" tur="kontur" onPress={fotoSec} />
+          <Text style={[styles.altYazi, { color: c.textMuted }]}>En fazla {MAKS_FOTO} fotoğraf ekleyebilirsin.</Text>
         )}
       </ScrollView>
 
@@ -259,9 +280,10 @@ const styles = StyleSheet.create({
   metinKap: { borderRadius: radius.md, borderWidth: 1, padding: spacing.md },
   metin: { minHeight: 120, fontSize: 16, lineHeight: 22 },
   sayac: { alignSelf: 'flex-end', fontSize: 12, fontWeight: '700' },
-  foto: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.lg, borderRadius: radius.md, borderWidth: 1.5 },
-  onizleme: { width: 56, height: 56, borderRadius: radius.sm },
-  fotoYazi: { flex: 1, fontSize: 15, fontWeight: '700' },
+  fotoSerit: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  fotoKutu: { width: 76, height: 76, borderRadius: radius.sm, borderWidth: 1.5, overflow: 'hidden' },
+  fotoKucuk: { width: '100%', height: '100%' },
+  fotoSil: { position: 'absolute', top: 4, right: 4, width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
   alt: { paddingHorizontal: spacing.lg, paddingTop: spacing.md, gap: spacing.sm, borderTopWidth: StyleSheet.hairlineWidth },
   ipucu: { textAlign: 'center', fontSize: 12.5 },
 });

@@ -17,6 +17,8 @@ export type AkisGonderisi = Gonderi & {
   enlem?: number;
   boylam?: number;
   fotoUrl?: string;
+  /** Gönderideki tüm fotoğraflar (en çok 4); `fotoUrl` ilkidir. */
+  fotoUrlleri?: string[];
   sehir?: string;
   benim?: boolean;
   yazarId?: string;
@@ -27,6 +29,9 @@ export type AkisGonderisi = Gonderi & {
   surusTuru?: 'anlik' | 'planli';
   baslangic?: string;
 };
+
+/** Bir gönderiye eklenebilecek en çok fotoğraf sayısı (veritabanı kısıtıyla aynı). */
+export const MAKS_FOTO = 4;
 
 /** Sürüş (buluşma) gönderisinin aktif kaldığı süre. */
 export const SURUS_OMRU_SAAT = 12;
@@ -44,8 +49,8 @@ export type YeniGonderi = {
   metin: string;
   surusTuru?: 'anlik' | 'planli';
   baslangic?: string;
-  /** Telefondaki fotoğraf adresi (yüklenir). */
-  fotoUri?: string | null;
+  /** Telefondaki fotoğraf adresleri (yüklenir, en çok 4). */
+  fotoUriler?: string[];
   enlem?: number;
   boylam?: number;
   sehir?: string;
@@ -86,6 +91,7 @@ type Satir = {
   lng: number | null;
   has_photo: boolean;
   photo_path: string | null;
+  photo_paths: string[] | null;
   city: string | null;
   is_anonymous: boolean;
   created_at: string;
@@ -109,6 +115,12 @@ function fotoAdresi(yol: string | null): string | undefined {
   return supabase.storage.from('post-photos').getPublicUrl(yol).data.publicUrl;
 }
 
+/** Yeni gönderide `photo_paths`, eski gönderilerde yalnız `photo_path` dolu olabilir. */
+function fotoYollari(r: Pick<Satir, 'photo_path' | 'photo_paths'>): string[] {
+  if (r.photo_paths?.length) return r.photo_paths;
+  return r.photo_path ? [r.photo_path] : [];
+}
+
 function satirdanGonderi(r: Satir, konum: { lat: number; lng: number } | null): AkisGonderisi {
   const var_ = r.lat != null && r.lng != null;
   return {
@@ -125,6 +137,7 @@ function satirdanGonderi(r: Satir, konum: { lat: number; lng: number } | null): 
     metin: r.body,
     gorsel: r.has_photo,
     fotoUrl: fotoAdresi(r.photo_path),
+    fotoUrlleri: fotoYollari(r).map((y) => fotoAdresi(y)!).filter(Boolean),
     sehir: r.city ?? undefined,
     benim: r.is_mine,
     yazarId: r.author_id ?? undefined,
@@ -257,14 +270,24 @@ export function AkisSaglayici({ children }: { children: ReactNode }) {
   const ekle = useCallback(
     async (g: YeniGonderi) => {
       if (supabase && uid) {
-        let yol: string | null = null;
-        if (g.fotoUri) {
-          try {
-            const buf = await (await fetch(g.fotoUri)).arrayBuffer();
-            const ad = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.jpg`;
-            const { error } = await supabase.storage.from('post-photos').upload(ad, buf, { contentType: 'image/jpeg' });
-            if (!error) yol = ad;
-          } catch {}
+        const secilen = (g.fotoUriler ?? []).slice(0, MAKS_FOTO);
+        // Fotoğraflar sırayla değil birlikte yüklenir; başarısız olanlar atlanır ve kullanıcıya bildirilir.
+        const yuklenen = await Promise.all(
+          secilen.map(async (uri) => {
+            try {
+              const buf = await (await fetch(uri)).arrayBuffer();
+              const ad = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.jpg`;
+              const { error } = await supabase!.storage.from('post-photos').upload(ad, buf, { contentType: 'image/jpeg' });
+              return error ? null : ad;
+            } catch {
+              return null;
+            }
+          }),
+        );
+        const yollar = yuklenen.filter((y): y is string => !!y);
+        const yol = yollar[0] ?? null;
+        if (yollar.length < secilen.length) {
+          Alert.alert('Bazı fotoğraflar yüklenemedi', `${secilen.length - yollar.length} fotoğraf eklenemedi. Gönderin diğerleriyle paylaşıldı.`);
         }
         const { error: yazHata } = await supabase.from('posts').insert({
           author_id: uid,
@@ -277,8 +300,9 @@ export function AkisSaglayici({ children }: { children: ReactNode }) {
           city: g.sehir ?? null,
           ride_type: g.surusTuru ? (g.surusTuru === 'planli' ? 'planned' : 'instant') : null,
           starts_at: g.baslangic ?? null,
-          has_photo: !!yol,
+          has_photo: yollar.length > 0,
           photo_path: yol,
+          photo_paths: yollar,
         });
         if (yazHata && !hizUyarisi(yazHata) && !(await kisitUyarisi())) Alert.alert('Paylaşılamadı', 'İnternet bağlantını kontrol edip tekrar dene.');
         await yenile();
@@ -296,8 +320,9 @@ export function AkisSaglayici({ children }: { children: ReactNode }) {
         baslangic: g.baslangic,
         kategori: g.kategori,
         metin: g.metin.trim(),
-        gorsel: !!g.fotoUri,
-        fotoUrl: g.fotoUri ?? undefined,
+        gorsel: !!g.fotoUriler?.length,
+        fotoUrl: g.fotoUriler?.[0],
+        fotoUrlleri: g.fotoUriler,
         enlem: g.enlem,
         boylam: g.boylam,
         sehir: g.sehir,

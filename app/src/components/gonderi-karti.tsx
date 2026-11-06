@@ -5,6 +5,7 @@ import { Alert, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'reac
 
 import { suz } from '@/lib/moderasyon/uygula';
 import { Ikon } from '@/components/ikon';
+import { FotoGalerisi } from '@/components/foto-galerisi';
 import { OnayKutusu } from '@/components/onay-kutusu';
 import { ZaferIsareti } from '@/components/zafer-isareti';
 import { gonderiKategorileri } from '@/demo/akis';
@@ -122,7 +123,11 @@ export function GonderiKarti({ g, detay = false }: { g: AkisGonderisi; detay?: b
           </Text>
         </View>
       ) : null}
-      {g.gorsel || g.fotoUrl ? <GorselAlani url={g.fotoUrl} /> : null}
+      {g.fotoUrlleri?.length ? (
+        <FotoGalerisi adresler={g.fotoUrlleri} />
+      ) : g.gorsel || g.fotoUrl ? (
+        <GorselAlani url={g.fotoUrl} />
+      ) : null}
 
       <View style={styles.eylemler}>
         <Pressable
