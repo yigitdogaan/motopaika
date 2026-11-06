@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Image } from 'expo-image';
 import { useRouter, type Href } from 'expo-router';
 import { Animated, Easing, FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -12,11 +12,12 @@ import { GonderiKarti } from '@/components/gonderi-karti';
 import { Hap } from '@/components/yol-ui';
 import { gonderiKategorileri, type KategoriId } from '@/demo/akis';
 import { useAltMenuBosluk } from '@/components/alt-menu';
-import { planliZamanYazi } from '@/lib/zaman';
-import { pasifMi, useAkis, type AkisGonderisi } from '@/lib/akis';
+import { Avatar } from '@/components/ui/avatar';
+import { useAkis } from '@/lib/akis';
+import { akisiSuz, MESAFELER, sehirListesi, type Filtre, type Siralama } from '@/lib/akis-filtre';
+import { surucuAra, type SurucuSonucu } from '@/lib/surucu-ara';
 import { radius, spacing, useTheme } from '@/theme';
 
-type Filtre = 'tumu' | 'anonim' | 'yakin' | KategoriId;
 // Üst filtre: Tümü, Anonim Duvar, tüm kategoriler (kendi renkleriyle), Yakınımdakiler.
 const FILTRELER: { id: Filtre; ad: string; renk?: string }[] = [
   { id: 'tumu', ad: 'Tümü' },
@@ -28,8 +29,6 @@ const FILTRELER: { id: Filtre; ad: string; renk?: string }[] = [
   }),
   { id: 'yakin', ad: 'Yakınımdakiler' },
 ];
-
-// Mesafe seçenekleri (km); null = sınırsız.
 
 /** Ana akış (duvar). */
 export default function Akis() {
@@ -53,15 +52,42 @@ export default function Akis() {
     });
   };
 
-  const liste = useMemo(() => {
-    let l = gonderiler;
-    if (filtre === 'anonim') l = l.filter((g) => g.anonim);
-    else if (filtre === 'yakin') l = l.filter((g) => g.mesafeKm < 9999);
-    else if (filtre !== 'tumu') l = l.filter((g) => g.kategori === filtre);
-    const q = ara.trim().toLocaleLowerCase('tr');
-    if (q) l = l.filter((g) => [g.metin, g.yazar, g.motor, g.konum, g.sehir ?? ''].some((t) => t.toLocaleLowerCase('tr').includes(q)));
-    return filtre === 'yakin' ? [...l].sort((a, b) => a.mesafeKm - b.mesafeKm) : l;
-  }, [filtre, ara, gonderiler]);
+  const [maksKm, setMaksKm] = useState<number | null>(50);
+  const [sehir, setSehir] = useState<string | null>(null);
+  const [siralama, setSiralama] = useState<Siralama>('yeni');
+  const [suruculer, setSuruculer] = useState<SurucuSonucu[]>([]);
+  const router = useRouter();
+
+  // Arama kutusu: gönderiler yerelde süzülür, sürücüler 300 ms bekleyip sunucuda aranır.
+  useEffect(() => {
+    const q = ara.trim();
+    if (q.length < 2) {
+      setSuruculer([]);
+      return;
+    }
+    let iptal = false;
+    const t = setTimeout(() => {
+      surucuAra(q).then((l) => {
+        if (!iptal) setSuruculer(l);
+      });
+    }, 300);
+    return () => {
+      iptal = true;
+      clearTimeout(t);
+    };
+  }, [ara]);
+
+  const sehirler = useMemo(() => sehirListesi(gonderiler), [gonderiler]);
+  // Seçili şehrin gönderisi kalmadıysa (silindi/yenilendi) filtreyi sıfırla.
+  useEffect(() => {
+    if (sehir && !sehirler.some((x) => x.sehir === sehir)) setSehir(null);
+  }, [sehir, sehirler]);
+
+  const liste = useMemo(
+    () => akisiSuz(gonderiler, { filtre, ara, maksKm, sehir, siralama }),
+    [filtre, ara, maksKm, sehir, siralama, gonderiler],
+  );
+  const suzulu = filtre !== 'tumu' || !!sehir || !!ara.trim();
 
   return (
     <View style={[styles.ekran, { backgroundColor: c.bg }]}>
@@ -109,6 +135,21 @@ export default function Akis() {
                 <Hap key={f.id} etiket={f.ad} renk={f.renk} secili={f.id === filtre} onPress={() => setFiltre(f.id)} />
               ))}
             </ScrollView>
+            {filtre === 'yakin' ? (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.filtreSerit, styles.altSerit]} accessibilityLabel="Mesafe">
+                {MESAFELER.map((km) => (
+                  <Hap key={km ?? 'hepsi'} etiket={km == null ? 'Sınırsız' : `${km} km`} secili={maksKm === km} onPress={() => setMaksKm(km)} />
+                ))}
+              </ScrollView>
+            ) : null}
+            {sehirler.length > 1 ? (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.filtreSerit, styles.altSerit]} accessibilityLabel="Şehir">
+                <Hap etiket="Tüm şehirler" ikon="konum" secili={sehir === null} onPress={() => setSehir(null)} />
+                {sehirler.map((x) => (
+                  <Hap key={x.sehir} etiket={`${x.sehir} · ${x.sayi}`} secili={sehir === x.sehir} onPress={() => setSehir(sehir === x.sehir ? null : x.sehir)} />
+                ))}
+              </ScrollView>
+            ) : null}
           </View>
         }
       />
@@ -116,14 +157,51 @@ export default function Akis() {
       <FlatList
         data={liste}
         keyExtractor={(g) => g.id}
-        ListHeaderComponent={<YonetimBanneri />}
+        ListHeaderComponent={
+          <View style={styles.baslikAlani}>
+            <YonetimBanneri />
+            {suruculer.length > 0 ? (
+              <View style={styles.suruculer}>
+                <Text style={[styles.bolumBaslik, { color: c.textMuted }]}>SÜRÜCÜLER</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.surucuSerit} keyboardShouldPersistTaps="handled">
+                  {suruculer.map((k) => (
+                    <Pressable
+                      key={k.id}
+                      onPress={() => router.push(`/profil/${k.id}` as Href)}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${k.ad} profilini aç`}
+                      style={[styles.surucu, { backgroundColor: c.surface, borderColor: c.border }]}>
+                      <Avatar name={k.ad} uri={k.avatarUrl} size="md" />
+                      <Text style={[styles.surucuAd, { color: c.text }]} numberOfLines={1}>{k.ad}</Text>
+                      <Text style={[styles.surucuKullanici, { color: c.textMuted }]} numberOfLines={1}>@{k.kullanici}</Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              </View>
+            ) : null}
+            {filtre !== 'yakin' ? (
+              <View style={styles.siralamaSatiri}>
+                <Text style={[styles.bolumBaslik, { color: c.textMuted }]}>{liste.length} GÖNDERİ</Text>
+                <Pressable
+                  onPress={() => setSiralama(siralama === 'yeni' ? 'selam' : 'yeni')}
+                  hitSlop={8}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Sıralama: ${siralama === 'yeni' ? 'en yeni' : 'en çok selam'}. Değiştir`}>
+                  <Text style={[styles.siralamaYazi, { color: c.primary }]}>{siralama === 'yeni' ? 'En yeni' : 'En çok selam'}</Text>
+                </Pressable>
+              </View>
+            ) : null}
+          </View>
+        }
         renderItem={({ item }) => <GonderiKarti g={item} />}
         contentContainerStyle={[styles.icerik, { paddingTop: ust + spacing.sm, paddingBottom: bosluk }]}
         ListEmptyComponent={
           <Text style={[styles.bos, { color: c.textMuted }]}>
             {filtre === 'yakin' && gonderiler.every((g) => g.mesafeKm >= 9999)
               ? 'Yakınındakiler için konum gerekli. Konum iznini aç ya da Konumum alanından bir yer seç.'
-              : ara.trim() ? 'Aramaya uyan gönderi yok.' : 'Bu filtrede gönderi yok.'}
+              : filtre === 'yakin' && maksKm != null
+                ? `${maksKm} km çevrende gönderi yok. Mesafeyi artırmayı dene.`
+                : ara.trim() ? 'Aramaya uyan gönderi yok.' : suzulu ? 'Bu filtrede gönderi yok.' : 'Henüz gönderi yok.'}
           </Text>
         }
       />
@@ -139,6 +217,16 @@ const styles = StyleSheet.create({
   konumSatiri2: { alignItems: 'center', marginTop: -spacing.sm, marginBottom: spacing.md },
   araDugme: { width: 42, height: 42, borderRadius: radius.full, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   filtreSerit: { gap: spacing.sm, paddingHorizontal: spacing.lg },
+  altSerit: { marginTop: spacing.sm },
+  baslikAlani: { gap: spacing.md },
+  suruculer: { gap: spacing.sm },
+  bolumBaslik: { fontSize: 12, fontWeight: '800', letterSpacing: 1.5 },
+  surucuSerit: { gap: spacing.sm },
+  surucu: { width: 104, alignItems: 'center', gap: 4, padding: spacing.md, borderRadius: radius.lg, borderWidth: 1 },
+  surucuAd: { fontSize: 13, fontWeight: '800', maxWidth: 88 },
+  surucuKullanici: { fontSize: 11.5, maxWidth: 88 },
+  siralamaSatiri: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  siralamaYazi: { fontSize: 13, fontWeight: '800' },
   icerik: { padding: spacing.lg, paddingBottom: spacing.xxl + 24, gap: spacing.md },
   bos: { textAlign: 'center', marginTop: spacing.xxl, fontSize: 15 },
 });
