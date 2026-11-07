@@ -1,0 +1,8 @@
+{
+  // Yönetim paneli (yonetim.roteri.app): `npm run build` çıktısı olan dist/ klasörünü yayınlar.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "roteri-yonetim",
+  "compatibility_date": "2026-11-01",
+  "assets": { "directory": "./dist" },
+  "routes": [{ "pattern": "yonetim.roteri.app", "custom_domain": true }]
+}

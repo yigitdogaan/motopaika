@@ -1,0 +1,8 @@
+{
+  // Tanıtım sitesi (roteri.app): repo kökünden, site/ klasörünü yayınlar.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "roteri-site",
+  "compatibility_date": "2026-11-01",
+  "assets": { "directory": "./site" },
+  "routes": [{ "pattern": "roteri.app", "custom_domain": true }]
+}
