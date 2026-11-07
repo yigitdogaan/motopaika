@@ -9,11 +9,11 @@ export const kategoriRenkleri: Record<KategoriId, string> = {
   teknik: '#38BDF8', // mavi
 };
 
-export const gonderiKategorileri: { id: KategoriId; ad: string; kisa: string; renk: string }[] = [
-  { id: 'uyari', ad: 'Yol / Trafik Uyarısı', kisa: 'Uyarı', renk: kategoriRenkleri.uyari },
-  { id: 'surus', ad: 'Sürüş Arkadaşı', kisa: 'Sürüş', renk: kategoriRenkleri.surus },
-  { id: 'geyik', ad: 'Geyik / İç Dökme', kisa: 'Geyik', renk: kategoriRenkleri.geyik },
-  { id: 'teknik', ad: 'Teknik Soru', kisa: 'Teknik', renk: kategoriRenkleri.teknik },
+export const gonderiKategorileri: { id: KategoriId; ad: string; kisa: string; renk: string; aciklama: string }[] = [
+  { id: 'uyari', ad: 'Yol / Trafik Uyarısı', kisa: 'Uyarı', renk: kategoriRenkleri.uyari, aciklama: 'Yoldaki tehlike, kaza, radar, yol çalışması gibi herkesin bilmesi gereken durumlar.' },
+  { id: 'surus', ad: 'Sürüş Arkadaşı', kisa: 'Sürüş', renk: kategoriRenkleri.surus, aciklama: 'Birlikte sürmek için buluşma kur; haritada görünür, katılmak isteyenler sana istek gönderir.' },
+  { id: 'geyik', ad: 'Geyik / İç Dökme', kisa: 'Geyik', renk: kategoriRenkleri.geyik, aciklama: 'Sohbet, muhabbet, paylaşım. Geyik = motor üzerine rahat sohbet.' },
+  { id: 'teknik', ad: 'Teknik Soru', kisa: 'Teknik', renk: kategoriRenkleri.teknik, aciklama: 'Bakım, arıza, aksesuar gibi motoruna dair sorular; toplulukta deneyimli sürücüler yanıtlar.' },
 ];
 
 export type Yorum = { yazar: string; metin: string };

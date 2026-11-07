@@ -1,7 +1,8 @@
 import type { KategoriId } from '@/demo/akis';
 import type { AkisGonderisi } from './akis';
 
-export type Filtre = 'tumu' | 'anonim' | 'yakin' | KategoriId;
+/** Kapsam: tüm gönderiler, yalnız anonim paylaşımlar ("Anonim Duvar") ya da konuma yakın olanlar. Kategoriyle birlikte seçilebilir. */
+export type Kapsam = 'hepsi' | 'anonim' | 'yakin';
 export type Siralama = 'yeni' | 'selam';
 
 /** "Yakınımdakiler"de seçilebilen mesafeler (km); null = sınırsız. */
@@ -42,25 +43,47 @@ export function sehirListesi(gonderiler: Pick<AkisGonderisi, 'sehir'>[]): { sehi
 }
 
 export type FiltreSecimi = {
-  filtre: Filtre;
+  /** null = tüm kategoriler. */
+  kategori: KategoriId | null;
+  kapsam: Kapsam;
   ara: string;
-  /** Yalnız `yakin` filtresinde: bu mesafeden uzaktaki gönderiler çıkar. null = sınırsız. */
+  /** Yalnız `yakin` kapsamında: bu mesafeden uzaktaki gönderiler çıkar. null = sınırsız. */
   maksKm: number | null;
   /** null = tüm şehirler. */
   sehir: string | null;
   siralama: Siralama;
 };
 
-/** Akış listesini filtre, mesafe, şehir ve aramaya göre süzer; sıralamayı uygular. Girdiyi değiştirmez. */
+/** Hiçbir filtre seçili değilken kullanılan başlangıç değerleri. */
+export const VARSAYILAN_FILTRE: FiltreSecimi = { kategori: null, kapsam: 'hepsi', ara: '', maksKm: 50, sehir: null, siralama: 'yeni' };
+
+/** Akış listesini kategori, kapsam, mesafe, şehir ve aramaya göre süzer; sıralamayı uygular. Girdiyi değiştirmez. */
 export function akisiSuz(gonderiler: AkisGonderisi[], s: FiltreSecimi): AkisGonderisi[] {
   let l = gonderiler;
-  if (s.filtre === 'anonim') l = l.filter((g) => g.anonim);
-  else if (s.filtre === 'yakin') {
+  if (s.kategori) l = l.filter((g) => g.kategori === s.kategori);
+  if (s.kapsam === 'anonim') l = l.filter((g) => g.anonim);
+  else if (s.kapsam === 'yakin') {
     l = l.filter((g) => g.mesafeKm < MESAFE_BILINMIYOR && (s.maksKm == null || g.mesafeKm <= s.maksKm));
-  } else if (s.filtre !== 'tumu') l = l.filter((g) => g.kategori === s.filtre);
+  }
   if (s.sehir) l = l.filter((g) => g.sehir === s.sehir);
   if (s.ara.trim()) l = l.filter((g) => aramaUyar(g, s.ara));
-  if (s.filtre === 'yakin') return [...l].sort((a, b) => a.mesafeKm - b.mesafeKm);
+  if (s.kapsam === 'yakin') return [...l].sort((a, b) => a.mesafeKm - b.mesafeKm);
   if (s.siralama === 'selam') return [...l].sort((a, b) => b.selam - a.selam);
   return l;
+}
+
+/**
+ * Süresi dolmuş (pasif) gönderileri listenin sonuna taşır; kendi içlerinde ve aktiflerin kendi içindeki sıra korunur.
+ * Böylece biten sürüşler yeni içeriği aşağı itmez.
+ */
+export function bitenleriSona<T>(liste: T[], pasif: (g: T) => boolean): T[] {
+  const aktif: T[] = [];
+  const biten: T[] = [];
+  for (const g of liste) (pasif(g) ? biten : aktif).push(g);
+  return [...aktif, ...biten];
+}
+
+/** "Filtrele" düğmesindeki rozet: varsayılandan farklı seçilen panel ayarlarının sayısı (kategori çipleri ve arama sayılmaz). */
+export function panelFiltreSayisi(s: Pick<FiltreSecimi, 'kapsam' | 'sehir' | 'siralama'>): number {
+  return (s.kapsam !== 'hepsi' ? 1 : 0) + (s.sehir ? 1 : 0) + (s.siralama !== 'yeni' ? 1 : 0);
 }

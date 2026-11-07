@@ -54,11 +54,12 @@ function Yuz({ uri, ad, boyut }: { uri?: string; ad: string; boyut: number }) {
 export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number }) {
   const c = useTheme();
   const bosluk = useAltMenuBosluk();
-  const { kullanici, cikisYap } = useOturum();
+  const { kullanici } = useOturum();
   const router = useRouter();
   const benim = kullanici?.id === id;
 
   const [profil, setProfil] = useState<Profil | null>(null);
+  const [rozetAcik, setRozetAcik] = useState(false);
   const [motorlar, setMotorlar] = useState<GarajMotor[]>([]);
   const [seciliMotor, setSeciliMotor] = useState<string | null>(null);
   const [gonderiler, setGonderiler] = useState<GonderiOzeti[]>([]);
@@ -285,8 +286,18 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
 
       {gorunenRozetler.length ? (
         <View style={styles.rozetBolum}>
-          <Text style={[styles.etiket, { color: c.textMuted }]}>ROZETLER · {rozetler.filter((r) => r.kazanildi).length}/{rozetler.length}</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rozetSerit}>
+          <Pressable
+            onPress={() => setRozetAcik((a) => !a)}
+            accessibilityRole="button"
+            accessibilityLabel={rozetAcik ? 'Rozetleri gizle' : 'Rozetleri göster'}
+            style={[styles.rozetOzet, { backgroundColor: c.surface, borderColor: c.border }]}>
+            <Ikon ad="yildiz" boyut={16} renk={c.primary} />
+            <Text style={[styles.rozetOzetYazi, { color: c.text }]} numberOfLines={1}>
+              {rozetler.filter((r) => r.kazanildi).length} / {rozetler.length} rozet kazanıldı
+            </Text>
+            <Text style={[styles.rozetOzetLink, { color: c.primary }]}>{rozetAcik ? 'Gizle' : 'Göster'}</Text>
+          </Pressable>
+          {rozetAcik ? <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rozetSerit}>
             {gorunenRozetler.map((r) => (
               <View
                 key={r.id}
@@ -299,7 +310,7 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
                 </Text>
               </View>
             ))}
-          </ScrollView>
+          </ScrollView> : null}
         </View>
       ) : null}
 
@@ -414,7 +425,6 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
         onDegisti={async () => setMotorlar(await motorlariGetir(id))}
       />
 
-      {benim ? <Dugme etiket="Çıkış yap" ikon="cikis" tur="kontur" onPress={cikisYap} style={styles.cikis} /> : null}
 
       <Modal visible={duzenle} animationType="slide" transparent onRequestClose={() => setDuzenle(false)}>
         <View style={styles.perde}>
@@ -489,6 +499,9 @@ const styles = StyleSheet.create({
   motorEylem: { gap: spacing.sm },
   rozetBolum: { gap: spacing.sm },
   rozetSerit: { gap: spacing.sm },
+  rozetOzet: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: 46, paddingHorizontal: spacing.md, borderRadius: radius.lg, borderWidth: 1 },
+  rozetOzetYazi: { flex: 1, fontSize: 14, fontWeight: '700' },
+  rozetOzetLink: { fontSize: 13.5, fontWeight: '800' },
   rozetKart: { width: 168, padding: spacing.md, borderRadius: radius.lg, borderWidth: 1.5, gap: 4 },
   rozetAd: { fontSize: 14, fontWeight: '900' },
   rozetAlt: { fontSize: 12, lineHeight: 16 },

@@ -37,7 +37,7 @@ export function Bulanik({ yogunluk = 45, radius, katman = '99' }: { yogunluk?: n
   const BlurView = Blur?.BlurView;
   const kap = [StyleSheet.absoluteFill, radius ? { borderRadius: radius, overflow: 'hidden' as const } : null];
   if (!BlurView) {
-    return <View pointerEvents="none" style={[kap, { backgroundColor: `${c.surface}E6` }]} />;
+    return <View pointerEvents="none" style={[kap, { backgroundColor: `${c.surface}F5` }]} />;
   }
   return (
     <View pointerEvents="none" style={kap}>

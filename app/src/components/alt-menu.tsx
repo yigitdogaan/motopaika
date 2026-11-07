@@ -1,5 +1,5 @@
 import { usePathname, useRouter, type Href } from 'expo-router';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Bulanik } from '@/components/bulanik';
@@ -9,7 +9,7 @@ import { demoSohbetler } from '@/demo/mesajlar';
 import { supabase } from '@/lib/supabase';
 import { radius, useTheme } from '@/theme';
 
-type Dugme = { rota: string; ikon: IkonAdi; etiket: string; rozet?: number };
+type Dugme = { rota: string; ikon: IkonAdi; etiket: string; kisa: string; rozet?: number };
 
 /**
  * Yüzen alt menü: içeriğin üstünde duran yuvarlak hap. 4 sekme (Akış · Harita · Mesajlar · Profil & Garaj)
@@ -18,16 +18,16 @@ type Dugme = { rota: string; ikon: IkonAdi; etiket: string; rozet?: number };
 // Gerçek modda rozet gösterilmez (okunmamış sayısı Mesajlar ekranında).
 const OKUNMAMIS = supabase ? 0 : demoSohbetler.reduce((t, s) => t + s.okunmamis, 0);
 const SOL: Dugme[] = [
-  { rota: 'akis', ikon: 'ev', etiket: 'Akış' },
-  { rota: 'harita', ikon: 'harita', etiket: 'Harita' },
+  { rota: 'akis', ikon: 'ev', etiket: 'Akış', kisa: 'Akış' },
+  { rota: 'harita', ikon: 'harita', etiket: 'Harita', kisa: 'Harita' },
 ];
 const SAG: Dugme[] = [
-  { rota: 'mesajlar', ikon: 'mesaj', etiket: 'Mesajlar', rozet: OKUNMAMIS },
-  { rota: 'garaj', ikon: 'kisi', etiket: 'Profil ve Garaj' },
+  { rota: 'mesajlar', ikon: 'mesaj', etiket: 'Mesajlar', kisa: 'Mesaj', rozet: OKUNMAMIS },
+  { rota: 'garaj', ikon: 'kisi', etiket: 'Profil ve Garaj', kisa: 'Profil' },
 ];
 
 const FAB = 60;
-const MENU_YUKSEKLIK = 64;
+const MENU_YUKSEKLIK = 68;
 // Android'de sistem çubuğu payı küçük kaldığı için menü biraz daha yukarıda durur.
 const ALT_PAY = Platform.OS === 'android' ? 20 : 0;
 const KENAR = 16;
@@ -55,7 +55,10 @@ export function AltMenu() {
         accessibilityState={{ selected: secili }}
         hitSlop={8}
         style={styles.sekme}>
-        <Ikon ad={d.ikon} boyut={26} renk={secili ? c.primary : c.textMuted} dolu={secili} />
+        <Ikon ad={d.ikon} boyut={24} renk={secili ? c.primary : c.textMuted} dolu={secili} />
+        <Text numberOfLines={1} style={[styles.etiket, { color: secili ? c.primary : c.textMuted }, secili && styles.etiketSecili]}>
+          {d.kisa}
+        </Text>
         {d.rozet ? <Rozet sayi={d.rozet} style={styles.rozet} /> : null}
       </Pressable>
     );
@@ -95,8 +98,10 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 8 },
     elevation: 16,
   },
-  sekme: { flex: 1, height: 40, alignItems: 'center', justifyContent: 'center' },
-  rozet: { position: 'absolute', top: -4, right: '22%' },
+  sekme: { flex: 1, height: 52, alignItems: 'center', justifyContent: 'center', gap: 2 },
+  etiket: { fontSize: 11.5, fontWeight: '600' },
+  etiketSecili: { fontWeight: '800' },
+  rozet: { position: 'absolute', top: 0, right: '22%' },
   fab: {
     width: FAB,
     height: FAB,

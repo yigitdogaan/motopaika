@@ -58,6 +58,10 @@ export type YeniGonderi = {
 
 type Baglam = {
   gonderiler: AkisGonderisi[];
+  /** Gerçek modda ilk liste gelene kadar true (iskelet yükleme için). */
+  yukleniyor: boolean;
+  /** Akışı sunucudan yeniden çeker (aşağı çekip yenile). */
+  yenile: () => Promise<void>;
   ekle: (g: YeniGonderi) => Promise<void>;
   selamDegistir: (id: string) => void;
   geliyorumDegistir: (id: string) => void | Promise<void>;
@@ -173,20 +177,26 @@ export function AkisSaglayici({ children }: { children: ReactNode }) {
   const [konumum, setKonumum] = useState<Konum | null>(null);
   const elleRef = useRef(false);
 
+  const [yukleniyor, setYukleniyor] = useState(!!supabase);
   const yenile = useCallback(async () => {
     if (!supabase) return;
-    const [{ data }, { data: ist }] = await Promise.all([
-      supabase.from('feed_posts').select('*').order('created_at', { ascending: false }).limit(100),
-      supabase.from('ride_requests').select('post_id, status'),
-    ]);
-    if (data) setGonderiler((data as Satir[]).map((r) => satirdanGonderi(r, konumRef.current)));
-    if (ist) setIstekler(Object.fromEntries(ist.map((i: { post_id: string; status: IstekDurumu }) => [i.post_id, i.status])));
+    try {
+      const [{ data }, { data: ist }] = await Promise.all([
+        supabase.from('feed_posts').select('*').order('created_at', { ascending: false }).limit(100),
+        supabase.from('ride_requests').select('post_id, status'),
+      ]);
+      if (data) setGonderiler((data as Satir[]).map((r) => satirdanGonderi(r, konumRef.current)));
+      if (ist) setIstekler(Object.fromEntries(ist.map((i: { post_id: string; status: IstekDurumu }) => [i.post_id, i.status])));
+    } finally {
+      setYukleniyor(false);
+    }
   }, []);
 
   useEffect(() => {
     if (!supabase) return;
     if (!uid) {
       setGonderiler([]);
+      setYukleniyor(false);
       return;
     }
     yenile();
@@ -459,6 +469,8 @@ export function AkisSaglayici({ children }: { children: ReactNode }) {
   const deger = useMemo<Baglam>(
     () => ({
       gonderiler,
+      yukleniyor,
+      yenile,
       ekle,
       selamDegistir,
       geliyorumDegistir,
@@ -474,7 +486,7 @@ export function AkisSaglayici({ children }: { children: ReactNode }) {
       konumNokta,
       konumGps,
     }),
-    [gonderiler, ekle, selamDegistir, geliyorumDegistir, yorumlariYukle, yorumEkle, istekler, canli, istekGonderFn, istekGeriAlFn],
+    [gonderiler, yukleniyor, yenile, ekle, selamDegistir, geliyorumDegistir, yorumlariYukle, yorumEkle, istekler, canli, istekGonderFn, istekGeriAlFn],
   );
   return <AkisBaglami.Provider value={deger}>{children}</AkisBaglami.Provider>;
 }

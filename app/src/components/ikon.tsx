@@ -38,6 +38,8 @@ const IKONLAR = {
   gps: { ios: 'location.fill', android: 'my_location' },
   foto: { ios: 'camera.fill', android: 'photo_camera' },
   galeri: { ios: 'photo.fill', android: 'photo_library' },
+  filtre: { ios: 'line.3.horizontal.decrease', android: 'tune' },
+  bilgi: { ios: 'info.circle.fill', android: 'info' },
   anonim: { ios: 'eye.slash.fill', android: 'visibility_off' },
   saat: { ios: 'clock', android: 'schedule' },
   gonder: { ios: 'paperplane.fill', android: 'send' },

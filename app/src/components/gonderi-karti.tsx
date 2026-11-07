@@ -10,6 +10,7 @@ import { OnayKutusu } from '@/components/onay-kutusu';
 import { ZaferIsareti } from '@/components/zafer-isareti';
 import { gonderiKategorileri } from '@/demo/akis';
 import { pasifMi, useAkis, type AkisGonderisi } from '@/lib/akis';
+import { basariTitresimi, hafifTitresim } from '@/lib/titresim';
 import { planliZamanYazi } from '@/lib/zaman';
 import { radius, spacing, useTheme } from '@/theme';
 
@@ -71,6 +72,24 @@ export function GonderiKarti({ g, detay = false }: { g: AkisGonderisi; detay?: b
   const pasif = pasifMi(g);
   const renk = pasif ? c.textMuted : (kategori?.renk ?? c.border);
 
+  // Süresi dolan sürüş akışta tek satıra iner; dokununca ayrıntı sayfasında tam kart görünür.
+  if (pasif && !detay) {
+    return (
+      <Pressable
+        onPress={detayaGit}
+        accessibilityRole="button"
+        accessibilityLabel={`Sona eren sürüş, ${g.yazar}: ${g.metin}. Aç`}
+        style={({ pressed }) => [styles.biten, { backgroundColor: c.surface, borderColor: c.border }, pressed && { opacity: 0.7 }]}>
+        <Ikon ad="saat" boyut={15} renk={c.textMuted} />
+        <Text style={[styles.bitenYazi, { color: c.textMuted }]} numberOfLines={1}>
+          <Text style={styles.bitenBaslik}>Sürüş sona erdi</Text>
+          {`  ·  ${g.yazar}  ·  ${g.metin}`}
+        </Text>
+        <Ikon ad="ileri" boyut={12} renk={c.textMuted} />
+      </Pressable>
+    );
+  }
+
   return (
     <Pressable
       onPress={detayaGit}
@@ -131,13 +150,17 @@ export function GonderiKarti({ g, detay = false }: { g: AkisGonderisi; detay?: b
 
       <View style={styles.eylemler}>
         <Pressable
-          onPress={() => selamDegistir(g.id)}
+          onPress={() => {
+            if (g.selamVerdi) hafifTitresim();
+            else basariTitresimi();
+            selamDegistir(g.id);
+          }}
           accessibilityRole="button"
-          accessibilityLabel="Selam ver"
+          accessibilityLabel={g.selamVerdi ? 'Selamı geri al' : 'Selam ver'}
           accessibilityState={{ selected: g.selamVerdi }}
           style={[styles.eylem, g.selamVerdi ? { borderColor: c.primary } : { borderColor: c.border }]}>
           <ZaferIsareti boyut={18} renk={g.selamVerdi ? c.primary : c.textMuted} fon={c.surface} dolu />
-          {g.selam > 0 ? <Text style={[styles.sayi, { color: g.selamVerdi ? c.primary : c.textMuted }]}>{g.selam}</Text> : null}
+          <Text style={[styles.sayi, { color: g.selamVerdi ? c.primary : c.textMuted }]}>{g.selam > 0 ? `Selam  ${g.selam}` : 'Selam'}</Text>
         </Pressable>
 
 
@@ -294,11 +317,11 @@ const styles = StyleSheet.create({
   avatar: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
   avatarYazi: { fontSize: 18, fontWeight: '900' },
   kimlik: { flex: 1, gap: 3 },
-  ad: { fontSize: 15, fontWeight: '800' },
+  ad: { fontSize: 16, fontWeight: '800' },
   konumSatiri: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  konum: { fontSize: 12.5, flexShrink: 1 },
+  konum: { fontSize: 13.5, flexShrink: 1 },
   etiket: { borderWidth: 1, borderRadius: radius.sm, paddingHorizontal: 7, paddingVertical: 3 },
-  etiketYazi: { fontSize: 10.5, fontWeight: '800', letterSpacing: 1 },
+  etiketYazi: { fontSize: 11.5, fontWeight: '800', letterSpacing: 0.8 },
   metin: { fontSize: 15.5, lineHeight: 22 },
   gorsel: { height: 150, borderRadius: radius.md, borderWidth: StyleSheet.hairlineWidth, overflow: 'hidden', justifyContent: 'center' },
   serit: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' },
@@ -308,11 +331,14 @@ const styles = StyleSheet.create({
   eylemler: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap' },
   eylem: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: spacing.md, paddingVertical: 9, borderRadius: radius.full, borderWidth: 1.5 },
   eylemYazi: { fontSize: 13.5, fontWeight: '800' },
-  sayi: { fontSize: 13, fontWeight: '700' },
+  sayi: { fontSize: 14, fontWeight: '700' },
   yorum: { flexDirection: 'row', alignItems: 'center', gap: 6, marginLeft: 'auto', paddingVertical: 8, paddingHorizontal: spacing.sm },
   yorumlar: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: spacing.md, gap: spacing.sm },
   yorumSatir: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center' },
   yorumGirdi: { flex: 1, height: 40, borderRadius: radius.full, borderWidth: 1, paddingHorizontal: spacing.md, fontSize: 14 },
   yorumGonder: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
-  yorumMetin: { fontSize: 14, lineHeight: 20 },
+  yorumMetin: { fontSize: 14.5, lineHeight: 21 },
+  biten: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.lg, minHeight: 46, borderRadius: radius.lg, borderWidth: StyleSheet.hairlineWidth },
+  bitenYazi: { flex: 1, fontSize: 13.5 },
+  bitenBaslik: { fontWeight: '800' },
 });

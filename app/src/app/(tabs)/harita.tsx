@@ -36,7 +36,7 @@ function konumaGit(b: Bulusma) {
   Linking.openURL(url).catch(() => {});
 }
 
-/** Harita / Radar: aktif buluşma pinleri, pine dokununca detay kartı. */
+/** Harita: aktif buluşma pinleri, pine dokununca detay kartı. */
 export default function Harita() {
   const c = useTheme();
   const { koyu } = useTema();
@@ -87,11 +87,11 @@ export default function Harita() {
   return (
     <View style={[styles.ekran, { backgroundColor: c.bg }]}>
       <EkranUstu
-        baslik="Radar"
+        baslik="Harita"
         sol={
           <View style={[styles.canli, { borderColor: c.border, backgroundColor: c.surface }]}>
             <View style={[styles.nokta, { backgroundColor: c.success }]} />
-            <Text style={[styles.canliYazi, { color: c.text }]}>{bulusmalar.length} buluşma</Text>
+            <Text style={[styles.canliYazi, { color: c.text }]}>{bulusmalar.length} aktif sürüş</Text>
           </View>
         }
       />

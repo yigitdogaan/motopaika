@@ -17,6 +17,40 @@ import { radius, spacing, useTheme } from '@/theme';
 
 const MAKS = 280;
 
+/** Hazır buluşma zamanları: {gün farkı, saat, dakika} döndürür. */
+const HAZIR_ZAMANLAR: { ad: string; hesapla: () => { gun: number; saat: number; dakika: number } }[] = [
+  {
+    ad: '1 saat sonra',
+    hesapla: () => {
+      const d = new Date(Date.now() + 60 * 60_000);
+      const dk = Math.ceil(d.getMinutes() / 15) * 15;
+      if (dk === 60) d.setHours(d.getHours() + 1, 0);
+      else d.setMinutes(dk);
+      return { gun: d.getDate() === new Date().getDate() ? 0 : 1, saat: d.getHours(), dakika: d.getMinutes() };
+    },
+  },
+  { ad: 'Bu akşam 19:00', hesapla: () => ({ gun: new Date().getHours() >= 18 ? 1 : 0, saat: 19, dakika: 0 }) },
+  { ad: 'Yarın 09:00', hesapla: () => ({ gun: 1, saat: 9, dakika: 0 }) },
+  {
+    ad: 'Cumartesi 10:00',
+    hesapla: () => {
+      const bugun = new Date().getDay();
+      let fark = (6 - bugun + 7) % 7;
+      if (fark === 0 && new Date().getHours() >= 9) fark = 7;
+      return { gun: fark, saat: 10, dakika: 0 };
+    },
+  },
+  {
+    ad: 'Pazar 10:00',
+    hesapla: () => {
+      const bugun = new Date().getDay();
+      let fark = (7 - bugun) % 7;
+      if (fark === 0 && new Date().getHours() >= 9) fark = 7;
+      return { gun: fark, saat: 10, dakika: 0 };
+    },
+  },
+];
+
 /** Gönderi Paylaş: anonim anahtarı, kategori, konum, metin, fotoğraf ve "Paylaş". */
 export default function YeniGonderi() {
   const c = useTheme();
@@ -49,6 +83,12 @@ export default function YeniGonderi() {
   const zamanGecerli = baslangic.getTime() > Date.now() + 10 * 60_000;
   const planliEksik = surus && planli && (!konum.trim() || !zamanGecerli);
   const hazir = !!kategori && metin.trim().length > 0 && !planliEksik;
+
+  const zamanUygula = (z: { gun: number; saat: number; dakika: number }) => {
+    setGun(Math.min(7, z.gun));
+    setSaat(z.saat);
+    setDakika(z.dakika);
+  };
 
   const konumumuAl = async () => {
     setUyari(null);
@@ -134,6 +174,13 @@ export default function YeniGonderi() {
             <Hap key={k.id} etiket={k.ad} renk={k.renk} secili={kategori === k.id} onPress={() => setKategori(k.id)} />
           ))}
         </View>
+        {kategori ? (
+          <Text style={[styles.altYazi, { color: c.textMuted }]}>
+            {gonderiKategorileri.find((k) => k.id === kategori)?.aciklama}
+          </Text>
+        ) : (
+          <Text style={[styles.altYazi, { color: c.textMuted }]}>Gönderinin türünü seç.</Text>
+        )}
 
         {surus ? (
           <>
@@ -147,6 +194,13 @@ export default function YeniGonderi() {
             </Text>
             {planli ? (
               <>
+                <Text style={[styles.etiket, { color: c.textMuted }]}>HIZLI SEÇ</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hapler}>
+                  {HAZIR_ZAMANLAR.map((z) => (
+                    <Hap key={z.ad} etiket={z.ad} ikon="saat" secili={false} onPress={() => zamanUygula(z.hesapla())} />
+                  ))}
+                </ScrollView>
+
                 <Text style={[styles.etiket, { color: c.textMuted }]}>GÜN</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hapler}>
                   {Array.from({ length: 8 }, (_, i) => (
