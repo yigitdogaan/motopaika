@@ -102,6 +102,8 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
   const [bulunamadi, setBulunamadi] = useState(false);
   const [yuklemeHatasi, setYuklemeHatasi] = useState<string | null>(null);
   const [sekme, setSekme] = useState<Sekme>('garaj');
+  // Garaj ve gönderiler ilk kez gelene kadar sayaçlar, rozetler ve tamamlama kartı gösterilmez (yanıltıcı 0 görünmesin).
+  const [listelerHazir, setListelerHazir] = useState(false);
 
   const [marka, setMarka] = useState('');
   const [model, setModel] = useState('');
@@ -137,6 +139,7 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
       const [m, g] = await Promise.all([motorlariGetir(id).catch(() => null), gonderileriGetir(id, benim).catch(() => null)]);
       if (m) setMotorlar(m);
       if (g) setGonderiler(g);
+      setListelerHazir(true);
       if (kullanici && !benim) setEngelli(await engelliMi(kullanici.id, id).catch(() => false));
     } catch (e) {
       setYuklemeHatasi(e instanceof Error ? e.message : 'Bağlantı kurulamadı.');
@@ -272,9 +275,9 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
 
   const selam = gonderiler.reduce((t, g) => t + g.selam, 0);
   const stat = [
-    { deger: String(selam), etiket: 'Selam', vurgu: true },
-    { deger: String(gonderiler.length), etiket: 'Gönderi' },
-    { deger: String(gonderiler.filter((g) => g.kategori === 'surus').length), etiket: 'Buluşma' },
+    { deger: listelerHazir ? String(selam) : '–', etiket: 'Selam', vurgu: true },
+    { deger: listelerHazir ? String(gonderiler.length) : '–', etiket: 'Gönderi' },
+    { deger: listelerHazir ? String(gonderiler.filter((g) => g.kategori === 'surus').length) : '–', etiket: 'Buluşma' },
   ];
   const rozetler = rozetleriHesapla({ selam, gonderi: gonderiler.length, bulusma: gonderiler.filter((g) => g.kategori === 'surus').length, motor: motorlar.length });
   // Başkasının profilinde yalnız kazanılanlar; kendi profilinde kazanılmayanlar da ilerlemeyle görünür.
@@ -334,7 +337,7 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
         )}
       </View>
 
-      {benim ? <TamamlaKarti adimlar={tamamlaAdimlari} /> : null}
+      {benim && listelerHazir ? <TamamlaKarti adimlar={tamamlaAdimlari} /> : null}
 
       <View style={[styles.istatistikler, { backgroundColor: c.surface, borderColor: c.border }]}>
         {stat.map((s, i) => (
@@ -345,7 +348,7 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
         ))}
       </View>
 
-      {gorunenRozetler.length ? (
+      {listelerHazir && gorunenRozetler.length ? (
         <View style={styles.rozetBolum}>
           <Pressable
             onPress={() => setRozetAcik((a) => !a)}
