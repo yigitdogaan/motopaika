@@ -4,8 +4,8 @@ import { Pressable, ScrollView, StyleSheet, Text, View, type NativeScrollEvent, 
 import { hafifTitresim } from '@/lib/titresim';
 import { radius, spacing, useTheme } from '@/theme';
 
-const SATIR = 46;
-const GORUNEN = 5;
+const SATIR = 40;
+const GORUNEN = 3;
 const YUKSEKLIK = SATIR * GORUNEN;
 
 const SAATLER = Array.from({ length: 24 }, (_, i) => i);
@@ -62,7 +62,7 @@ function Cark({ degerler, deger, onDegis, etiket }: { degerler: number[]; deger:
         const secili = d === deger;
         return (
           <Pressable key={d} onPress={() => sec(degerler.indexOf(d))} style={styles.satir} accessibilityRole="button" accessibilityLabel={`${etiket} ${String(d).padStart(2, '0')}`}>
-            <Text style={[styles.yazi, { color: secili ? c.text : c.textMuted, fontSize: secili ? 26 : 20, fontWeight: secili ? '800' : '600', opacity: secili ? 1 : 0.55 }]}>
+            <Text style={[styles.yazi, { color: secili ? c.text : c.textMuted, fontSize: secili ? 24 : 18, fontWeight: secili ? '800' : '600', opacity: secili ? 1 : 0.55 }]}>
               {String(d).padStart(2, '0')}
             </Text>
           </Pressable>
@@ -88,7 +88,7 @@ export function SaatCarki({ saat, dakika, onSaat, onDakika }: { saat: number; da
 const styles = StyleSheet.create({
   kap: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', height: YUKSEKLIK, borderRadius: radius.lg, borderWidth: 1, paddingHorizontal: spacing.xl, overflow: 'hidden' },
   bant: { position: 'absolute', left: spacing.md, right: spacing.md, top: (YUKSEKLIK - SATIR) / 2, height: SATIR, borderRadius: radius.md, borderWidth: 1.5 },
-  cark: { width: 90, height: YUKSEKLIK, flexGrow: 0 },
+  cark: { width: 80, height: YUKSEKLIK, flexGrow: 0 },
   satir: { height: SATIR, alignItems: 'center', justifyContent: 'center' },
   yazi: { textAlign: 'center' },
   iki: { fontSize: 28, fontWeight: '800', marginHorizontal: spacing.sm, marginTop: -3 },
