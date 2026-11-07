@@ -1,10 +1,11 @@
 import { Image } from 'expo-image';
 import { useRouter, type Href } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, RefreshControl, SectionList, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Ikon, type IkonAdi } from '@/components/ikon';
+import { IskeletListe } from '@/components/iskelet';
 import { Hap } from '@/components/yol-ui';
 import { ZaferIsareti } from '@/components/zafer-isareti';
 import { SISTEM_TURLERI, useBildirim, type Bildirim, type BildirimTuru } from '@/lib/bildirim';
@@ -35,7 +36,16 @@ export default function Bildirimler() {
   const c = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { bildirimler, okunmamis, okunduYap, hepsiniOkunduYap, sil } = useBildirim();
+  const { bildirimler, okunmamis, yukleniyor, yenile, okunduYap, hepsiniOkunduYap, sil } = useBildirim();
+  const [yenileniyor, setYenileniyor] = useState(false);
+  const cekYenile = async () => {
+    setYenileniyor(true);
+    try {
+      await yenile();
+    } finally {
+      setYenileniyor(false);
+    }
+  };
   const [sadeceOkunmamis, setSadeceOkunmamis] = useState(false);
   // Sürüş sahibi olarak hâlâ bekleyen istekler ("gönderi:kullanıcı") ve bu ekranda verilen yanıtlar.
   const [bekleyen, setBekleyen] = useState<Set<string> | null>(supabase ? null : new Set());
@@ -121,14 +131,19 @@ export default function Bildirimler() {
         sections={bolumler}
         keyExtractor={(b) => b.id}
         stickySectionHeadersEnabled={false}
+        refreshControl={<RefreshControl refreshing={yenileniyor} onRefresh={cekYenile} tintColor={c.primary} colors={[c.primary]} />}
         contentContainerStyle={[styles.liste, { paddingBottom: Math.max(insets.bottom, spacing.lg) + spacing.xl }]}
         ListEmptyComponent={
+          yukleniyor ? (
+            <IskeletListe />
+          ) : (
           <View style={styles.bosKap}>
             <Ikon ad="zil" boyut={36} renk={c.textMuted} />
             <Text style={[styles.bos, { color: c.textMuted }]}>
               {sadeceOkunmamis ? 'Okunmamış bildirimin yok.' : 'Henüz bildirimin yok. Selam, yorum ve sürüş istekleri burada görünür.'}
             </Text>
           </View>
+          )
         }
         renderSectionHeader={({ section }) => <Text style={[styles.bolum, { color: c.textMuted }]}>{section.title.toLocaleUpperCase('tr')}</Text>}
         renderItem={({ item: b }) => {

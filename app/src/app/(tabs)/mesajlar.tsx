@@ -1,10 +1,11 @@
 import { useFocusEffect, useRouter, type Href } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 
 import { useAltMenuBosluk } from '@/components/alt-menu';
 import { EkranUstu } from '@/components/ekran-ustu';
 import { Ikon } from '@/components/ikon';
+import { IskeletListe } from '@/components/iskelet';
 import { Hap } from '@/components/yol-ui';
 import { demoSohbetler, type Sohbet } from '@/demo/mesajlar';
 import { useAkis } from '@/lib/akis';
@@ -31,13 +32,15 @@ export default function Mesajlar() {
 
   const router = useRouter();
   const [gercek, setGercek] = useState<Sohbet[]>([]);
+  const [yukleniyor, setYukleniyor] = useState(!!supabase);
+  const [yenileniyor, setYenileniyor] = useState(false);
   const { canli } = useAkis();
 
   // Gerçek modda: üyesi olduğun grup sohbetleri (ekran her açıldığında yenilenir).
-  useFocusEffect(
-    useCallback(() => {
+  const sohbetleriYukle = useCallback(async () => {
       if (!supabase) return;
-      odalarim().then((odalar) =>
+      try {
+        const odalar = await odalarim();
         setGercek(
           odalar.map((o) => ({
             id: o.id,
@@ -51,11 +54,27 @@ export default function Mesajlar() {
             bekleyenIstek: o.bekleyen,
             avatarUrl: o.karsiAvatar,
           })),
-        ),
-      );
+        );
+      } catch {
+        // Ağ hatasında eldeki liste kalır.
+      } finally {
+        setYukleniyor(false);
+      }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [canli.istek, canli.mesaj]),
+    }, [canli.istek, canli.mesaj]);
+  useFocusEffect(
+    useCallback(() => {
+      sohbetleriYukle();
+    }, [sohbetleriYukle]),
   );
+  const cekYenile = async () => {
+    setYenileniyor(true);
+    try {
+      await sohbetleriYukle();
+    } finally {
+      setYenileniyor(false);
+    }
+  };
 
   const kaynak = supabase ? gercek : demoSohbetler;
   const liste = useMemo(() => kaynak.filter((s) => filtre === 'tumu' || s.tur === filtre), [kaynak, filtre]);
@@ -85,8 +104,13 @@ export default function Mesajlar() {
       <FlatList
         data={liste}
         keyExtractor={(s) => s.id}
+        refreshControl={<RefreshControl refreshing={yenileniyor} onRefresh={cekYenile} tintColor={c.primary} colors={[c.primary]} progressViewOffset={ust} />}
         ListEmptyComponent={
+          yukleniyor ? (
+            <IskeletListe />
+          ) : (
           <Text style={[styles.bos, { color: c.textMuted }]}>Henüz sohbetin yok. Bir sürüş paylaşırsan grubu burada açılır; haritada bir sürüşe katılma isteği gönderirsen kabul edilince grup burada görünür.</Text>
+          )
         }
         contentContainerStyle={[styles.icerik, { paddingTop: ust, paddingBottom: bosluk }]}
         ItemSeparatorComponent={() => <View style={[styles.ayirac, { backgroundColor: c.border }]} />}

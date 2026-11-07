@@ -28,6 +28,10 @@ export type Bildirim = {
 type Baglam = {
   bildirimler: Bildirim[];
   okunmamis: number;
+  /** İlk liste gelene kadar true. */
+  yukleniyor: boolean;
+  /** Listeyi sunucudan yeniden çeker (aşağı çekip yenile). */
+  yenile: () => Promise<void>;
   okunduYap: (id: string) => void;
   hepsiniOkunduYap: () => void;
   sil: (id: string) => void;
@@ -75,6 +79,7 @@ export function BildirimSaglayici({ children }: { children: ReactNode }) {
   const { kullanici } = useOturum();
   const uid = supabase ? kullanici?.id : undefined;
   const [bildirimler, setBildirimler] = useState<Bildirim[]>(supabase ? [] : DEMO);
+  const [yukleniyor, setYukleniyor] = useState(!!supabase);
 
   const yukle = useCallback(async () => {
     if (!supabase) return;
@@ -83,6 +88,7 @@ export function BildirimSaglayici({ children }: { children: ReactNode }) {
       .select('id, type, post_id, actor_id, body, read_at, created_at, actor:profiles!notifications_actor_id_fkey(username, display_name, avatar_path), post:posts(body)')
       .order('created_at', { ascending: false })
       .limit(50);
+    setYukleniyor(false);
     setBildirimler(
       ((data ?? []) as unknown as Satir[]).map((r) => {
         const sistem = SISTEM_TURLERI.includes(r.type);
@@ -113,6 +119,7 @@ export function BildirimSaglayici({ children }: { children: ReactNode }) {
       setBildirimler([]);
       return;
     }
+    setYukleniyor(true);
     yukle();
     const kanal = db
       .channel(`bildirim-${uid}`)
@@ -144,7 +151,7 @@ export function BildirimSaglayici({ children }: { children: ReactNode }) {
   }, []);
 
   const okunmamis = bildirimler.filter((b) => !b.okundu).length;
-  const deger = useMemo<Baglam>(() => ({ bildirimler, okunmamis, okunduYap, hepsiniOkunduYap, sil }), [bildirimler, okunmamis, okunduYap, hepsiniOkunduYap, sil]);
+  const deger = useMemo<Baglam>(() => ({ bildirimler, okunmamis, yukleniyor, yenile: yukle, okunduYap, hepsiniOkunduYap, sil }), [bildirimler, okunmamis, yukleniyor, yukle, okunduYap, hepsiniOkunduYap, sil]);
   return <BildirimBaglami.Provider value={deger}>{children}</BildirimBaglami.Provider>;
 }
 

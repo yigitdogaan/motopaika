@@ -1,6 +1,6 @@
 import { useRouter, type Href } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
 import { useAltMenuBosluk } from '@/components/alt-menu';
@@ -51,7 +51,7 @@ export default function Harita() {
     const t = setInterval(() => setDakika((n) => n + 1), 60_000);
     return () => clearInterval(t);
   }, []);
-  const { gonderiler, istekler, istekGonder, istekGeriAl } = useAkis();
+  const { gonderiler, istekler, istekGonder, istekGeriAl, yukleniyor } = useAkis();
   // Gerçek modda pinler, koordinatlı "Sürüş Arkadaşı" gönderilerinden üretilir.
   const bulusmalar = useMemo<Bulusma[]>(
     () =>
@@ -90,8 +90,10 @@ export default function Harita() {
       <EkranUstu baslik="Harita" onYukseklik={setUstYukseklik} />
       <View pointerEvents="none" style={[styles.yuzenSayac, { top: ustYukseklik + spacing.sm }]}>
         <View style={[styles.canli, { borderColor: c.border, backgroundColor: c.surface }]}>
-          <View style={[styles.nokta, { backgroundColor: c.success }]} />
-          <Text style={[styles.canliYazi, { color: c.text }]}>{bulusmalar.length} aktif sürüş</Text>
+          {yukleniyor && gonderiler.length === 0 ? <ActivityIndicator size="small" color={c.primary} /> : <View style={[styles.nokta, { backgroundColor: c.success }]} />}
+          <Text style={[styles.canliYazi, { color: c.text }]}>
+            {yukleniyor && gonderiler.length === 0 ? 'Sürüşler yükleniyor...' : `${bulusmalar.length} aktif sürüş`}
+          </Text>
         </View>
       </View>
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Easing, Keyboard, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Animated, Easing, Keyboard, KeyboardAvoidingView, Linking, Platform, Pressable, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, Line, RadialGradient, Rect, Stop } from 'react-native-svg';
 
@@ -11,14 +11,15 @@ import { saglayiciyaGiris, type Saglayici } from '@/lib/oauth';
 import { useOturum } from '@/lib/oturum';
 import { sifirlamaKoduGonder, sifreyiYenile } from '@/lib/sifre';
 import { supabase } from '@/lib/supabase';
+import { GIZLILIK_URL, KULLANIM_KOSULLARI_URL } from '@/lib/yasal';
 import { fontSerif, radius, spacing, useTema, useTheme } from '@/theme';
 
 type Mod = 'giris' | 'kayit' | 'sifre-eposta' | 'sifre-kod';
 
 const OZELLIKLER: { ikon: IkonAdi; yazi: string }[] = [
-  { ikon: 'motor', yazi: 'Birlikte sürüş' },
-  { ikon: 'harita', yazi: 'Yakındaki rotalar' },
-  { ikon: 'garaj', yazi: 'Kendi garajın' },
+  { ikon: 'motor', yazi: 'Sürüş buluşmaları' },
+  { ikon: 'harita', yazi: 'Haritada aktif sürüşler' },
+  { ikon: 'garaj', yazi: 'Motor garajın' },
 ];
 
 /** Hero arka planı: sıcak sarı ışık + perspektifli şerit çizgileri (asfalt hissi). */
@@ -199,7 +200,9 @@ export default function Giris() {
                 <Text style={[styles.slogan, { color: c.text, fontFamily: fontSerif, fontSize: kucuk ? 24 : 30, lineHeight: kucuk ? 30 : 36 }]}>
                   Yolda yalnız{'\n'}değilsin<Text style={{ color: c.primary }}>.</Text>
                 </Text>
-                {!kucuk ? <Text style={[styles.altSlogan, { color: c.textMuted }]}>Türkiye'nin motosiklet topluluğuna katıl.</Text> : null}
+                <Text style={[styles.altSlogan, { color: c.textMuted }]}>
+                  {kucuk ? 'Motosiklet topluluğu: sürüş kur, haritadan bul.' : "Türkiye'nin motosiklet topluluğu: birlikte sürüş kur, haritada aktif sürüşleri gör."}
+                </Text>
                 {!kucuk ? (
                   <View style={styles.ozellikler}>
                     {OZELLIKLER.map((o) => (
@@ -276,6 +279,9 @@ export default function Giris() {
                 <View style={[styles.cizgi, { backgroundColor: c.border }]} />
               </View>
 
+ {kayitMi ? (
+                <Text style={[styles.ipucu, { color: c.textMuted }]}>Ücretsiz hesap aç: sürüşlere katıl, motorunu garajına ekle. Kullanıcı adın herkese görünür.</Text>
+              ) : null}
               {kayitMi ? <Alan ikon="kullanici" yer="Kullanıcı adı" deger={kadi} degis={setKadi} autoCapitalize="none" maxLength={30} /> : null}
               {kayitMi && kadi.length > 0 && !kadiGecerli ? <Text style={[styles.ipucu, { color: c.danger }]}>3–30 karakter; harf, rakam, nokta ve alt çizgi kullanabilirsin.</Text> : null}
               <Alan ikon="eposta" yer="E-posta" deger={eposta} degis={setEposta} keyboardType="email-address" autoCapitalize="none" autoComplete="email" />
@@ -290,7 +296,15 @@ export default function Giris() {
               {mesaj ? <Mesaj m={mesaj} /> : null}
               <Birincil etiket={kayitMi ? 'Hesap oluştur' : 'Giriş yap'} mesgul={mesgul} pasif={!girisGecerli} onPress={gonder} />
 
-              {!klavye ? <Text style={[styles.yasal, { color: c.textMuted }]}>Devam ederek Kullanım Koşulları'nı ve Gizlilik Politikası'nı kabul etmiş olursun.</Text> : null}
+              {!klavye ? (
+                <Text style={[styles.yasal, { color: c.textMuted }]}>
+                  Devam ederek{' '}
+                  <Text style={KULLANIM_KOSULLARI_URL ? { color: c.primary, fontWeight: '700' } : undefined} onPress={KULLANIM_KOSULLARI_URL ? () => Linking.openURL(KULLANIM_KOSULLARI_URL as string).catch(() => {}) : undefined} accessibilityRole={KULLANIM_KOSULLARI_URL ? 'link' : undefined}>Kullanım Koşulları</Text>
+                  {"'nı ve "}
+                  <Text style={GIZLILIK_URL ? { color: c.primary, fontWeight: '700' } : undefined} onPress={GIZLILIK_URL ? () => Linking.openURL(GIZLILIK_URL as string).catch(() => {}) : undefined} accessibilityRole={GIZLILIK_URL ? 'link' : undefined}>Gizlilik Politikası</Text>
+                  {"'nı kabul etmiş olursun."}
+                </Text>
+              ) : null}
             </View>
           )}
         </Animated.View>

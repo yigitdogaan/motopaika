@@ -2,11 +2,12 @@ import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useFocusEffect, useRouter, type Href } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Animated, Easing, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Animated, Easing, Modal, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { useAltMenuBosluk } from '@/components/alt-menu';
 import { Ikon } from '@/components/ikon';
 import { MotorDetayi } from '@/components/motor-detayi';
+import { IskeletProfil } from '@/components/iskelet';
 import { Dugme, Hap } from '@/components/yol-ui';
 import { kategoriRenkleri, type KategoriId } from '@/demo/akis';
 import { useOturum } from '@/lib/oturum';
@@ -60,6 +61,7 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
 
   const [profil, setProfil] = useState<Profil | null>(null);
   const [rozetAcik, setRozetAcik] = useState(false);
+  const [yenileniyor, setYenileniyor] = useState(false);
   const [motorlar, setMotorlar] = useState<GarajMotor[]>([]);
   const [seciliMotor, setSeciliMotor] = useState<string | null>(null);
   const [gonderiler, setGonderiler] = useState<GonderiOzeti[]>([]);
@@ -233,7 +235,7 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
     );
   }
   if (bulunamadi) return <Text style={[styles.bos, { color: c.textMuted, marginTop: (ustBosluk ?? 0) + spacing.lg }]}>Profil bulunamadı.</Text>;
-  if (!profil) return <Text style={[styles.bos, { color: c.textMuted, marginTop: (ustBosluk ?? 0) + spacing.lg }]}>Yükleniyor...</Text>;
+  if (!profil) return <View style={{ marginTop: (ustBosluk ?? 0) + spacing.lg }}><IskeletProfil /></View>;
 
   const selam = gonderiler.reduce((t, g) => t + g.selam, 0);
   const stat = [
@@ -247,7 +249,25 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
   const girdi = [styles.girdi, { color: c.text, backgroundColor: c.surfaceAlt, borderColor: c.border }];
 
   return (
-    <ScrollView contentContainerStyle={[styles.icerik, { paddingTop: (ustBosluk ?? 0) + spacing.lg, paddingBottom: bosluk }]} keyboardShouldPersistTaps="handled">
+    <ScrollView
+      contentContainerStyle={[styles.icerik, { paddingTop: (ustBosluk ?? 0) + spacing.lg, paddingBottom: bosluk }]}
+      keyboardShouldPersistTaps="handled"
+      refreshControl={
+        <RefreshControl
+          refreshing={yenileniyor}
+          onRefresh={async () => {
+            setYenileniyor(true);
+            try {
+              await yukle();
+            } finally {
+              setYenileniyor(false);
+            }
+          }}
+          tintColor={c.primary}
+          colors={[c.primary]}
+          progressViewOffset={ustBosluk ?? 0}
+        />
+      }>
       <View style={styles.profil}>
         <Pressable onPress={benim ? avatarDegistir : undefined} disabled={!benim} accessibilityRole="button" accessibilityLabel="Profil fotoğrafını değiştir">
           <Yuz uri={profil.avatarUrl} ad={profil.ad} boyut={96} />

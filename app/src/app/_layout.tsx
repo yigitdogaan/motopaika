@@ -6,6 +6,7 @@ import { Platform } from 'react-native';
 import { AcilisKatmani } from '@/components/acilis-ekrani';
 import { AkisSaglayici } from '@/lib/akis';
 import { BildirimSaglayici } from '@/lib/bildirim';
+import { KarsilamaSaglayici, useKarsilama } from '@/lib/karsilama';
 import { pushDinleyicileriKur, pushKaydet } from '@/lib/push';
 import { OturumSaglayici, useOturum } from '@/lib/oturum';
 import { TemaSaglayici, useTema } from '@/theme';
@@ -13,17 +14,23 @@ import { TemaSaglayici, useTema } from '@/theme';
 function Rotalar() {
   const { kullanici, hazir } = useOturum();
   const router = useRouter();
+  const { gosterilmeli } = useKarsilama();
+  // Yeni hesapta önce karşılama turu; izin pencereleri turun son sayfasında, açıklamayla birlikte istenir.
   useEffect(() => {
-    if (!kullanici) return;
+    if (kullanici && gosterilmeli === true) router.replace('/karsilama' as never);
+  }, [kullanici, gosterilmeli, router]);
+  useEffect(() => {
+    if (!kullanici || gosterilmeli !== false) return;
     pushKaydet();
     return pushDinleyicileriKur((yol) => router.push(yol as never));
-  }, [kullanici, router]);
+  }, [kullanici, gosterilmeli, router]);
   return (
     <>
     {hazir ? (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={!!kullanici}>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="karsilama" options={{ animation: 'fade', gestureEnabled: false }} />
         <Stack.Screen
           name="yeni-gonderi"
           options={{
@@ -62,7 +69,9 @@ function Kok() {
       <OturumSaglayici>
         <AkisSaglayici>
           <BildirimSaglayici>
-            <Rotalar />
+            <KarsilamaSaglayici>
+              <Rotalar />
+            </KarsilamaSaglayici>
           </BildirimSaglayici>
         </AkisSaglayici>
       </OturumSaglayici>
