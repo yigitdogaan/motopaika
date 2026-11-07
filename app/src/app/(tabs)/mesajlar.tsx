@@ -147,7 +147,7 @@ export default function Mesajlar() {
 
 const styles = StyleSheet.create({
   ekran: { flex: 1 },
-  filtreler: { flexDirection: 'row', gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.md },
+  filtreler: { flexDirection: 'row', justifyContent: 'center', gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.md },
   icerik: { paddingBottom: spacing.xxl + 24 },
   ayirac: { height: StyleSheet.hairlineWidth, marginLeft: spacing.lg + 52 + spacing.md },
   satir: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md },
