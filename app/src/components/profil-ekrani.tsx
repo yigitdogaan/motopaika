@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Animated, Easing, Modal, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { useAltMenuBosluk } from '@/components/alt-menu';
-import { Ikon } from '@/components/ikon';
+import { Ikon, type IkonAdi } from '@/components/ikon';
 import { MotorDetayi } from '@/components/motor-detayi';
 import { IskeletProfil } from '@/components/iskelet';
 import { Dugme, Hap } from '@/components/yol-ui';
@@ -52,6 +52,39 @@ function Yuz({ uri, ad, boyut }: { uri?: string; ad: string; boyut: number }) {
  * Gerçek (Supabase) profil: kendi profilim (düzenlenebilir) ya da başka sürücünün profili (salt okunur, engelleme).
  * Anonim gönderiler başkasının profilinde görünmez.
  */
+type TamamlaAdim = { id: string; ad: string; ikon: IkonAdi; tamam: boolean; onPress: () => void };
+
+/** Kendi profilinde: eksik adımları gösteren kart. Hepsi bitince görünmez. */
+function TamamlaKarti({ adimlar }: { adimlar: TamamlaAdim[] }) {
+  const c = useTheme();
+  const biten = adimlar.filter((a) => a.tamam).length;
+  if (biten === adimlar.length) return null;
+  return (
+    <View style={[styles.tamamla, { backgroundColor: c.surface, borderColor: c.primary }]}>
+      <View style={styles.tamamlaUst}>
+        <Text style={[styles.tamamlaBaslik, { color: c.text }]}>Profilini tamamla</Text>
+        <Text style={[styles.tamamlaSayi, { color: c.primary }]}>{biten}/{adimlar.length}</Text>
+      </View>
+      <View style={[styles.cubuk, { backgroundColor: c.surfaceAlt }]}>
+        <View style={[styles.cubukDolu, { backgroundColor: c.primary, width: `${(biten / adimlar.length) * 100}%` }]} />
+      </View>
+      {adimlar.map((a) => (
+        <Pressable
+          key={a.id}
+          onPress={a.onPress}
+          disabled={a.tamam}
+          accessibilityRole="button"
+          accessibilityLabel={a.tamam ? `${a.ad}, tamamlandı` : a.ad}
+          style={styles.tamamlaSatir}>
+          <Ikon ad={a.tamam ? 'tik' : a.ikon} boyut={18} renk={a.tamam ? c.success : c.primary} />
+          <Text style={[styles.tamamlaYazi, { color: a.tamam ? c.textMuted : c.text }, a.tamam && { textDecorationLine: 'line-through' }]}>{a.ad}</Text>
+          {!a.tamam ? <Ikon ad="ileri" boyut={12} renk={c.textMuted} /> : null}
+        </Pressable>
+      ))}
+    </View>
+  );
+}
+
 export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number }) {
   const c = useTheme();
   const bosluk = useAltMenuBosluk();
@@ -246,6 +279,12 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
   const rozetler = rozetleriHesapla({ selam, gonderi: gonderiler.length, bulusma: gonderiler.filter((g) => g.kategori === 'surus').length, motor: motorlar.length });
   // Başkasının profilinde yalnız kazanılanlar; kendi profilinde kazanılmayanlar da ilerlemeyle görünür.
   const gorunenRozetler = benim ? rozetler : rozetler.filter((r) => r.kazanildi);
+  const tamamlaAdimlari: TamamlaAdim[] = [
+    { id: 'foto', ad: 'Profil fotoğrafı ekle', ikon: 'foto', tamam: !!profil.avatarUrl, onPress: avatarDegistir },
+    { id: 'bio', ad: 'Kendini birkaç cümleyle anlat', ikon: 'kisi', tamam: !!profil.bio.trim(), onPress: duzenlemeyiAc },
+    { id: 'motor', ad: 'İlk motorunu garajına ekle', ikon: 'motor', tamam: motorlar.length > 0, onPress: () => setSekme('garaj') },
+    { id: 'gonderi', ad: 'İlk gönderini paylaş', ikon: 'korna', tamam: gonderiler.length > 0, onPress: () => router.push('/yeni-gonderi' as Href) },
+  ];
   const girdi = [styles.girdi, { color: c.text, backgroundColor: c.surfaceAlt, borderColor: c.border }];
 
   return (
@@ -294,6 +333,8 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
           </View>
         )}
       </View>
+
+      {benim ? <TamamlaKarti adimlar={tamamlaAdimlari} /> : null}
 
       <View style={[styles.istatistikler, { backgroundColor: c.surface, borderColor: c.border }]}>
         {stat.map((s, i) => (
@@ -517,6 +558,14 @@ const styles = StyleSheet.create({
   motorAlt: { fontSize: 13.5 },
   motorLakap: { fontSize: 14, fontWeight: '700' },
   motorEylem: { gap: spacing.sm },
+  tamamla: { borderRadius: radius.lg, borderWidth: 1.5, padding: spacing.lg, gap: spacing.sm },
+  tamamlaUst: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  tamamlaBaslik: { fontSize: 16, fontWeight: '800' },
+  tamamlaSayi: { fontSize: 14, fontWeight: '800' },
+  cubuk: { height: 6, borderRadius: 3, overflow: 'hidden' },
+  cubukDolu: { height: 6, borderRadius: 3 },
+  tamamlaSatir: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, minHeight: 40 },
+  tamamlaYazi: { flex: 1, fontSize: 15, fontWeight: '600' },
   rozetBolum: { gap: spacing.sm },
   rozetSerit: { gap: spacing.sm },
   rozetOzet: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: 46, paddingHorizontal: spacing.md, borderRadius: radius.lg, borderWidth: 1 },
