@@ -39,7 +39,7 @@ export function FotoGalerisi({ adresler, yukseklik = 150 }: { adresler: string[]
       {adresler.length > 1 ? (
         <View style={styles.noktalar} pointerEvents="none">
           {adresler.map((u, i) => (
-            <View key={u} style={[styles.nokta, { backgroundColor: i === sayfa ? c.primary : '#FFFFFF99' }]} />
+            <View key={u} style={[styles.nokta, { backgroundColor: i === sayfa ? c.primary : '#FFFFFFB3' }]} />
           ))}
         </View>
       ) : null}
@@ -80,7 +80,7 @@ const ekranGenisligi = () => Dimensions.get('window').width;
 
 const styles = StyleSheet.create({
   kap: { borderRadius: radius.md, borderWidth: StyleSheet.hairlineWidth, overflow: 'hidden' },
-  noktalar: { position: 'absolute', bottom: spacing.sm, alignSelf: 'center', flexDirection: 'row', gap: 6 },
+  noktalar: { position: 'absolute', bottom: spacing.sm, alignSelf: 'center', flexDirection: 'row', gap: 6, paddingHorizontal: 8, paddingVertical: 5, borderRadius: 10, backgroundColor: 'rgba(0,0,0,0.45)' },
   nokta: { width: 7, height: 7, borderRadius: 4 },
   tam: { flex: 1, backgroundColor: '#000000F2' },
   tamFoto: { width: '100%', height: '80%' },
