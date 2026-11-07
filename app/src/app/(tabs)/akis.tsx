@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
   cipSatiri: { flexDirection: 'row', alignItems: 'center' },
   cipKaydirma: { flex: 1 },
   filtreDugme: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: spacing.md, paddingVertical: 9, marginHorizontal: spacing.md, borderRadius: radius.full, borderWidth: 1 },
-  yuzenFiltre: { position: 'absolute', right: 14, marginHorizontal: 0, width: 46, height: 46, paddingHorizontal: 0, paddingVertical: 0, justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.35, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 8 },
+  yuzenFiltre: { position: 'absolute', right: 23, marginHorizontal: 0, width: 46, height: 46, paddingHorizontal: 0, paddingVertical: 0, justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.35, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 8 },
   filtreYazi: { fontSize: 14, fontWeight: '700' },
   filtreRozet: { minWidth: 18, height: 18, borderRadius: 9, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 },
   filtreRozetKose: { position: 'absolute', top: -4, right: -4 },
