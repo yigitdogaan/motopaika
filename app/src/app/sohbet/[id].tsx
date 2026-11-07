@@ -325,7 +325,7 @@ export default function Sohbet() {
         <Pressable style={styles.perde} onPress={() => setEkAcik(false)}>
           <Pressable style={[styles.sayfa, { backgroundColor: c.surface, borderColor: c.border, paddingBottom: Math.max(insets.bottom, spacing.lg) }]} onPress={() => {}}>
             {[
-              { ad: 'Galeriden fotoğraf', ikon: 'foto' as const, calis: () => fotoGonder('galeri') },
+              { ad: 'Galeriden fotoğraf', ikon: 'galeri' as const, calis: () => fotoGonder('galeri') },
               { ad: 'Kamera ile çek', ikon: 'foto' as const, calis: () => fotoGonder('kamera') },
               { ad: 'Konum gönder', ikon: 'konum' as const, calis: () => { setEkAcik(false); setHaritaAcik(true); } },
             ].map((o) => (

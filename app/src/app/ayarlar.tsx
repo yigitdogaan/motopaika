@@ -306,7 +306,7 @@ export default function Ayarlar() {
 
         <Bolum baslik="Uygulama">
           <Satir ikon="topluluk" baslik="Topluluk kuralları" onPress={() => paneliAc('kurallar')} />
-          <Satir ikon="foto" baslik="Önbelleği temizle" deger="Kayıtlı görselleri siler" onPress={onbellekTemizle} />
+          <Satir ikon="sil" baslik="Önbelleği temizle" deger="Kayıtlı görselleri siler" onPress={onbellekTemizle} />
           <Satir ikon="gonder" baslik="Roteri'yi arkadaşına öner" onPress={() => Share.share({ message: 'Roteri: Türkiye\'nin motosiklet topluluğu. Birlikte sürelim!' })} />
           <Satir ikon="yildiz" baslik="Sürüm" deger={`Roteri ${Constants.expoConfig?.version ?? '1.0.0'}`} son />
         </Bolum>
@@ -393,7 +393,7 @@ export default function Ayarlar() {
 const styles = StyleSheet.create({
   ekran: { flex: 1 },
   ust: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingBottom: spacing.md, borderBottomWidth: StyleSheet.hairlineWidth },
-  geri: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
+  geri: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center', transform: [{ rotate: '180deg' }] },
   baslik: { flex: 1, fontSize: 18, fontWeight: '800', textAlign: 'center' },
   icerik: { padding: spacing.lg, gap: spacing.xl },
   profilKart: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.lg, borderRadius: radius.lg, borderWidth: 1 },

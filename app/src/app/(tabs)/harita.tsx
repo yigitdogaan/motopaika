@@ -169,7 +169,7 @@ export default function Harita() {
           </View>
         ) : (
           <View style={[styles.ipucu, { backgroundColor: c.surface, borderColor: c.border, bottom: bosluk }]}>
-            <Text style={[styles.ipucuYazi, { color: c.textMuted }]}>Bir pine dokun, buluşma detayını gör.</Text>
+            <Text style={[styles.ipucuYazi, { color: c.textMuted }]}>{bulusmalar.length > 0 ? 'Bir pine dokun, buluşma detayını gör.' : 'Şu an aktif buluşma yok.'}</Text>
           </View>
         )}
       </View>
