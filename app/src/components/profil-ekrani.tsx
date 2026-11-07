@@ -293,7 +293,7 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
                 accessible
                 accessibilityLabel={`${r.ad}: ${r.kazanildi ? 'kazanıldı' : `${r.ilerleme.mevcut} / ${r.ilerleme.hedef}`}. ${r.aciklama}`}
                 style={[styles.rozetKart, { backgroundColor: c.surface, borderColor: r.kazanildi ? c.primary : c.border, opacity: r.kazanildi ? 1 : 0.55 }]}>
-                <Text style={[styles.rozetAd, { color: r.kazanildi ? c.primary : c.text }]} numberOfLines={1}>{r.ad}</Text>
+                <Text style={[styles.rozetAd, { color: r.kazanildi ? c.primary : c.text }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{r.ad}</Text>
                 <Text style={[styles.rozetAlt, { color: c.textMuted }]} numberOfLines={2}>
                   {r.kazanildi ? r.aciklama : `${r.ilerleme.mevcut}/${r.ilerleme.hedef} · ${r.aciklama}`}
                 </Text>
@@ -489,7 +489,7 @@ const styles = StyleSheet.create({
   motorEylem: { gap: spacing.sm },
   rozetBolum: { gap: spacing.sm },
   rozetSerit: { gap: spacing.sm },
-  rozetKart: { width: 150, padding: spacing.md, borderRadius: radius.lg, borderWidth: 1.5, gap: 4 },
+  rozetKart: { width: 168, padding: spacing.md, borderRadius: radius.lg, borderWidth: 1.5, gap: 4 },
   rozetAd: { fontSize: 14, fontWeight: '900' },
   rozetAlt: { fontSize: 12, lineHeight: 16 },
   sil: { minHeight: 36, paddingHorizontal: spacing.md },
