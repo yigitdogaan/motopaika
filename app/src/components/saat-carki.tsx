@@ -4,7 +4,7 @@ import { Ikon } from '@/components/ikon';
 import { hafifTitresim } from '@/lib/titresim';
 import { radius, spacing, useTheme } from '@/theme';
 
-const DAKIKA_ADIM = 5;
+const DAKIKA_ADIM = 15;
 
 /** Tek sütun: yukarı/aşağı oklarla değer artar/azalır, uca gelince başa sarar. */
 function Sutun({ deger, adet, adim, onDegis, etiket }: { deger: number; adet: number; adim: number; onDegis: (d: number) => void; etiket: string }) {
@@ -28,7 +28,7 @@ function Sutun({ deger, adet, adim, onDegis, etiket }: { deger: number; adet: nu
   );
 }
 
-/** Saat seçici: tek satırda  ‹ 19 ›  :  ‹ 20 ›  (saat 1'er, dakika 5'er 5'er). */
+/** Saat seçici: tek satırda  ‹ 19 ›  :  ‹ 20 ›  (saat 1'er, dakika 15'er 15'er). */
 export function SaatCarki({ saat, dakika, onSaat, onDakika }: { saat: number; dakika: number; onSaat: (s: number) => void; onDakika: (d: number) => void }) {
   const c = useTheme();
   return (
