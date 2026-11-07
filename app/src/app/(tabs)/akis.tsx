@@ -268,10 +268,9 @@ export default function Akis() {
               accessibilityRole="button"
               accessibilityLabel={panelSayisi ? `Filtre, ${panelSayisi} ayar seçili` : 'Filtre'}
               style={[styles.filtreDugme, styles.yuzenFiltre, { bottom: bosluk - 6,  backgroundColor: c.surface, borderColor: panelSayisi ? c.primary : c.border }]}>
-              <Ikon ad="filtre" boyut={16} renk={panelSayisi ? c.primary : c.text} />
-              <Text style={[styles.filtreYazi, { color: panelSayisi ? c.primary : c.text }]}>Filtre</Text>
+              <Ikon ad="filtre" boyut={22} renk={panelSayisi ? c.primary : c.text} />
               {panelSayisi ? (
-                <View style={[styles.filtreRozet, { backgroundColor: c.primary }]}>
+                <View style={[styles.filtreRozet, styles.filtreRozetKose, { backgroundColor: c.primary }]}>
                   <Text style={[styles.filtreRozetYazi, { color: c.onPrimary }]}>{panelSayisi}</Text>
                 </View>
               ) : null}
@@ -291,9 +290,10 @@ const styles = StyleSheet.create({
   cipSatiri: { flexDirection: 'row', alignItems: 'center' },
   cipKaydirma: { flex: 1 },
   filtreDugme: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: spacing.md, paddingVertical: 9, marginHorizontal: spacing.md, borderRadius: radius.full, borderWidth: 1 },
-  yuzenFiltre: { position: 'absolute', right: 8, marginHorizontal: 0, paddingHorizontal: spacing.lg, paddingVertical: 11, shadowColor: '#000', shadowOpacity: 0.35, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 8 },
+  yuzenFiltre: { position: 'absolute', right: 14, marginHorizontal: 0, width: 46, height: 46, paddingHorizontal: 0, paddingVertical: 0, justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.35, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 8 },
   filtreYazi: { fontSize: 14, fontWeight: '700' },
   filtreRozet: { minWidth: 18, height: 18, borderRadius: 9, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 },
+  filtreRozetKose: { position: 'absolute', top: -4, right: -4 },
   filtreRozetYazi: { fontSize: 11, fontWeight: '800' },
   etiket: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: spacing.md, paddingVertical: 6, borderRadius: radius.full, borderWidth: 1 },
   etiketYazi: { fontSize: 13, fontWeight: '700' },
