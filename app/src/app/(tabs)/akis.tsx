@@ -181,19 +181,6 @@ export default function Akis() {
                   <Hap key={k.id} etiket={k.ad} renk={k.renk} secili={kategori === k.id} onPress={() => kategoriSec(kategori === k.id ? null : k.id)} />
                 ))}
               </ScrollView>
-              <Pressable
-                onPress={() => setPanelAcik(true)}
-                accessibilityRole="button"
-                accessibilityLabel={panelSayisi ? `Filtre, ${panelSayisi} ayar seçili` : 'Filtre'}
-                style={[styles.filtreDugme, { backgroundColor: c.surface, borderColor: panelSayisi ? c.primary : c.border }]}>
-                <Ikon ad="filtre" boyut={16} renk={panelSayisi ? c.primary : c.text} />
-                <Text style={[styles.filtreYazi, { color: panelSayisi ? c.primary : c.text }]}>Filtre</Text>
-                {panelSayisi ? (
-                  <View style={[styles.filtreRozet, { backgroundColor: c.primary }]}>
-                    <Text style={[styles.filtreRozetYazi, { color: c.onPrimary }]}>{panelSayisi}</Text>
-                  </View>
-                ) : null}
-              </Pressable>
             </View>
             {panelSayisi ? (
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.filtreSerit, styles.altSerit]} accessibilityLabel="Seçili filtreler">
@@ -276,6 +263,19 @@ export default function Akis() {
           <Text style={[styles.yenileniyorYazi, { color: c.text }]}>Yenileniyor...</Text>
         </View>
       ) : null}
+      <Pressable
+              onPress={() => setPanelAcik(true)}
+              accessibilityRole="button"
+              accessibilityLabel={panelSayisi ? `Filtre, ${panelSayisi} ayar seçili` : 'Filtre'}
+              style={[styles.filtreDugme, styles.yuzenFiltre, { bottom: bosluk - 6,  backgroundColor: c.surface, borderColor: panelSayisi ? c.primary : c.border }]}>
+              <Ikon ad="filtre" boyut={16} renk={panelSayisi ? c.primary : c.text} />
+              <Text style={[styles.filtreYazi, { color: panelSayisi ? c.primary : c.text }]}>Filtre</Text>
+              {panelSayisi ? (
+                <View style={[styles.filtreRozet, { backgroundColor: c.primary }]}>
+                  <Text style={[styles.filtreRozetYazi, { color: c.onPrimary }]}>{panelSayisi}</Text>
+                </View>
+              ) : null}
+            </Pressable>
       <AkisFiltrePaneli gorunur={panelAcik} onKapat={() => setPanelAcik(false)} secim={secim} onDegis={panelDegis} sehirler={sehirler} sonucSayisi={liste.length} />
     </View>
   );
@@ -291,6 +291,7 @@ const styles = StyleSheet.create({
   cipSatiri: { flexDirection: 'row', alignItems: 'center' },
   cipKaydirma: { flex: 1 },
   filtreDugme: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: spacing.md, paddingVertical: 9, marginHorizontal: spacing.md, borderRadius: radius.full, borderWidth: 1 },
+  yuzenFiltre: { position: 'absolute', right: 8, marginHorizontal: 0, paddingHorizontal: spacing.lg, paddingVertical: 11, shadowColor: '#000', shadowOpacity: 0.35, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 8 },
   filtreYazi: { fontSize: 14, fontWeight: '700' },
   filtreRozet: { minWidth: 18, height: 18, borderRadius: 9, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 },
   filtreRozetYazi: { fontSize: 11, fontWeight: '800' },
