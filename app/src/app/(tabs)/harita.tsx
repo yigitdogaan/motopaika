@@ -82,19 +82,18 @@ export default function Harita() {
 
   // Gerçek modda eylemler benim isteğimin durumuna göre değişir.
   const benimGonderim = secili ? gonderiler.find((g) => g.id === secili.id)?.benim : false;
+  const [ustYukseklik, setUstYukseklik] = useState(110);
   const durum = secili ? istekler[secili.id] : undefined;
 
   return (
     <View style={[styles.ekran, { backgroundColor: c.bg }]}>
-      <EkranUstu
-        baslik="Harita"
-        sol={
-          <View style={[styles.canli, { borderColor: c.border, backgroundColor: c.surface }]}>
-            <View style={[styles.nokta, { backgroundColor: c.success }]} />
-            <Text style={[styles.canliYazi, { color: c.text }]}>{bulusmalar.length} aktif sürüş</Text>
-          </View>
-        }
-      />
+      <EkranUstu baslik="Harita" onYukseklik={setUstYukseklik} />
+      <View pointerEvents="none" style={[styles.yuzenSayac, { top: ustYukseklik + spacing.sm }]}>
+        <View style={[styles.canli, { borderColor: c.border, backgroundColor: c.surface }]}>
+          <View style={[styles.nokta, { backgroundColor: c.success }]} />
+          <Text style={[styles.canliYazi, { color: c.text }]}>{bulusmalar.length} aktif sürüş</Text>
+        </View>
+      </View>
 
       <View style={styles.harita}>
         <MapView
@@ -180,6 +179,7 @@ export default function Harita() {
 const styles = StyleSheet.create({
   ekran: { flex: 1 },
   harita: { ...StyleSheet.absoluteFill },
+  yuzenSayac: { position: 'absolute', left: 0, right: 0, alignItems: 'center', zIndex: 20, elevation: 20 },
   canli: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: spacing.md, paddingVertical: 7, borderRadius: radius.full, borderWidth: 1 },
   nokta: { width: 8, height: 8, borderRadius: 4 },
   canliYazi: { fontSize: 13, fontWeight: '700' },
