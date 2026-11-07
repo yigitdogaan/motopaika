@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Ikon } from '@/components/ikon';
 import { KonumHaritasi } from '@/components/konum-haritasi';
+import { SaatCarki } from '@/components/saat-carki';
 import { Dugme, Hap } from '@/components/yol-ui';
 import { gonderiKategorileri, type KategoriId } from '@/demo/akis';
 import { MAKS_FOTO, useAkis } from '@/lib/akis';
@@ -209,16 +210,7 @@ export default function YeniGonderi() {
                 </ScrollView>
 
                 <Text style={[styles.etiket, { color: c.textMuted }]}>SAAT</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hapler}>
-                  {Array.from({ length: 24 }, (_, h) => (
-                    <Hap key={h} etiket={String(h).padStart(2, '0')} secili={saat === h} onPress={() => setSaat(h)} />
-                  ))}
-                </ScrollView>
-                <View style={styles.hapler}>
-                  {[0, 15, 30, 45].map((m) => (
-                    <Hap key={m} etiket={`:${String(m).padStart(2, '0')}`} secili={dakika === m} onPress={() => setDakika(m)} />
-                  ))}
-                </View>
+                <SaatCarki saat={saat} dakika={dakika} onSaat={setSaat} onDakika={setDakika} />
                 <Text style={[styles.altYazi, { color: zamanGecerli ? c.primary : c.warning }]}>
                   {zamanGecerli ? `Buluşma: ${planliZamanYazi(baslangic)}` : 'Saat en az 10 dakika sonrası olmalı.'}
                 </Text>
