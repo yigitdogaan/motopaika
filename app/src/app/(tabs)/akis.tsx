@@ -7,6 +7,7 @@ import { EkranUstu } from '@/components/ekran-ustu';
 import { Ikon } from '@/components/ikon';
 import { AkisFiltrePaneli } from '@/components/akis-filtre-paneli';
 import { IlkIpucu } from '@/components/ilk-ipucu';
+import { BosDurum } from '@/components/bos-durum';
 import { IskeletKart } from '@/components/iskelet';
 import { KonumAlani } from '@/components/konum-alani';
 import { YonetimBanneri } from '@/components/yonetim-banneri';
@@ -232,6 +233,9 @@ export default function Akis() {
               <IskeletKart />
             </View>
           ) : (
+            gonderiler.length === 0 && !suzulu && !ara.trim() ? (
+              <BosDurum ikon="korna" baslik="Henüz gönderi yok" metin="Akış topluluğun paylaşımlarıyla dolacak. İlk gönderiyi sen paylaşabilirsin." eylem="İlk gönderiyi paylaş" onEylem={() => router.push('/yeni-gonderi' as Href)} />
+            ) : (
             <View style={styles.bosAlan}>
               <Text style={[styles.bos, { color: c.textMuted }]}>
                 {kapsam === 'yakin' && gonderiler.every((g) => g.mesafeKm >= 9999)
@@ -254,6 +258,7 @@ export default function Akis() {
                 </Pressable>
               ) : null}
             </View>
+            )
           )
         }
       />

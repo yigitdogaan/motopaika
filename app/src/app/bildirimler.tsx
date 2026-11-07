@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, RefreshControl, SectionList, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { BosDurum } from '@/components/bos-durum';
 import { Ikon, type IkonAdi } from '@/components/ikon';
 import { IskeletListe } from '@/components/iskelet';
 import { Hap } from '@/components/yol-ui';
@@ -137,12 +138,11 @@ export default function Bildirimler() {
           yukleniyor ? (
             <IskeletListe />
           ) : (
-          <View style={styles.bosKap}>
-            <Ikon ad="zil" boyut={36} renk={c.textMuted} />
-            <Text style={[styles.bos, { color: c.textMuted }]}>
-              {sadeceOkunmamis ? 'Okunmamış bildirimin yok.' : 'Henüz bildirimin yok. Selam, yorum ve sürüş istekleri burada görünür.'}
-            </Text>
-          </View>
+          <BosDurum
+            ikon="zil"
+            baslik={sadeceOkunmamis ? 'Okunmamış bildirimin yok' : 'Henüz bildirimin yok'}
+            metin={sadeceOkunmamis ? 'Hepsini okudun.' : 'Selam, yorum ve sürüş istekleri burada görünür.'}
+          />
           )
         }
         renderSectionHeader={({ section }) => <Text style={[styles.bolum, { color: c.textMuted }]}>{section.title.toLocaleUpperCase('tr')}</Text>}

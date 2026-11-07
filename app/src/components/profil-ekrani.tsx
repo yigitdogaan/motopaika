@@ -7,6 +7,7 @@ import { Alert, Animated, Easing, Modal, Pressable, RefreshControl, ScrollView, 
 import { useAltMenuBosluk } from '@/components/alt-menu';
 import { Ikon, type IkonAdi } from '@/components/ikon';
 import { MotorDetayi } from '@/components/motor-detayi';
+import { BosDurum } from '@/components/bos-durum';
 import { IskeletProfil } from '@/components/iskelet';
 import { Dugme, Hap } from '@/components/yol-ui';
 import { kategoriRenkleri, type KategoriId } from '@/demo/akis';
@@ -385,7 +386,15 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
 
       {sekme === 'garaj' ? (
         <View style={styles.liste}>
-          {motorlar.length === 0 ? <Text style={[styles.bos, { color: c.textMuted }]}>{benim ? 'Garajın boş. Aşağıdan ilk motorunu ekle.' : 'Garaj boş.'}</Text> : null}
+          {motorlar.length === 0 ? (
+            <BosDurum
+              ikon="garaj"
+              baslik={benim ? 'Garajın boş' : 'Garaj boş'}
+              metin={benim ? 'Motorunu ekle; marka, model ve fotoğraflarıyla profilinde görünsün.' : 'Bu sürücü henüz motor eklememiş.'}
+              eylem={benim ? 'Motor ekle' : undefined}
+              onEylem={benim ? () => ekleDegistir(true) : undefined}
+            />
+          ) : null}
           {motorlar.map((m, i) => (
             <Pressable
               key={m.id}
@@ -476,7 +485,13 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
               </View>
             ))
           ) : (
-            <Text style={[styles.bos, { color: c.textMuted }]}>{benim ? 'Henüz gönderin yok. Ortadaki + ile ilk yolu paylaş.' : 'Henüz gönderisi yok.'}</Text>
+            <BosDurum
+              ikon="korna"
+              baslik={benim ? 'Henüz gönderin yok' : 'Henüz gönderisi yok'}
+              metin={benim ? 'İlk gönderini paylaş: yol durumu, sürüş buluşması ya da bir soru.' : 'Bu sürücü henüz bir şey paylaşmamış.'}
+              eylem={benim ? 'Gönderi paylaş' : undefined}
+              onEylem={benim ? () => router.push('/yeni-gonderi' as Href) : undefined}
+            />
           )}
         </View>
       )}

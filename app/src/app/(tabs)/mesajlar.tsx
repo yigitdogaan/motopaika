@@ -4,6 +4,7 @@ import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'rea
 
 import { useAltMenuBosluk } from '@/components/alt-menu';
 import { EkranUstu } from '@/components/ekran-ustu';
+import { BosDurum } from '@/components/bos-durum';
 import { Ikon } from '@/components/ikon';
 import { IskeletListe } from '@/components/iskelet';
 import { Hap } from '@/components/yol-ui';
@@ -109,7 +110,13 @@ export default function Mesajlar() {
           yukleniyor ? (
             <IskeletListe />
           ) : (
-          <Text style={[styles.bos, { color: c.textMuted }]}>Henüz sohbetin yok. Bir sürüş paylaşırsan grubu burada açılır; haritada bir sürüşe katılma isteği gönderirsen kabul edilince grup burada görünür.</Text>
+          <BosDurum
+            ikon="mesaj"
+            baslik="Henüz sohbetin yok"
+            metin="Bir sürüş paylaşırsan grubu burada açılır. Haritada bir sürüşe katılma isteği gönderirsen, kabul edilince grup burada görünür."
+            eylem="Haritada sürüşlere bak"
+            onEylem={() => router.navigate('/harita' as Href)}
+          />
           )
         }
         contentContainerStyle={[styles.icerik, { paddingTop: ust, paddingBottom: bosluk }]}
