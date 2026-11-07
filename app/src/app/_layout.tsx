@@ -46,6 +46,7 @@ function Rotalar() {
         <Stack.Screen name="bildirimler" options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="ayarlar" options={{ animation: 'slide_from_right' }} />
       </Stack.Protected>
+      <Stack.Screen name="yasal/[tur]" options={{ animation: 'slide_from_right' }} />
       <Stack.Protected guard={!kullanici}>
         <Stack.Screen name="giris" options={{ animation: 'fade' }} />
       </Stack.Protected>

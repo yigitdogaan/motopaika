@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { Image } from 'expo-image';
 import * as Location from 'expo-location';
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Alert, Linking, Modal, Pressable, ScrollView, Share, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -306,6 +306,9 @@ export default function Ayarlar() {
 
         <Bolum baslik="Uygulama">
           <Satir ikon="topluluk" baslik="Topluluk kuralları" onPress={() => paneliAc('kurallar')} />
+          <Satir ikon="kisi" baslik="Kullanım Koşulları" onPress={() => router.push('/yasal/kosullar' as Href)} />
+          <Satir ikon="sabit" baslik="Gizlilik Politikası" onPress={() => router.push('/yasal/gizlilik' as Href)} />
+          <Satir ikon="bilgi" baslik="Tanıtım turunu yeniden göster" onPress={() => router.push('/karsilama' as Href)} />
           <Satir ikon="sil" baslik="Önbelleği temizle" deger="Kayıtlı görselleri siler" onPress={onbellekTemizle} />
           <Satir ikon="gonder" baslik="Roteri'yi arkadaşına öner" onPress={() => Share.share({ message: 'Roteri: Türkiye\'nin motosiklet topluluğu. Birlikte sürelim!' })} />
           <Satir ikon="yildiz" baslik="Sürüm" deger={`Roteri ${Constants.expoConfig?.version ?? '1.0.0'}`} son />

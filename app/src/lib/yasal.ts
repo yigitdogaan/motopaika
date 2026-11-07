@@ -1,5 +1,2 @@
-/**
- * Yasal sayfa adresleri. Site yayına alınınca buraya yazılır; boşken giriş ekranındaki metin bağlantı olmadan gösterilir.
- */
-export const KULLANIM_KOSULLARI_URL: string | null = null;
-export const GIZLILIK_URL: string | null = null;
+// Kullanımdan kalktı: yasal metinler artık app/src/lib/yasal-metin.json içinde, uygulama içi sayfada (yasal/[tur]) gösterilir.
+export {};

@@ -1,5 +1,6 @@
+import { useRouter, type Href } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Easing, Keyboard, KeyboardAvoidingView, Linking, Platform, Pressable, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Animated, Easing, Keyboard, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, Line, RadialGradient, Rect, Stop } from 'react-native-svg';
 
@@ -11,7 +12,6 @@ import { saglayiciyaGiris, type Saglayici } from '@/lib/oauth';
 import { useOturum } from '@/lib/oturum';
 import { sifirlamaKoduGonder, sifreyiYenile } from '@/lib/sifre';
 import { supabase } from '@/lib/supabase';
-import { GIZLILIK_URL, KULLANIM_KOSULLARI_URL } from '@/lib/yasal';
 import { fontSerif, radius, spacing, useTema, useTheme } from '@/theme';
 
 type Mod = 'giris' | 'kayit' | 'sifre-eposta' | 'sifre-kod';
@@ -112,6 +112,7 @@ export default function Giris() {
   const c = useTheme();
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
+  const router = useRouter();
   const { girisYap, epostaGiris, kayitOl } = useOturum();
 
   const [mod, setMod] = useState<Mod>('giris');
@@ -299,9 +300,9 @@ export default function Giris() {
               {!klavye ? (
                 <Text style={[styles.yasal, { color: c.textMuted }]}>
                   Devam ederek{' '}
-                  <Text style={KULLANIM_KOSULLARI_URL ? { color: c.primary, fontWeight: '700' } : undefined} onPress={KULLANIM_KOSULLARI_URL ? () => Linking.openURL(KULLANIM_KOSULLARI_URL as string).catch(() => {}) : undefined} accessibilityRole={KULLANIM_KOSULLARI_URL ? 'link' : undefined}>Kullanım Koşulları</Text>
+                  <Text style={{ color: c.primary, fontWeight: '700' }} onPress={() => router.push('/yasal/kosullar' as Href)} accessibilityRole="link">Kullanım Koşulları</Text>
                   {"'nı ve "}
-                  <Text style={GIZLILIK_URL ? { color: c.primary, fontWeight: '700' } : undefined} onPress={GIZLILIK_URL ? () => Linking.openURL(GIZLILIK_URL as string).catch(() => {}) : undefined} accessibilityRole={GIZLILIK_URL ? 'link' : undefined}>Gizlilik Politikası</Text>
+                  <Text style={{ color: c.primary, fontWeight: '700' }} onPress={() => router.push('/yasal/gizlilik' as Href)} accessibilityRole="link">Gizlilik Politikası</Text>
                   {"'nı kabul etmiş olursun."}
                 </Text>
               ) : null}

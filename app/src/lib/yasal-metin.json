@@ -1,0 +1,84 @@
+{
+  "guncelleme": "Kasım 2026",
+  "iletisim": "",
+  "kosullar": {
+    "baslik": "Kullanım Koşulları",
+    "giris": "Roteri'yi kullanarak aşağıdaki koşulları kabul etmiş olursun. Lütfen dikkatlice oku.",
+    "bolumler": [
+      {
+        "baslik": "1. Hizmet",
+        "metin": "Roteri, motosiklet sürücülerinin gönderi paylaştığı, sürüş buluşması kurduğu, birbiriyle mesajlaştığı ve motorlarını garajlarında sergilediği bir topluluk uygulamasıdır. Uygulamayı ücretsiz sunarız; özellikleri zaman içinde değiştirebilir veya kaldırabiliriz."
+      },
+      {
+        "baslik": "2. Hesap",
+        "metin": "Hesap açmak için en az 18 yaşında olmalısın. Verdiğin bilgilerin doğru olması, hesabının güvenliğinden ve hesabınla yapılan işlemlerden sorumlu olman gerekir. Kullanıcı adın herkese görünür; başkasını taklit eden veya yanıltıcı adlar kullanılamaz."
+      },
+      {
+        "baslik": "3. İçerik ve topluluk kuralları",
+        "metin": "Paylaştığın gönderi, yorum, fotoğraf ve mesajlardan sen sorumlusun. Nefret söylemi, taciz, tehdit, yasa dışı içerik, spam, başkasının özel bilgilerini izinsiz paylaşma ve yanıltıcı yol/trafik bilgisi yasaktır. Uygulama içindeki Topluluk kuralları bu koşulların parçasıdır. Paylaştığın içerik için Roteri'ye, uygulamayı işletmek ve göstermek amacıyla sınırlı bir kullanım hakkı vermiş olursun; içeriğin sahibi olmaya devam edersin."
+      },
+      {
+        "baslik": "4. Sürüş güvenliği",
+        "metin": "Sürüş buluşmaları kullanıcılar tarafından kurulur ve yönetilir. Roteri bu buluşmaların organizatörü, sigortacısı veya garantörü değildir. Trafik kurallarına uymak, kendi güvenliğin ve ekipmanın için gerekli önlemleri almak sana aittir. Motor kullanırken uygulamayı kullanma. Tanımadığın kişilerle buluşurken dikkatli ol, mümkünse kalabalık ve herkese açık yerleri seç."
+      },
+      {
+        "baslik": "5. Anonim paylaşım",
+        "metin": "Anonim paylaştığında adın ve motorun diğer kullanıcılara gösterilmez. Anonimlik, kuralları ihlal etme hakkı vermez; güvenlik ve moderasyon amacıyla kayıtlar sistemde hesabınla ilişkili tutulur. Sürüş buluşmaları anonim paylaşılamaz."
+      },
+      {
+        "baslik": "6. Moderasyon",
+        "metin": "Kurallara aykırı içerikleri kaldırabilir, hesaplara uyarı verebilir, hesapları geçici olarak askıya alabilir veya kalıcı olarak kapatabiliriz. Diğer kullanıcıları engelleyebilir ve uygunsuz içerikleri bildirebilirsin."
+      },
+      {
+        "baslik": "7. Hesabı silme",
+        "metin": "Hesabını istediğin zaman Ayarlar > Oturum > Hesabımı sil bölümünden silebilirsin. Silme işlemi profilini, gönderilerini, yorumlarını, mesajlarını ve motorlarını kalıcı olarak kaldırır ve geri alınamaz."
+      },
+      {
+        "baslik": "8. Sorumluluğun sınırı",
+        "metin": "Uygulama \"olduğu gibi\" sunulur. Kullanıcıların paylaştığı içeriklerin doğruluğunu, kesintisiz çalışmayı veya hatasızlığı garanti etmeyiz. Yasaların izin verdiği ölçüde, uygulamanın kullanımından doğan dolaylı zararlardan ve kullanıcılar arasındaki buluşmalardan doğan sonuçlardan sorumlu değiliz."
+      },
+      {
+        "baslik": "9. Değişiklikler",
+        "metin": "Bu koşulları zaman zaman güncelleyebiliriz. Önemli değişiklikleri uygulama içinden duyururuz. Güncellemeden sonra uygulamayı kullanmaya devam etmen, yeni koşulları kabul ettiğin anlamına gelir."
+      }
+    ]
+  },
+  "gizlilik": {
+    "baslik": "Gizlilik Politikası",
+    "giris": "Bu politika, Roteri'nin hangi verileri topladığını, neden kullandığını ve haklarını açıklar. Kişisel verilerini satmayız.",
+    "bolumler": [
+      {
+        "baslik": "1. Topladığımız veriler",
+        "metin": "Hesap bilgileri: e-posta adresin, kullanıcı adın ve (Apple veya Google ile giriş yaparsan) bu hizmetlerin paylaştığı ad ve e-posta bilgisi. Profil bilgileri: görünen ad, biyografi, şehir ve profil fotoğrafın. Garaj: eklediğin motorların marka, model, yıl, kilometre, takma ad ve fotoğrafları. İçerik: gönderilerin, yorumların, selamların, sürüş katılma isteklerin ve mesajların. Konum: izin verirsen cihazının konumu ve gönderine eklediğin yer. Bildirim: anlık bildirim jetonu ve platform bilgisi. Teknik: uygulamanın çalışması için gereken temel cihaz ve hata bilgileri."
+      },
+      {
+        "baslik": "2. Verileri neden kullanıyoruz",
+        "metin": "Hesabını oluşturmak ve giriş yapmanı sağlamak; gönderilerini, buluşmalarını ve mesajlarını göstermek; yakınındaki gönderileri ve aktif sürüşleri listelemek; bildirim göndermek; kötüye kullanımı ve kural ihlallerini önlemek; uygulamayı geliştirmek ve hataları gidermek."
+      },
+      {
+        "baslik": "3. Konum",
+        "metin": "Konum izni isteğe bağlıdır. Konumunu yalnızca \"Yakınımdakiler\" gibi özellikleri sağlamak ve gönderine konum eklemek için kullanırız. Bir gönderiye eklediğin yer, o gönderiyi görenlere gösterilir. İzni telefonunun ayarlarından istediğin zaman kapatabilirsin."
+      },
+      {
+        "baslik": "4. Verilerin paylaşımı",
+        "metin": "Profilin, gönderilerin, yorumların ve garajın diğer kullanıcılara görünür; anonim paylaşımlarda adın ve motorun gösterilmez. Mesajlar yalnızca sohbetin katılımcılarına görünür. Verilerin; uygulamanın çalışması için kullandığımız altyapı hizmetlerinde (veri tabanı ve kimlik doğrulama, dosya depolama, anlık bildirim, harita ve adres çözümleme hizmetleri) işlenir. Yasal bir yükümlülük olmadıkça verilerini üçüncü kişilere satmaz veya reklam amacıyla paylaşmayız."
+      },
+      {
+        "baslik": "5. Saklama ve silme",
+        "metin": "Verilerini hesabın açık olduğu sürece saklarız. Ayarlar > Oturum > Hesabımı sil ile hesabını sildiğinde profilin, gönderilerin, yorumların, mesajların ve motorların kalıcı olarak silinir."
+      },
+      {
+        "baslik": "6. Hakların",
+        "metin": "6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında; verilerinin işlenip işlenmediğini öğrenme, bilgi talep etme, düzeltme, silme ve işlemeye itiraz etme haklarına sahipsin. Profil bilgilerini ve hesabını uygulama içinden yönetebilir veya silebilirsin."
+      },
+      {
+        "baslik": "7. Çocuklar",
+        "metin": "Roteri 18 yaşın altındaki kişilere yönelik değildir. 18 yaşından küçük birine ait bir hesap fark edersek hesabı kaldırırız."
+      },
+      {
+        "baslik": "8. Değişiklikler",
+        "metin": "Bu politikayı güncelleyebiliriz. Önemli değişiklikleri uygulama içinden duyururuz."
+      }
+    ]
+  }
+}
