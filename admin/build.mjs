@@ -12,6 +12,8 @@ if (existsSync('.env')) {
     if (m) env[m[1]] = m[2].replace(/^["']|["']$/g, '');
   }
 }
+// Barındırıcıda (Cloudflare vb.) değişkenler dosya değil ortam değişkeni olarak gelir; onlar da okunur.
+for (const k of ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY']) if (process.env[k]) env[k] = process.env[k];
 const define = {
   'process.env.SUPABASE_URL': JSON.stringify(env.VITE_SUPABASE_URL ?? ''),
   'process.env.SUPABASE_ANON_KEY': JSON.stringify(env.VITE_SUPABASE_ANON_KEY ?? ''),
