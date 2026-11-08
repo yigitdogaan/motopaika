@@ -20,7 +20,7 @@
     "android": {
       "package": "app.roteri.mobil",
       "adaptiveIcon": {
-        "backgroundColor": "#121212",
+        "backgroundColor": "#FFB800",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
