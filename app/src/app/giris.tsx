@@ -188,7 +188,7 @@ export default function Giris() {
   const sifreMod = mod === 'sifre-eposta' || mod === 'sifre-kod';
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={[styles.kap, { backgroundColor: c.bg }]}>
+    <KeyboardAvoidingView behavior="padding" style={[styles.kap, { backgroundColor: c.bg }]}>
       <View style={styles.scroll}>
         {/* HERO: kalan alanı doldurur; klavye açılınca yalnız logo kalır */}
         <View style={{ flex: 1, minHeight: 0, paddingTop: insets.top, overflow: 'hidden' }}>
@@ -223,7 +223,7 @@ export default function Giris() {
         <Animated.View
           style={[
             styles.kart,
-            { backgroundColor: c.surface, borderColor: c.border, paddingBottom: insets.bottom + spacing.lg, opacity: anim, transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [40, 0] }) }] },
+            { backgroundColor: c.surface, borderColor: c.border, paddingBottom: klavye ? spacing.lg : insets.bottom + spacing.lg, opacity: anim, transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [40, 0] }) }] },
           ]}>
           <View style={[styles.tutamac, { backgroundColor: c.border }]} />
 

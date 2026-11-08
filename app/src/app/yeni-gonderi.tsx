@@ -135,7 +135,7 @@ export default function YeniGonderi() {
   };
 
   return (
-    <KeyboardAvoidingView style={[styles.ekran, { backgroundColor: c.bg }]} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={[styles.ekran, { backgroundColor: c.bg }]} behavior="padding">
       <View style={[styles.ust, { borderBottomColor: c.border, paddingTop: Platform.OS === 'ios' ? spacing.lg : insets.top + spacing.sm }]}>
         <Text style={[styles.baslik, { color: c.text }]} accessibilityRole="header">
           Gönderi Paylaş

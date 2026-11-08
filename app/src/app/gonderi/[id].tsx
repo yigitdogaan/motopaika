@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { GonderiKarti } from '@/components/gonderi-karti';
@@ -17,7 +17,7 @@ export default function GonderiDetay() {
   const g = gonderiler.find((x) => x.id === id);
 
   return (
-    <KeyboardAvoidingView style={[styles.ekran, { backgroundColor: c.bg }]} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={[styles.ekran, { backgroundColor: c.bg }]} behavior="padding">
       <View style={[styles.ust, { borderBottomColor: c.border, paddingTop: insets.top + spacing.sm }]}>
         <Pressable onPress={() => router.back()} hitSlop={12} accessibilityRole="button" accessibilityLabel="Geri" style={styles.geri}>
           <Ikon ad="ileri" boyut={22} renk={c.text} />

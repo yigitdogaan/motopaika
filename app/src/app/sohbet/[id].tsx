@@ -173,7 +173,7 @@ export default function Sohbet() {
   };
 
   return (
-    <KeyboardAvoidingView style={[styles.ekran, { backgroundColor: c.bg }]} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={[styles.ekran, { backgroundColor: c.bg }]} behavior="padding">
       <View style={[styles.ust, { borderBottomColor: c.border, backgroundColor: c.surface, paddingTop: insets.top + spacing.sm }]}>
         <Pressable onPress={() => router.back()} hitSlop={12} accessibilityRole="button" accessibilityLabel="Geri" style={styles.geri}>
           <Ikon ad="ileri" boyut={22} renk={c.text} />
