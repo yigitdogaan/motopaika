@@ -8,16 +8,20 @@
     },
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "app",
+    "scheme": "roteri",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "bundleIdentifier": "app.roteri.mobil",
+      "supportsTablet": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "app.roteri.mobil",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#121212",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false
@@ -35,7 +39,22 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200
         }
-      ]
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Roteri, yakınındaki sürüşleri ve gönderileri göstermek ve gönderine konum eklemek için konumunu kullanır."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Roteri, gönderilerine, profiline ve motorlarına fotoğraf eklemen için fotoğraf arşivine erişir.",
+          "cameraPermission": "Roteri, sohbette fotoğraf çekip göndermen için kamerayı kullanır.",
+          "microphonePermission": false
+        }
+      ],
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true,
@@ -49,6 +68,7 @@
     },
     "updates": {
       "url": "https://u.expo.dev/f4de9c95-58f1-45ab-8ed5-33e34754da24"
-    }
+    },
+    "description": "Roteri, motosiklet sürücülerinin yol uyarısı, sürüş buluşması, teknik soru ve sohbet için bir araya geldiği topluluk uygulaması."
   }
 }
