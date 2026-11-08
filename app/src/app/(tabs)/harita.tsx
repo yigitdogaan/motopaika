@@ -23,12 +23,15 @@ const HARITA_HAZIR = Platform.OS !== 'android' || Constants.expoConfig?.extra?.h
 
 // Android (Google Maps) için koyu harita stili; iOS'ta userInterfaceStyle="dark" kullanılır.
 const KOYU_STIL = [
-  { elementType: 'geometry', stylers: [{ color: '#1a1a1a' }] },
-  { elementType: 'labels.text.fill', stylers: [{ color: '#8a8a8a' }] },
-  { elementType: 'labels.text.stroke', stylers: [{ color: '#121212' }] },
-  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2c2c2c' }] },
-  { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#3d3320' }] },
-  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0b0b0b' }] },
+  { elementType: 'geometry', stylers: [{ color: '#232830' }] },
+  { elementType: 'labels.text.fill', stylers: [{ color: '#b3b3b3' }] },
+  { elementType: 'labels.text.stroke', stylers: [{ color: '#14161a' }] },
+  { featureType: 'landscape', elementType: 'geometry', stylers: [{ color: '#262b33' }] },
+  { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#22302a' }] },
+  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#3e4550' }] },
+  { featureType: 'road.arterial', elementType: 'geometry', stylers: [{ color: '#4a525e' }] },
+  { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#7a6428' }] },
+  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#16293a' }] },
   { featureType: 'poi', stylers: [{ visibility: 'off' }] },
 ];
 
