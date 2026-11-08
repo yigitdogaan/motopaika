@@ -167,7 +167,7 @@ export default function Giris() {
     const hata = mod === 'kayit' ? await kayitOl(eposta, sifre, kadi) : await epostaGiris(eposta, sifre);
     setMesgul(false);
     if (hata === DOGRULAMA_GEREKLI) {
-      dogrulamayaGec('E-postana 6 haneli bir doğrulama kodu gönderdik. Kodu gir.');
+      dogrulamayaGec('E-postana bir doğrulama kodu gönderdik. Kodu gir.');
       return;
     }
     if (hata) {
@@ -224,7 +224,7 @@ export default function Giris() {
     setMesgul(false);
     if (hata) return setMesaj({ yazi: hata });
     setMod('sifre-kod');
-    setMesaj({ yazi: 'E-postana 6 haneli bir kod gönderdik. Kodu ve yeni şifreni gir.', iyi: true });
+    setMesaj({ yazi: 'E-postana bir kod gönderdik. Kodu ve yeni şifreni gir.', iyi: true });
   };
   const sifreBitir = async () => {
     setMesgul(true);
@@ -287,8 +287,8 @@ export default function Giris() {
           ) : mod === 'dogrula' ? (
             <View style={{ gap: spacing.md }}>
               <Text style={[styles.baslik, { color: c.text }]}>E-postanı doğrula</Text>
-              <Text style={[styles.aciklama, { color: c.textMuted }]}>{eposta.trim()} adresine 6 haneli bir kod gönderdik. Kodu girince hesabın hazır olur.</Text>
-              <Alan ikon="kod" yer="6 haneli kod" deger={kod} degis={setKod} keyboardType="number-pad" maxLength={8} />
+              <Text style={[styles.aciklama, { color: c.textMuted }]}>{eposta.trim()} adresine bir doğrulama kodu gönderdik. Kodu girince hesabın hazır olur.</Text>
+              <Alan ikon="kod" yer="Doğrulama kodu" deger={kod} degis={setKod} keyboardType="number-pad" maxLength={8} />
               {mesaj ? <Mesaj m={mesaj} /> : null}
               <Birincil etiket="Doğrula" mesgul={mesgul} pasif={kod.trim().length < 6} onPress={dogrula} />
               <Pressable onPress={kodTekrar} disabled={bekle > 0 || mesgul} accessibilityRole="button" style={styles.baglanti}>
@@ -307,7 +307,7 @@ export default function Giris() {
               <Alan ikon="eposta" yer="E-posta" deger={eposta} degis={setEposta} keyboardType="email-address" autoCapitalize="none" editable={mod === 'sifre-eposta'} />
               {mod === 'sifre-kod' ? (
                 <>
-                  <Alan ikon="kod" yer="6 haneli kod" deger={kod} degis={setKod} keyboardType="number-pad" maxLength={8} />
+                  <Alan ikon="kod" yer="Doğrulama kodu" deger={kod} degis={setKod} keyboardType="number-pad" maxLength={8} />
                   <Alan ikon="kilit" yer="Yeni şifre (en az 6 karakter)" deger={sifre} degis={setSifre} sifre />
                 </>
               ) : null}
