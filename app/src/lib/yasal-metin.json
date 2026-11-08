@@ -61,7 +61,7 @@
       },
       {
         "baslik": "4. Verilerin paylaşımı",
-        "metin": "Profilin, gönderilerin, yorumların ve garajın diğer kullanıcılara görünür; anonim paylaşımlarda adın ve motorun gösterilmez. Mesajlar yalnızca sohbetin katılımcılarına görünür. Verilerin; uygulamanın çalışması için kullandığımız altyapı hizmetlerinde (veri tabanı ve kimlik doğrulama, dosya depolama, anlık bildirim, harita ve adres çözümleme hizmetleri) işlenir. Yasal bir yükümlülük olmadıkça verilerini üçüncü kişilere satmaz veya reklam amacıyla paylaşmayız."
+        "metin": "Profilin, gönderilerin, yorumların ve garajın diğer kullanıcılara görünür; anonim paylaşımlarda adın ve motorun gösterilmez. Mesajlar yalnızca sohbetin katılımcılarına görünür. Verilerin; uygulamanın çalışması için kullandığımız altyapı hizmetlerinde (veri tabanı ve kimlik doğrulama, dosya depolama, anlık bildirim, harita ve adres çözümleme hizmetleri, uygulama hatalarını izleme hizmeti) işlenir. Yasal bir yükümlülük olmadıkça verilerini üçüncü kişilere satmaz veya reklam amacıyla paylaşmayız."
       },
       {
         "baslik": "5. Saklama ve silme",

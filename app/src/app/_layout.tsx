@@ -7,14 +7,20 @@ import { AcilisKatmani } from '@/components/acilis-ekrani';
 import { AkisSaglayici } from '@/lib/akis';
 import { BildirimSaglayici } from '@/lib/bildirim';
 import { KarsilamaSaglayici, useKarsilama } from '@/lib/karsilama';
+import { hataTakibiBaslat, hataTakibiKullanici, hataTakibiSarmala } from '@/lib/hata-takibi';
 import { pushDinleyicileriKur, pushKaydet } from '@/lib/push';
 import { OturumSaglayici, useOturum } from '@/lib/oturum';
 import { TemaSaglayici, useTema } from '@/theme';
+
+hataTakibiBaslat();
 
 function Rotalar() {
   const { kullanici, hazir } = useOturum();
   const router = useRouter();
   const { gosterilmeli } = useKarsilama();
+  useEffect(() => {
+    hataTakibiKullanici(kullanici?.id ?? null);
+  }, [kullanici?.id]);
   // Yeni hesapta önce karşılama turu; izin pencereleri turun son sayfasında, açıklamayla birlikte istenir.
   useEffect(() => {
     if (kullanici && gosterilmeli === true) router.replace('/karsilama' as never);
@@ -80,10 +86,12 @@ function Kok() {
   );
 }
 
-export default function RootLayout() {
+function RootLayout() {
   return (
     <TemaSaglayici>
       <Kok />
     </TemaSaglayici>
   );
 }
+
+export default hataTakibiSarmala(RootLayout);
