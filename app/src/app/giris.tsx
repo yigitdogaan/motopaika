@@ -288,7 +288,7 @@ export default function Giris() {
             <View style={{ gap: spacing.md }}>
               <Text style={[styles.baslik, { color: c.text }]}>E-postanı doğrula</Text>
               <Text style={[styles.aciklama, { color: c.textMuted }]}>{eposta.trim()} adresine bir doğrulama kodu gönderdik. Kodu girince hesabın hazır olur.</Text>
-              <Alan ikon="kod" yer="Doğrulama kodu" deger={kod} degis={setKod} keyboardType="number-pad" maxLength={8} />
+              <Alan ikon="kod" yer="Doğrulama kodu" deger={kod} degis={(t) => setKod(t.replace(/\D/g, ''))} keyboardType="number-pad" maxLength={8} textContentType="oneTimeCode" autoComplete="sms-otp" />
               {mesaj ? <Mesaj m={mesaj} /> : null}
               <Birincil etiket="Doğrula" mesgul={mesgul} pasif={kod.trim().length < 6} onPress={dogrula} />
               <Pressable onPress={kodTekrar} disabled={bekle > 0 || mesgul} accessibilityRole="button" style={styles.baglanti}>
@@ -307,7 +307,7 @@ export default function Giris() {
               <Alan ikon="eposta" yer="E-posta" deger={eposta} degis={setEposta} keyboardType="email-address" autoCapitalize="none" editable={mod === 'sifre-eposta'} />
               {mod === 'sifre-kod' ? (
                 <>
-                  <Alan ikon="kod" yer="Doğrulama kodu" deger={kod} degis={setKod} keyboardType="number-pad" maxLength={8} />
+                  <Alan ikon="kod" yer="Doğrulama kodu" deger={kod} degis={(t) => setKod(t.replace(/\D/g, ''))} keyboardType="number-pad" maxLength={8} textContentType="oneTimeCode" autoComplete="sms-otp" />
                   <Alan ikon="kilit" yer="Yeni şifre (en az 6 karakter)" deger={sifre} degis={setSifre} sifre />
                 </>
               ) : null}
