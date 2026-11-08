@@ -1,6 +1,7 @@
+import Constants from 'expo-constants';
 import { useRouter, type Href } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
 import { useAltMenuBosluk } from '@/components/alt-menu';
@@ -16,6 +17,9 @@ import { radius, spacing, useTema, useTheme } from '@/theme';
 
 // İstanbul ve çevresi başlangıç görünümü; Expo Go'da hazır react-native-maps (API anahtarı gerektirmez).
 const ISTANBUL = { latitude: 41.08, longitude: 29.2, latitudeDelta: 0.75, longitudeDelta: 0.95 };
+
+// Android'de Google Maps anahtarı yoksa harita yerel olarak çöker; bu durumda sürüşler liste olarak gösterilir.
+const HARITA_HAZIR = Platform.OS !== 'android' || Constants.expoConfig?.extra?.haritaAnahtari === true;
 
 // Android (Google Maps) için koyu harita stili; iOS'ta userInterfaceStyle="dark" kullanılır.
 const KOYU_STIL = [
@@ -98,6 +102,7 @@ export default function Harita() {
       </View>
 
       <View style={styles.harita}>
+        {HARITA_HAZIR ? (
         <MapView
           style={StyleSheet.absoluteFill}
           initialRegion={ISTANBUL}
@@ -130,6 +135,18 @@ export default function Harita() {
             );
           })}
         </MapView>
+        ) : (
+          <ScrollView style={StyleSheet.absoluteFill} contentContainerStyle={{ paddingTop: ustYukseklik + 56, paddingHorizontal: spacing.lg, paddingBottom: bosluk + 160, gap: spacing.sm }}>
+            <Text style={[styles.ipucuYazi, { color: c.textMuted, textAlign: 'center' }]}>Harita bu sürümde henüz etkin değil; aktif sürüşler liste olarak gösteriliyor.</Text>
+            {bulusmalar.map((b) => (
+              <Pressable key={b.id} onPress={() => setSeciliId(b.id)} accessibilityRole="button" accessibilityLabel={b.ad}
+                style={[styles.listeSatir, { backgroundColor: c.surface, borderColor: b.id === seciliId ? c.primary : c.border }]}>
+                <Text style={[styles.kartBaslik, { color: c.text }]}>{b.ad}</Text>
+                <Text style={[styles.alt, { color: c.textMuted }]}>{b.yer} • {b.zaman}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        )}
 
         {secili ? (
           <View style={[styles.kart, { backgroundColor: c.surface, borderColor: c.primary, bottom: bosluk }]}>
@@ -196,6 +213,7 @@ const styles = StyleSheet.create({
   eylemler: { flexDirection: 'row', gap: spacing.sm },
   eylemlerDikey: { flexDirection: 'column' },
   eylem: { flex: 1 },
+  listeSatir: { borderWidth: 1.5, borderRadius: radius.lg, padding: spacing.lg, gap: 4 },
   ipucu: { position: 'absolute', alignSelf: 'center', bottom: spacing.xxl + 4, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: radius.full, borderWidth: 1 },
   ipucuYazi: { fontSize: 13.5, fontWeight: '600' },
 });
