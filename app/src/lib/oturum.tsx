@@ -1,3 +1,4 @@
+import { DOGRULAMA_GEREKLI, EPOSTA_KAYITLI, KULLANICI_ADI_ALINMIS, kullaniciAdiMusait } from './kayit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
@@ -58,6 +59,12 @@ export function OturumSaglayici({ children }: { children: ReactNode }) {
         const gorunen = String(u.user_metadata?.full_name ?? u.user_metadata?.name ?? '').trim();
         const { data } = await db.from('profiles').insert({ id: u.id, username: ad, display_name: gorunen || null }).select('username, display_name').single();
         p = data;
+        if (!p) {
+          // Kullanıcı adı o arada alınmışsa (yarış durumu) benzersiz bir yedek adla profili yine de oluştur.
+          const yedek = `surucu_${u.id.replace(/-/g, '').slice(0, 8)}`;
+          const { data: d2 } = await db.from('profiles').insert({ id: u.id, username: yedek, display_name: gorunen || null }).select('username, display_name').single();
+          p = d2;
+        }
       }
       setDurum((d) => ({
         ...d,
@@ -96,13 +103,17 @@ export function OturumSaglayici({ children }: { children: ReactNode }) {
       },
       kayitOl: async (eposta, sifre, kullaniciAdi) => {
         if (!supabase) return 'Supabase yapılandırılmamış.';
+        const ad = kullaniciAdi.trim();
+        if ((await kullaniciAdiMusait(ad)) === false) return KULLANICI_ADI_ALINMIS;
         const { data, error } = await supabase.auth.signUp({
           email: eposta.trim(),
           password: sifre,
-          options: { data: { username: kullaniciAdi.trim() } },
+          options: { data: { username: ad } },
         });
         if (error) return error.message;
-        return data.session ? null : 'Kayıt oldu. E-postana gelen doğrulama bağlantısına tıkla, sonra giriş yap.';
+        // Supabase, kayıtlı bir e-posta için hata vermez (sızıntıyı önlemek için); kullanıcının identities listesi boş döner.
+        if (data.user && (data.user.identities?.length ?? 1) === 0) return EPOSTA_KAYITLI;
+        return data.session ? null : DOGRULAMA_GEREKLI;
       },
       motorEkle: (marka, model) => {
         if (!motorGecerli(marka, model)) return false;

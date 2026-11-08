@@ -1,3 +1,4 @@
+import { DOGRULAMA_GEREKLI, kayitKoduDogrula, kayitKoduTekrar } from '@/lib/kayit';
 import { useRouter, type Href } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, Easing, Keyboard, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
@@ -14,7 +15,7 @@ import { sifirlamaKoduGonder, sifreyiYenile } from '@/lib/sifre';
 import { supabase } from '@/lib/supabase';
 import { fontSerif, radius, spacing, useTema, useTheme } from '@/theme';
 
-type Mod = 'giris' | 'kayit' | 'sifre-eposta' | 'sifre-kod';
+type Mod = 'giris' | 'kayit' | 'sifre-eposta' | 'sifre-kod' | 'dogrula';
 
 const OZELLIKLER: { ikon: IkonAdi; yazi: string }[] = [
   { ikon: 'motor', yazi: 'Sürüş buluşmaları' },
@@ -145,16 +146,66 @@ export default function Giris() {
   const kadiGecerli = /^[A-Za-z0-9._]{3,30}$/.test(kadi.trim());
   const girisGecerli = epostaGecerli && sifre.length >= 6 && (mod !== 'kayit' || kadiGecerli);
 
+  // Doğrulama kodu ekranına geç; 60 sn boyunca "tekrar gönder" kapalı.
+  const [bekle, setBekle] = useState(0);
+  useEffect(() => {
+    if (bekle <= 0) return;
+    const t = setTimeout(() => setBekle((b) => b - 1), 1000);
+    return () => clearTimeout(t);
+  }, [bekle]);
+  const dogrulamayaGec = (yazi: string) => {
+    setMod('dogrula');
+    setKod('');
+    setBekle(60);
+    setMesaj({ yazi, iyi: true });
+  };
+
   const gonder = async () => {
     if (!girisGecerli || mesgul) return;
     setMesgul(true);
     setMesaj(null);
     const hata = mod === 'kayit' ? await kayitOl(eposta, sifre, kadi) : await epostaGiris(eposta, sifre);
     setMesgul(false);
-    if (hata) {
-      const sade = /invalid login/i.test(hata) ? 'E-posta ya da şifre hatalı.' : /already registered|already been registered/i.test(hata) ? 'Bu e-posta ile zaten bir hesap var. Giriş yapmayı dene.' : /duplicate|username/i.test(hata) ? 'Bu kullanıcı adı alınmış.' : hata;
-      setMesaj({ yazi: sade, iyi: hata.startsWith('Kayıt oldu') });
+    if (hata === DOGRULAMA_GEREKLI) {
+      dogrulamayaGec('E-postana 6 haneli bir doğrulama kodu gönderdik. Kodu gir.');
+      return;
     }
+    if (hata) {
+      if (/not confirmed/i.test(hata)) {
+        // E-posta henüz doğrulanmamış: yeni kod gönder ve kod ekranına geç.
+        await kayitKoduTekrar(eposta);
+        dogrulamayaGec('E-postan henüz doğrulanmamış. Sana yeni bir kod gönderdik.');
+        return;
+      }
+      const sade = /invalid login/i.test(hata)
+        ? 'E-posta ya da şifre hatalı.'
+        : /already registered|already been registered/i.test(hata)
+          ? 'Bu e-posta ile zaten bir hesap var. Giriş yap ya da şifreni sıfırla.'
+          : /rate limit|too many/i.test(hata)
+            ? 'Çok sık denedin. Birkaç dakika sonra tekrar dene.'
+            : /duplicate|username/i.test(hata)
+              ? 'Bu kullanıcı adı alınmış.'
+              : hata;
+      setMesaj({ yazi: sade });
+    }
+  };
+
+  const dogrula = async () => {
+    setMesgul(true);
+    setMesaj(null);
+    const hata = await kayitKoduDogrula(eposta, kod);
+    setMesgul(false);
+    if (hata) setMesaj({ yazi: hata });
+  };
+  const kodTekrar = async () => {
+    if (bekle > 0 || mesgul) return;
+    setMesgul(true);
+    setMesaj(null);
+    const hata = await kayitKoduTekrar(eposta);
+    setMesgul(false);
+    if (hata) return setMesaj({ yazi: hata });
+    setBekle(60);
+    setMesaj({ yazi: 'Yeni kod gönderildi. Gelmediyse spam klasörüne de bak.', iyi: true });
   };
 
   const sosyal = async (s: Saglayici) => {
@@ -232,6 +283,20 @@ export default function Giris() {
               <Text style={[styles.baslik, { color: c.text }]}>Demo modu</Text>
               <Text style={[styles.aciklama, { color: c.textMuted }]}>Henüz bir hesaba bağlı değilsin. Uygulamayı örnek verilerle gezebilirsin.</Text>
               <Dugme etiket="Demo kullanıcı ile gir" onPress={girisYap} />
+            </View>
+          ) : mod === 'dogrula' ? (
+            <View style={{ gap: spacing.md }}>
+              <Text style={[styles.baslik, { color: c.text }]}>E-postanı doğrula</Text>
+              <Text style={[styles.aciklama, { color: c.textMuted }]}>{eposta.trim()} adresine 6 haneli bir kod gönderdik. Kodu girince hesabın hazır olur.</Text>
+              <Alan ikon="kod" yer="6 haneli kod" deger={kod} degis={setKod} keyboardType="number-pad" maxLength={8} />
+              {mesaj ? <Mesaj m={mesaj} /> : null}
+              <Birincil etiket="Doğrula" mesgul={mesgul} pasif={kod.trim().length < 6} onPress={dogrula} />
+              <Pressable onPress={kodTekrar} disabled={bekle > 0 || mesgul} accessibilityRole="button" style={styles.baglanti}>
+                <Text style={[styles.baglantiYazi, { color: bekle > 0 ? c.textMuted : c.primary }]}>{bekle > 0 ? `Kodu tekrar gönder (${bekle})` : 'Kodu tekrar gönder'}</Text>
+              </Pressable>
+              <Pressable onPress={() => modDegis('giris')} accessibilityRole="button" style={styles.baglanti}>
+                <Text style={[styles.baglantiYazi, { color: c.textMuted }]}>Girişe geri dön</Text>
+              </Pressable>
             </View>
           ) : sifreMod ? (
             <View style={{ gap: spacing.md }}>
