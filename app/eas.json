@@ -10,21 +10,24 @@
       "channel": "development",
       "env": {
         "SENTRY_DISABLE_AUTO_UPLOAD": "true"
-      }
+      },
+      "environment": "development"
     },
     "preview": {
       "distribution": "internal",
       "channel": "preview",
       "env": {
         "SENTRY_DISABLE_AUTO_UPLOAD": "true"
-      }
+      },
+      "environment": "preview"
     },
     "production": {
       "channel": "production",
       "autoIncrement": true,
       "env": {
         "SENTRY_DISABLE_AUTO_UPLOAD": "true"
-      }
+      },
+      "environment": "production"
     }
   },
   "submit": {
