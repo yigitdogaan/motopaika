@@ -1,48 +1,81 @@
 import { DOGRULAMA_GEREKLI, kayitKoduDogrula, kayitKoduTekrar } from '@/lib/kayit';
 import { useRouter, type Href } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Easing, Keyboard, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Animated, Easing, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Circle, Defs, Line, RadialGradient, Rect, Stop } from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
 
 import { AppleLogo, GirisIkon, GoogleG } from '@/components/giris-ikonlari';
-import { Ikon, type IkonAdi } from '@/components/ikon';
+import { Ikon } from '@/components/ikon';
 import { RoteriLogo } from '@/components/roteri-logo';
-import { Dugme } from '@/components/yol-ui';
 import { saglayiciyaGiris, type Saglayici } from '@/lib/oauth';
 import { useOturum } from '@/lib/oturum';
 import { sifirlamaKoduGonder, sifreyiYenile } from '@/lib/sifre';
 import { supabase } from '@/lib/supabase';
-import { fontSerif, radius, spacing, useTema, useTheme } from '@/theme';
+import { fontSerif, palette, radius, spacing } from '@/theme';
 
 type Mod = 'giris' | 'kayit' | 'sifre-eposta' | 'sifre-kod' | 'dogrula';
 
-const OZELLIKLER: { ikon: IkonAdi; yazi: string }[] = [
-  { ikon: 'motor', yazi: 'Sürüş buluşmaları' },
-  { ikon: 'harita', yazi: 'Haritada aktif sürüşler' },
-  { ikon: 'garaj', yazi: 'Motor garajın' },
-];
+/** Giriş ekranı her temada aynı koyu gri görünümü kullanır (marka ilk izlenimi). */
+const G = { ...palette.dark, bg: '#18191C', surface: '#25272B', surfaceAlt: '#2B2D32', border: '#3A3D44' };
 
-/** Hero arka planı: sıcak sarı ışık + perspektifli şerit çizgileri (asfalt hissi). */
+/** Küçük, deterministik "tane" noktaları (gerçek rastgelelik yok; her açılışta aynı görünüm). */
+function taneler(en: number, boy: number, adet: number) {
+  let x = 7;
+  const r = () => {
+    x = (x * 9301 + 49297) % 233280;
+    return x / 233280;
+  };
+  return Array.from({ length: adet }, () => ({ cx: r() * en, cy: r() * boy, o: 0.03 + r() * 0.05, r: 0.5 + r() * 0.7 }));
+}
+
+/** Kontur haritası: üst üste binen yumuşak dalga çizgileri (topoğrafya hissi) + sarı ışık + ince tane. */
 function Arkaplan({ en, boy }: { en: number; boy: number }) {
-  const c = useTheme();
-  const cizgiler = Array.from({ length: 7 }, (_, i) => i);
+  const noktalar = useMemo(() => taneler(en, boy, 160), [en, boy]);
+  const kontur = useMemo(() => {
+    const cizgiler: string[] = [];
+    for (let k = 0; k < 14; k++) {
+      const y0 = boy * (0.05 + k * 0.045);
+      const g = 18 + k * 5;
+      let d = `M ${-20} ${y0}`;
+      for (let i = 0; i <= 6; i++) {
+        const x = (en / 6) * i + 0;
+        const y = y0 + Math.sin(i * 1.15 + k * 0.5) * g + Math.cos(i * 0.7 + k) * (g * 0.4);
+        d += ` L ${x} ${y}`;
+      }
+      cizgiler.push(d);
+    }
+    return cizgiler;
+  }, [en, boy]);
   return (
     <Svg width={en} height={boy} style={StyleSheet.absoluteFill} pointerEvents="none">
       <Defs>
-        <RadialGradient id="isik" cx="50%" cy="0%" rx="75%" ry="85%" fx="50%" fy="0%">
-          <Stop offset="0" stopColor={c.primary} stopOpacity="0.34" />
-          <Stop offset="0.55" stopColor={c.primary} stopOpacity="0.07" />
-          <Stop offset="1" stopColor={c.primary} stopOpacity="0" />
+        <LinearGradient id="zemin" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor="#2E3035" />
+          <Stop offset="0.5" stopColor="#1F2024" />
+          <Stop offset="1" stopColor="#141517" />
+        </LinearGradient>
+        <RadialGradient id="isik" cx="50%" cy="22%" rx="70%" ry="42%" fx="50%" fy="22%">
+          <Stop offset="0" stopColor={G.primary} stopOpacity="0.22" />
+          <Stop offset="0.6" stopColor={G.primary} stopOpacity="0.05" />
+          <Stop offset="1" stopColor={G.primary} stopOpacity="0" />
+        </RadialGradient>
+        <RadialGradient id="vinyet" cx="50%" cy="40%" rx="85%" ry="75%">
+          <Stop offset="0.6" stopColor="#000" stopOpacity="0" />
+          <Stop offset="1" stopColor="#000" stopOpacity="0.45" />
         </RadialGradient>
       </Defs>
+      <Rect x={0} y={0} width={en} height={boy} fill="url(#zemin)" />
+      {kontur.map((d, i) => (
+        <Path key={i} d={d} stroke="#FFFFFF" strokeOpacity={0.035 + (i % 3) * 0.012} strokeWidth={1} fill="none" strokeLinejoin="round" />
+      ))}
+      <Path d={`M ${en * 0.1} ${boy * 0.02} C ${en * 0.6} ${boy * 0.18}, ${en * 0.2} ${boy * 0.3}, ${en * 0.8} ${boy * 0.46}`} stroke={G.primary} strokeOpacity={0.1} strokeWidth={1.4} strokeDasharray="10 12" fill="none" />
       <Rect x={0} y={0} width={en} height={boy} fill="url(#isik)" />
-      {cizgiler.map((i) => {
-        const x = en * (0.5 + (i - 3) * 0.34);
-        return <Line key={i} x1={en / 2} y1={boy * 0.12} x2={x} y2={boy} stroke={c.primary} strokeOpacity={0.07} strokeWidth={1.2} strokeDasharray="10 14" />;
-      })}
-      <Circle cx={en * 0.86} cy={boy * 0.2} r={90} fill={c.primary} fillOpacity={0.05} />
-      <Circle cx={en * 0.1} cy={boy * 0.62} r={60} fill={c.primary} fillOpacity={0.04} />
+      {noktalar.map((n, i) => (
+        <Circle key={i} cx={n.cx} cy={n.cy} r={n.r} fill="#FFFFFF" fillOpacity={n.o} />
+      ))}
+      <Rect x={0} y={0} width={en} height={boy} fill="url(#vinyet)" />
     </Svg>
   );
 }
@@ -56,7 +89,7 @@ function Alan({
   degis: (t: string) => void;
   sifre?: boolean;
 } & Pick<React.ComponentProps<typeof TextInput>, 'keyboardType' | 'autoCapitalize' | 'maxLength' | 'editable' | 'autoComplete' | 'textContentType' | 'onSubmitEditing' | 'returnKeyType'>) {
-  const c = useTheme();
+  const c = G;
   const [goster, setGoster] = useState(false);
   const [odak, setOdak] = useState(false);
   return (
@@ -85,34 +118,29 @@ function Alan({
 }
 
 function SosyalDugme({ saglayici, mesgul, onPress }: { saglayici: Saglayici; mesgul: boolean; onPress: () => void }) {
-  const c = useTheme();
-  const { koyu } = useTema();
   const apple = saglayici === 'apple';
-  // Apple yönergesi: koyu zeminde beyaz, açık zeminde siyah düğme.
-  const appleZemin = koyu ? '#FFFFFF' : '#000000';
-  const appleYazi = koyu ? '#000000' : '#FFFFFF';
+  // Apple: beyaz zemin, siyah yazı. Google: koyu temadaki resmi görünüm.
+  const zemin = apple ? '#FFFFFF' : '#131314';
+  const yazi = apple ? '#000000' : '#E3E3E3';
+  const kenar = apple ? '#FFFFFF' : '#8E918F';
   return (
     <Pressable
       onPress={onPress}
       disabled={mesgul}
       accessibilityRole="button"
       accessibilityLabel={apple ? 'Apple ile devam et' : 'Google ile devam et'}
-      style={({ pressed }) => [
-        styles.sosyal,
-        apple ? { backgroundColor: appleZemin, borderColor: appleZemin } : { backgroundColor: c.surfaceAlt, borderColor: c.border },
-        mesgul && { opacity: 0.5 },
-        pressed && { opacity: 0.8 },
-      ]}>
-      {apple ? <AppleLogo boyut={20} renk={appleYazi} /> : <GoogleG boyut={20} />}
-      <Text style={[styles.sosyalYazi, { color: apple ? appleYazi : c.text }]}>{apple ? 'Apple' : 'Google'}</Text>
+      style={({ pressed }) => [styles.sosyal, { backgroundColor: zemin, borderColor: kenar }, mesgul && { opacity: 0.5 }, pressed && { opacity: 0.85, transform: [{ scale: 0.985 }] }]}>
+      {apple ? <AppleLogo boyut={22} renk={yazi} /> : <GoogleG boyut={21} />}
+      <Text style={[styles.sosyalYazi, { color: yazi }]}>{apple ? 'Apple ile devam et' : 'Google ile devam et'}</Text>
     </Pressable>
   );
 }
 
 export default function Giris() {
-  const c = useTheme();
+  const c = G;
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
+  const [epostaAcik, setEpostaAcik] = useState(false);
   const router = useRouter();
   const { girisYap, epostaGiris, kayitOl } = useOturum();
 
@@ -234,55 +262,31 @@ export default function Giris() {
     if (hata) setMesaj({ yazi: hata });
   };
 
-  const kucuk = height < 740;
   const kayitMi = mod === 'kayit';
   const sifreMod = mod === 'sifre-eposta' || mod === 'sifre-kod';
+  const formGorunur = epostaAcik || sifreMod || mod === 'dogrula';
+  const sirali: Saglayici[] = Platform.OS === 'ios' ? ['apple', 'google'] : ['google', 'apple'];
+  const giris = { opacity: anim, transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) }] };
 
   return (
-    <KeyboardAvoidingView behavior="padding" style={[styles.kap, { backgroundColor: c.bg }]}>
-      <View style={styles.scroll}>
-        {/* HERO: kalan alanı doldurur; klavye açılınca yalnız logo kalır */}
-        <View style={{ flex: 1, minHeight: 0, paddingTop: insets.top, overflow: 'hidden' }}>
-          <Arkaplan en={width} boy={height} />
-          <Animated.View
-            style={[styles.heroIc, { opacity: anim, transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) }] }]}>
-            <RoteriLogo yukseklik={klavye ? 30 : kucuk ? 44 : 54} renk={c.text} isaret={c.primary} />
-            {!klavye ? (
-              <>
-                <Text style={[styles.slogan, { color: c.text, fontFamily: fontSerif, fontSize: kucuk ? 24 : 30, lineHeight: kucuk ? 30 : 36 }]}>
-                  Yolda yalnız{'\n'}değilsin<Text style={{ color: c.primary }}>.</Text>
-                </Text>
-                <Text style={[styles.altSlogan, { color: c.textMuted }]}>
-                  {kucuk ? 'Motosiklet topluluğu: sürüş kur, haritadan bul.' : "Türkiye'nin motosiklet topluluğu: birlikte sürüş kur, haritada aktif sürüşleri gör."}
-                </Text>
-                {!kucuk ? (
-                  <View style={styles.ozellikler}>
-                    {OZELLIKLER.map((o) => (
-                      <View key={o.yazi} style={[styles.ozellik, { backgroundColor: c.surface, borderColor: c.border }]}>
-                        <Ikon ad={o.ikon} boyut={14} renk={c.primary} />
-                        <Text style={[styles.ozellikYazi, { color: c.text }]}>{o.yazi}</Text>
-                      </View>
-                    ))}
-                  </View>
-                ) : null}
-              </>
-            ) : null}
-          </Animated.View>
-        </View>
+    <KeyboardAvoidingView behavior="padding" style={[styles.kap, { backgroundColor: G.bg }]}>
+      <StatusBar style="light" />
+      <Arkaplan en={width} boy={height + insets.top} />
+      <ScrollView contentContainerStyle={styles.icerik} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} bounces={false}>
+        <Animated.View style={[styles.ust, { paddingTop: insets.top + spacing.xxl }, giris]}>
+          <RoteriLogo yukseklik={klavye ? 28 : 38} renk={G.text} isaret={G.primary} />
+          {!klavye ? (
+            <Text style={[styles.slogan, { color: G.text, fontFamily: fontSerif }]}>
+              Yolda yalnız{'\n'}değilsin<Text style={{ color: G.primary }}>.</Text>
+            </Text>
+          ) : null}
+        </Animated.View>
 
-        {/* FORM KARTI */}
-        <Animated.View
-          style={[
-            styles.kart,
-            { backgroundColor: c.surface, borderColor: c.border, paddingBottom: klavye ? spacing.lg : insets.bottom + spacing.lg, opacity: anim, transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [40, 0] }) }] },
-          ]}>
-          <View style={[styles.tutamac, { backgroundColor: c.border }]} />
-
+        <Animated.View style={[styles.alt, { paddingBottom: klavye ? spacing.lg : insets.bottom + spacing.lg }, giris]}>
           {!supabase ? (
             <View style={{ gap: spacing.md }}>
-              <Text style={[styles.baslik, { color: c.text }]}>Demo modu</Text>
-              <Text style={[styles.aciklama, { color: c.textMuted }]}>Henüz bir hesaba bağlı değilsin. Uygulamayı örnek verilerle gezebilirsin.</Text>
-              <Dugme etiket="Demo kullanıcı ile gir" onPress={girisYap} />
+              <Text style={[styles.aciklama, { color: G.textMuted, textAlign: 'center' }]}>Henüz bir hesaba bağlı değilsin. Uygulamayı örnek verilerle gezebilirsin.</Text>
+              <Birincil etiket="Demo kullanıcı ile gir" mesgul={false} pasif={false} onPress={girisYap} />
             </View>
           ) : mod === 'dogrula' ? (
             <View style={{ gap: spacing.md }}>
@@ -321,66 +325,71 @@ export default function Giris() {
                 <Text style={[styles.baglantiYazi, { color: c.textMuted }]}>Girişe geri dön</Text>
               </Pressable>
             </View>
-          ) : (
+          ) : formGorunur ? (
             <View style={{ gap: 10 }}>
-              <View style={[styles.sekmeler, { backgroundColor: c.surfaceAlt }]} accessibilityRole="tablist">
+              <View style={[styles.sekmeler, { backgroundColor: G.surfaceAlt }]} accessibilityRole="tablist">
                 {(['giris', 'kayit'] as const).map((m) => {
                   const secili = mod === m;
                   return (
-                    <Pressable key={m} onPress={() => modDegis(m)} accessibilityRole="tab" accessibilityState={{ selected: secili }} style={[styles.sekme, secili && { backgroundColor: c.primary }]}>
-                      <Text style={[styles.sekmeYazi, { color: secili ? c.onPrimary : c.textMuted }]}>{m === 'giris' ? 'Giriş yap' : 'Kayıt ol'}</Text>
+                    <Pressable key={m} onPress={() => modDegis(m)} accessibilityRole="tab" accessibilityState={{ selected: secili }} style={[styles.sekme, secili && { backgroundColor: G.primary }]}>
+                      <Text style={[styles.sekmeYazi, { color: secili ? G.onPrimary : G.textMuted }]}>{m === 'giris' ? 'Giriş yap' : 'Kayıt ol'}</Text>
                     </Pressable>
                   );
                 })}
               </View>
-
-              <View style={styles.sosyalSatir}>
-                <SosyalDugme saglayici="apple" mesgul={mesgul} onPress={() => sosyal('apple')} />
-                <SosyalDugme saglayici="google" mesgul={mesgul} onPress={() => sosyal('google')} />
-              </View>
-
-              <View style={styles.ayirac}>
-                <View style={[styles.cizgi, { backgroundColor: c.border }]} />
-                <Text style={[styles.ayiracYazi, { color: c.textMuted }]}>veya e-posta ile</Text>
-                <View style={[styles.cizgi, { backgroundColor: c.border }]} />
-              </View>
-
- {kayitMi ? (
-                <Text style={[styles.ipucu, { color: c.textMuted }]}>Ücretsiz hesap aç: sürüşlere katıl, motorunu garajına ekle. Kullanıcı adın herkese görünür.</Text>
-              ) : null}
               {kayitMi ? <Alan ikon="kullanici" yer="Kullanıcı adı" deger={kadi} degis={setKadi} autoCapitalize="none" maxLength={30} /> : null}
-              {kayitMi && kadi.length > 0 && !kadiGecerli ? <Text style={[styles.ipucu, { color: c.danger }]}>3–30 karakter; harf, rakam, nokta ve alt çizgi kullanabilirsin.</Text> : null}
+              {kayitMi && kadi.length > 0 && !kadiGecerli ? <Text style={[styles.ipucu, { color: G.danger }]}>3–30 karakter; harf, rakam, nokta ve alt çizgi kullanabilirsin.</Text> : null}
               <Alan ikon="eposta" yer="E-posta" deger={eposta} degis={setEposta} keyboardType="email-address" autoCapitalize="none" autoComplete="email" />
               <Alan ikon="kilit" yer={kayitMi ? 'Şifre (en az 6 karakter)' : 'Şifre'} deger={sifre} degis={setSifre} sifre autoComplete={kayitMi ? 'new-password' : 'current-password'} returnKeyType="go" onSubmitEditing={gonder} />
-
               {!kayitMi ? (
                 <Pressable onPress={() => modDegis('sifre-eposta')} accessibilityRole="button" style={styles.sifreUnuttum}>
-                  <Text style={[styles.baglantiYazi, { color: c.primary }]}>Şifremi unuttum</Text>
+                  <Text style={[styles.baglantiYazi, { color: G.primary }]}>Şifremi unuttum</Text>
                 </Pressable>
               ) : null}
-
               {mesaj ? <Mesaj m={mesaj} /> : null}
               <Birincil etiket={kayitMi ? 'Hesap oluştur' : 'Giriş yap'} mesgul={mesgul} pasif={!girisGecerli} onPress={gonder} />
-
+              <Pressable onPress={() => { setEpostaAcik(false); modDegis('giris'); }} accessibilityRole="button" style={styles.baglanti}>
+                <Text style={[styles.baglantiYazi, { color: G.textMuted }]}>Diğer giriş seçenekleri</Text>
+              </Pressable>
+            </View>
+          ) : (
+            <View style={{ gap: spacing.md }}>
+              {sirali.map((s) => (
+                <SosyalDugme key={s} saglayici={s} mesgul={mesgul} onPress={() => sosyal(s)} />
+              ))}
+              {mesaj ? <Mesaj m={mesaj} /> : null}
+              <View style={styles.ayirac}>
+                <View style={[styles.cizgi, { backgroundColor: G.border }]} />
+                <Text style={[styles.ayiracYazi, { color: G.textMuted }]}>veya</Text>
+                <View style={[styles.cizgi, { backgroundColor: G.border }]} />
+              </View>
+              <Pressable
+                onPress={() => { setMesaj(null); setEpostaAcik(true); }}
+                accessibilityRole="button"
+                accessibilityLabel="E-posta ile devam et"
+                style={({ pressed }) => [styles.eposta, { borderColor: G.border, backgroundColor: pressed ? G.surfaceAlt : G.surface }]}>
+                <GirisIkon ad="eposta" boyut={20} renk={G.text} />
+                <Text style={[styles.sosyalYazi, { color: G.text }]}>E-posta ile devam et</Text>
+              </Pressable>
               {!klavye ? (
-                <Text style={[styles.yasal, { color: c.textMuted }]}>
+                <Text style={[styles.yasal, { color: G.textMuted }]}>
                   Devam ederek{' '}
-                  <Text style={{ color: c.primary, fontWeight: '700' }} onPress={() => router.push('/yasal/kosullar' as Href)} accessibilityRole="link">Kullanım Koşulları</Text>
+                  <Text style={{ color: G.text, fontWeight: '700' }} onPress={() => router.push('/yasal/kosullar' as Href)} accessibilityRole="link">Kullanım Koşulları</Text>
                   {"'nı ve "}
-                  <Text style={{ color: c.primary, fontWeight: '700' }} onPress={() => router.push('/yasal/gizlilik' as Href)} accessibilityRole="link">Gizlilik Politikası</Text>
+                  <Text style={{ color: G.text, fontWeight: '700' }} onPress={() => router.push('/yasal/gizlilik' as Href)} accessibilityRole="link">Gizlilik Politikası</Text>
                   {"'nı kabul etmiş olursun."}
                 </Text>
               ) : null}
             </View>
           )}
         </Animated.View>
-      </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
 function Mesaj({ m }: { m: { yazi: string; iyi?: boolean } }) {
-  const c = useTheme();
+  const c = G;
   const renk = m.iyi ? c.success : c.danger;
   return (
     <View style={[styles.mesaj, { borderColor: renk, backgroundColor: `${renk}1A` }]} accessibilityRole="alert">
@@ -391,7 +400,7 @@ function Mesaj({ m }: { m: { yazi: string; iyi?: boolean } }) {
 }
 
 function Birincil({ etiket, mesgul, pasif, onPress }: { etiket: string; mesgul: boolean; pasif: boolean; onPress: () => void }) {
-  const c = useTheme();
+  const c = G;
   return (
     <Pressable
       onPress={onPress}
@@ -406,27 +415,22 @@ function Birincil({ etiket, mesgul, pasif, onPress }: { etiket: string; mesgul: 
 
 const styles = StyleSheet.create({
   kap: { flex: 1 },
-  scroll: { flex: 1 },
-  heroIc: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing.xl, paddingTop: spacing.xl, paddingBottom: spacing.md, gap: spacing.md },
-  slogan: { fontSize: 38, lineHeight: 44, fontWeight: '800', marginTop: spacing.lg, letterSpacing: -0.5, textAlign: 'center' },
-  altSlogan: { fontSize: 15, lineHeight: 21, textAlign: 'center' },
-  ozellikler: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: spacing.sm, marginTop: spacing.xs },
-  ozellik: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 6, borderRadius: radius.full, borderWidth: 1 },
-  ozellikYazi: { fontSize: 12.5, fontWeight: '700' },
-  kart: { borderTopLeftRadius: radius.xl + 4, borderTopRightRadius: radius.xl + 4, borderWidth: 1, borderBottomWidth: 0, paddingHorizontal: spacing.xl, paddingTop: spacing.sm },
-  tutamac: { alignSelf: 'center', width: 38, height: 4, borderRadius: 2, marginBottom: spacing.md },
+  icerik: { flexGrow: 1, justifyContent: 'space-between' },
+  ust: { alignItems: 'center', gap: spacing.xl, paddingHorizontal: spacing.xl },
+  slogan: { fontSize: 30, lineHeight: 37, fontWeight: '800', letterSpacing: -0.4, textAlign: 'center' },
+  alt: { paddingHorizontal: spacing.xl, paddingTop: spacing.xxl },
   baslik: { fontSize: 22, fontWeight: '800' },
   aciklama: { fontSize: 14, lineHeight: 20 },
   sekmeler: { flexDirection: 'row', padding: 4, borderRadius: radius.md + 2 },
   sekme: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 9, borderRadius: radius.md - 2 },
   sekmeYazi: { fontSize: 14.5, fontWeight: '800' },
-  sosyal: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, height: 48, borderRadius: radius.md, borderWidth: 1 },
-  sosyalYazi: { fontSize: 15.5, fontWeight: '700' },
-  sosyalSatir: { flexDirection: 'row', gap: spacing.md },
+  sosyal: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, height: 54, borderRadius: radius.lg, borderWidth: 1 },
+  sosyalYazi: { fontSize: 16, fontWeight: '700' },
+  eposta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, height: 54, borderRadius: radius.lg, borderWidth: 1 },
   ayirac: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginVertical: 2 },
   cizgi: { flex: 1, height: StyleSheet.hairlineWidth },
   ayiracYazi: { fontSize: 12.5, fontWeight: '600' },
-  alan: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 48, borderRadius: radius.md, borderWidth: 1.5, paddingHorizontal: spacing.md },
+  alan: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 50, borderRadius: radius.md, borderWidth: 1.5, paddingHorizontal: spacing.md },
   girdi: { flex: 1, fontSize: 16, height: '100%' },
   ipucu: { fontSize: 12, marginTop: -6 },
   sifreUnuttum: { alignSelf: 'flex-end', marginTop: -4, paddingVertical: 2 },
@@ -434,7 +438,7 @@ const styles = StyleSheet.create({
   baglantiYazi: { fontSize: 13.5, fontWeight: '700' },
   mesaj: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, borderWidth: 1, borderRadius: radius.md, padding: spacing.md },
   mesajYazi: { flex: 1, fontSize: 13.5, lineHeight: 19 },
-  birincil: { height: 50, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
+  birincil: { height: 52, borderRadius: radius.lg, alignItems: 'center', justifyContent: 'center' },
   birincilYazi: { fontSize: 16.5, fontWeight: '800' },
   yasal: { fontSize: 11.5, lineHeight: 16, textAlign: 'center', marginTop: spacing.xs },
 });
