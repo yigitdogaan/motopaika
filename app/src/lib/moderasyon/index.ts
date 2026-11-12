@@ -34,6 +34,9 @@ const HANE11 = /\b\d{11}\b/g;
 type Kural = { ad: string; re: RegExp; karar: Karar; baglamlar?: Baglam[] };
 // Normalleştirilmiş metinde aranır (küçük harf, aksansız).
 const KURALLAR: Kural[] = [
+  // Kesin küfür: kelime sınırlı kökler (isimlerle çakışmasın). Sunucu tarafı kuralıyla aynı olmalı:
+  // supabase/migrations/20261112000001_otomatik_moderasyon.sql → moderasyon_kufur_var
+  { ad: 'Küfür veya hakaret', re: /\b(?:amk|aq|amq|aminakoy\w*|amcik\w*|orospu\w*|orosbu\w*|siktir\w*|sikik\w*|sikeyim|sikerim|siktim|yarrak\w*|yarak|piclik|pic ?kurusu|pic ?oglu|ibne\w*|pust\w*|gavat\w*|pezevenk\w*|gotveren\w*|gotunu\w*|ananisikeyim|anani\w* ?sik\w*)\b/, karar: 'ENGELLE' },
   { ad: 'Tehdit', re: /seni bulurum|oldurecegim|kafani kiracagim|yolda yakalarim/, karar: 'ENGELLE' },
   { ad: 'Bahis/spam', re: /\b(?:bahis|casino|kripto kazan|yatirim garanti)\b/, karar: 'ENGELLE' },
   { ad: 'Önce ödeme', re: /once havale|eft yap sonra|odeme yap kargo/, karar: 'ENGELLE', baglamlar: ['ilan'] },

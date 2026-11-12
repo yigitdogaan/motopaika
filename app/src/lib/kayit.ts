@@ -8,11 +8,10 @@ export const KULLANICI_ADI_ALINMIS = 'Bu kullanıcı adı alınmış. Başka bir
 /** Kullanıcı adı boş mu? (büyük/küçük harf ayrımı yok; ağ hatasında null → kayıt denemesine izin verilir) */
 export async function kullaniciAdiMusait(ad: string): Promise<boolean | null> {
   if (!supabase) return null;
-  // ilike'ta _ ve % joker sayılır; birebir eşleşme için kaçır.
-  const kacirilmis = ad.trim().replace(/[\\%_]/g, (m) => `\\${m}`);
-  const { data, error } = await supabase.from('profiles').select('id').ilike('username', kacirilmis).limit(1);
-  if (error) return null;
-  return (data?.length ?? 0) === 0;
+  // profiles giriş yapmadan okunamaz; bu yüzden yalnız boş/dolu bilgisini veren RPC kullanılır.
+  const { data, error } = await supabase.rpc('kullanici_adi_musait', { p_username: ad });
+  if (error || typeof data !== 'boolean') return null;
+  return data;
 }
 
 /** Kayıt sonrası e-postaya gelen 6 haneli kodu doğrular; başarılıysa oturum açılır. */

@@ -1,5 +1,6 @@
 import { avatarAdresi } from './profil';
 import { supabase } from './supabase';
+import { moderasyonUyarisi } from './moderasyon/uygula';
 import { hizUyarisi } from './yonetim';
 
 export type MesajTuru = 'text' | 'image' | 'location';
@@ -137,7 +138,7 @@ export async function mesajlariGetir(odaId: string): Promise<Mesaj[]> {
 export async function mesajGonder(odaId: string, kullaniciId: string, metin: string): Promise<boolean> {
   if (!supabase) return false;
   const { error } = await supabase.from('chat_messages').insert({ room_id: odaId, sender_id: kullaniciId, body: metin.trim() });
-  hizUyarisi(error);
+  if (!moderasyonUyarisi(error)) hizUyarisi(error);
   return !error;
 }
 

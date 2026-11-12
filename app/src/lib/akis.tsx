@@ -1,4 +1,5 @@
 import { Alert } from 'react-native';
+import { moderasyonUyarisi } from './moderasyon/uygula';
 import { hizUyarisi, kisitUyarisi } from './yonetim';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
@@ -314,7 +315,7 @@ export function AkisSaglayici({ children }: { children: ReactNode }) {
           photo_path: yol,
           photo_paths: yollar,
         });
-        if (yazHata && !hizUyarisi(yazHata) && !(await kisitUyarisi())) Alert.alert('Paylaşılamadı', 'İnternet bağlantını kontrol edip tekrar dene.');
+        if (yazHata && !moderasyonUyarisi(yazHata) && !hizUyarisi(yazHata) && !(await kisitUyarisi())) Alert.alert('Paylaşılamadı', 'İnternet bağlantını kontrol edip tekrar dene.');
         await yenile();
         return;
       }
@@ -453,7 +454,7 @@ export function AkisSaglayici({ children }: { children: ReactNode }) {
       if (!t) return;
       if (supabase && uid) {
         const { error: yorumHata } = await supabase.from('post_comments').insert({ post_id: id, author_id: uid, body: t });
-        if (yorumHata && !hizUyarisi(yorumHata)) await kisitUyarisi();
+        if (yorumHata && !moderasyonUyarisi(yorumHata) && !hizUyarisi(yorumHata)) await kisitUyarisi();
         await yorumlariYukle(id);
         return;
       }

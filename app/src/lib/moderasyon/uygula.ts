@@ -18,3 +18,10 @@ export function suz(metin: string, baglam: Baglam): string | null {
   }
   return s.metin;
 }
+
+/** Sunucu tetikleyicisi küfürlü içeriği reddettiyse (istemci süzgecini atlayan istekler dahil) kullanıcıyı uyarır. */
+export function moderasyonUyarisi(hata: { message?: string } | null | undefined): boolean {
+  if (!hata?.message?.includes('MODERASYON_ENGEL')) return false;
+  Alert.alert('Bu içerik paylaşılamaz', 'Küfür veya hakaret içerdiği için gönderilmedi. Metni düzenleyip tekrar dene.');
+  return true;
+}
