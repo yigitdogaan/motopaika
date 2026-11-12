@@ -109,6 +109,8 @@ export async function demo(ad: string, a: Record<string, any>): Promise<unknown>
         return { day: d.toISOString().slice(0, 10), users: Math.round(10 * w + (i % 4)), posts: Math.round(55 * w + (i % 5) * 3), comments: Math.round(210 * w), reports: Math.round(2 * w + (i % 3)) };
       }));
     }
+    case 'admin_user_reports': return gecikme([]);
+    case 'admin_dismiss_user_reports': return gecikme(0);
     case 'admin_reports': {
       const ids = [...new Set(sikayetler.map((s) => s.post_id))];
       const satirlar = ids.map((id) => {

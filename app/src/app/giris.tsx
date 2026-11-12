@@ -273,7 +273,7 @@ export default function Giris() {
       <StatusBar style="light" />
       <Arkaplan en={width} boy={height + insets.top} />
       <ScrollView contentContainerStyle={styles.icerik} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} bounces={false}>
-        <Animated.View style={[styles.ust, { paddingTop: insets.top + spacing.xxl }, giris]}>
+        <Animated.View style={[styles.ust, { paddingTop: insets.top + (klavye ? spacing.xl : 88) }, giris]}>
           <RoteriLogo yukseklik={klavye ? 28 : 38} renk={G.text} isaret={G.primary} />
           {!klavye ? (
             <Text style={[styles.slogan, { color: G.text, fontFamily: fontSerif }]}>

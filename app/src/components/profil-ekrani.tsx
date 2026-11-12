@@ -9,6 +9,8 @@ import { Ikon, type IkonAdi } from '@/components/ikon';
 import { MotorDetayi } from '@/components/motor-detayi';
 import { BosDurum } from '@/components/bos-durum';
 import { IskeletProfil } from '@/components/iskelet';
+import { SikayetSayfasi } from '@/components/sikayet-sayfasi';
+import { PROFIL_NEDENLERI } from '@/lib/moderasyon/sikayet-nedenleri';
 import { Dugme, Hap } from '@/components/yol-ui';
 import { kategoriRenkleri, type KategoriId } from '@/demo/akis';
 import { useOturum } from '@/lib/oturum';
@@ -18,6 +20,7 @@ import {
   avatarYukle,
   engelle,
   engelliMi,
+  profilSikayet,
   gonderileriGetir,
   gonderiSil,
   motorEkleDb,
@@ -100,6 +103,7 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
   const [seciliMotor, setSeciliMotor] = useState<string | null>(null);
   const [gonderiler, setGonderiler] = useState<GonderiOzeti[]>([]);
   const [engelli, setEngelli] = useState(false);
+  const [sikayetAcik, setSikayetAcik] = useState(false);
   const [bulunamadi, setBulunamadi] = useState(false);
   const [yuklemeHatasi, setYuklemeHatasi] = useState<string | null>(null);
   const [sekme, setSekme] = useState<Sekme>('garaj');
@@ -336,7 +340,23 @@ export function ProfilEkrani({ id, ustBosluk }: { id: string; ustBosluk?: number
             <Dugme etiket={engelli ? 'Engeli Kaldır' : 'Engelle'} tur="kontur" onPress={engelDegistir} style={styles.duzenleDugme} />
           </View>
         )}
+        {!benim && kullanici ? (
+          <Pressable onPress={() => setSikayetAcik(true)} accessibilityRole="button" accessibilityLabel="Profili şikâyet et" style={styles.sikayetLink}>
+            <Ikon ad="uyari" boyut={14} renk={c.textMuted} />
+            <Text style={[styles.sikayetLinkYazi, { color: c.textMuted }]}>Bu profili şikâyet et</Text>
+          </Pressable>
+        ) : null}
       </View>
+      {!benim && kullanici ? (
+        <SikayetSayfasi
+          gorunur={sikayetAcik}
+          baslik="Profili şikâyet et"
+          nedenler={PROFIL_NEDENLERI}
+          onGonder={(neden, not) => profilSikayet(kullanici.id, id, neden, not)}
+          engelle={engelli ? undefined : { ad: profil.ad, uygula: async () => { const ok = await engelle(kullanici.id, id, true); if (ok) setEngelli(true); return ok; } }}
+          onKapat={() => setSikayetAcik(false)}
+        />
+      ) : null}
 
       {benim && listelerHazir ? <TamamlaKarti adimlar={tamamlaAdimlari} /> : null}
 
@@ -561,6 +581,8 @@ const styles = StyleSheet.create({
   kullanici: { fontSize: 14 },
   bio: { fontSize: 15, lineHeight: 22, textAlign: 'center', marginTop: spacing.xs },
   dugmeSatir: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: spacing.sm },
+  sikayetLink: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: spacing.sm, marginTop: spacing.xs },
+  sikayetLinkYazi: { fontSize: 13, fontWeight: '600' },
   duzenleDugme: { marginTop: spacing.sm, minHeight: 40, paddingHorizontal: spacing.xl },
   istatistikler: { flexDirection: 'row', borderRadius: radius.lg, borderWidth: StyleSheet.hairlineWidth, paddingVertical: spacing.lg },
   istatistik: { flex: 1, alignItems: 'center', gap: 2 },

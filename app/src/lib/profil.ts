@@ -211,3 +211,13 @@ export async function engelle(uid: string, hedef: string, engel: boolean): Promi
     : await supabase.from('user_blocks').delete().eq('blocker_id', uid).eq('blocked_id', hedef);
   return !error;
 }
+
+/** Profili şikâyet eder. Aynı kişiyi ikinci kez bildirmek 'zaten' döner. */
+export async function profilSikayet(uid: string, hedef: string, neden: string, not?: string): Promise<'tamam' | 'zaten' | 'hata'> {
+  if (!supabase) return 'tamam';
+  const { error } = await supabase
+    .from('user_reports')
+    .insert({ reported_id: hedef, reporter_id: uid, reason: neden.slice(0, 100), detail: not?.trim() ? not.trim().slice(0, 300) : null });
+  if (!error) return 'tamam';
+  return error.code === '23505' ? 'zaten' : 'hata';
+}

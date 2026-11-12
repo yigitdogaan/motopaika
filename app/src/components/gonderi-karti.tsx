@@ -1,9 +1,13 @@
 import { Image } from 'expo-image';
 import { useRouter, type Href } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { suz } from '@/lib/moderasyon/uygula';
+import { GONDERI_NEDENLERI } from '@/lib/moderasyon/sikayet-nedenleri';
+import { SikayetSayfasi } from '@/components/sikayet-sayfasi';
+import { useOturum } from '@/lib/oturum';
+import { engelle } from '@/lib/profil';
 import { Ikon } from '@/components/ikon';
 import { FotoGalerisi } from '@/components/foto-galerisi';
 import { OnayKutusu } from '@/components/onay-kutusu';
@@ -36,6 +40,7 @@ function GorselAlani({ url }: { url?: string }) {
 export function GonderiKarti({ g, detay = false }: { g: AkisGonderisi; detay?: boolean }) {
   const c = useTheme();
   const { selamDegistir, geliyorumDegistir, yorumlariYukle, yorumEkle, istekler, istekGeriAl, gonderiSil, gonderiSikayet } = useAkis();
+  const { kullanici } = useOturum();
   const [sikayetAcik, setSikayetAcik] = useState(false);
   const [yorumAcik, setYorumAcik] = useState(detay);
   const [yorum, setYorum] = useState('');
@@ -52,13 +57,10 @@ export function GonderiKarti({ g, detay = false }: { g: AkisGonderisi; detay?: b
     } else Alert.alert('Silinemedi', 'İnternet bağlantını kontrol edip tekrar dene.');
   };
 
-  const sikayetEt = async (neden: string) => {
-    setSikayetAcik(false);
-    const r = await gonderiSikayet(g.id, neden);
-    Alert.alert(
-      r === 'hata' ? 'Gönderilemedi' : 'Teşekkürler',
-      r === 'tamam' ? 'Şikâyetin bize ulaştı. Gönderiyi inceleyeceğiz.' : r === 'zaten' ? 'Bu gönderiyi zaten bildirmiştin.' : 'İnternet bağlantını kontrol edip tekrar dene.',
-    );
+  const sikayetEt = (neden: string, not: string) => gonderiSikayet(g.id, neden, not);
+  const engelleYazar = async () => {
+    const hedef = g.yazarId;
+    return !!(kullanici && hedef && (await engelle(kullanici.id, hedef, true)));
   };
 
   const detayaGit = () => {
@@ -272,19 +274,17 @@ export function GonderiKarti({ g, detay = false }: { g: AkisGonderisi; detay?: b
           </Pressable>
         </View>
       ) : null}
-      <Modal visible={sikayetAcik} transparent animationType="fade" onRequestClose={() => setSikayetAcik(false)}>
-        <Pressable style={styles.perde} onPress={() => setSikayetAcik(false)}>
-          <Pressable style={[styles.sikayetKutu, { backgroundColor: c.surface, borderColor: c.border }]} onPress={() => {}}>
-            <Text style={[styles.sikayetBaslik, { color: c.text }]}>Gönderiyi şikayet et</Text>
-            <Text style={[styles.sikayetAlt, { color: c.textMuted }]}>Neden bildiriyorsun?</Text>
-            {['Spam / reklam', 'Uygunsuz içerik', 'Taciz ya da nefret söylemi', 'Yanıltıcı ya da sahte', 'Tehlikeli davranış', 'Diğer'].map((n) => (
-              <Pressable key={n} onPress={() => sikayetEt(n)} accessibilityRole="button" style={[styles.sikayetSatir, { borderTopColor: c.border }]}>
-                <Text style={[styles.sikayetYazi, { color: c.text }]}>{n}</Text>
-              </Pressable>
-            ))}
-          </Pressable>
-        </Pressable>
-      </Modal>
+      <SikayetSayfasi
+        gorunur={sikayetAcik}
+        baslik="Gönderiyi şikâyet et"
+        nedenler={GONDERI_NEDENLERI}
+        onGonder={sikayetEt}
+        engelle={g.yazarId && !g.anonim ? { ad: g.yazar, uygula: engelleYazar } : undefined}
+        onKapat={(gonderildi) => {
+          setSikayetAcik(false);
+          if (gonderildi && detay) router.back();
+        }}
+      />
       <OnayKutusu
         gorunur={silAcik}
         ikon="sil"
@@ -302,12 +302,6 @@ export function GonderiKarti({ g, detay = false }: { g: AkisGonderisi; detay?: b
 const styles = StyleSheet.create({
   sikayetSatiri: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: spacing.sm, marginTop: spacing.xs },
   sikayetEtiket: { fontSize: 13, fontWeight: '700' },
-  perde: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', padding: spacing.xl },
-  sikayetKutu: { borderRadius: radius.lg, borderWidth: 1, padding: spacing.lg },
-  sikayetBaslik: { fontSize: 17, fontWeight: '800', textAlign: 'center' },
-  sikayetAlt: { fontSize: 13, textAlign: 'center', marginBottom: spacing.sm },
-  sikayetSatir: { paddingVertical: spacing.md, borderTopWidth: StyleSheet.hairlineWidth },
-  sikayetYazi: { fontSize: 15.5, fontWeight: '600', textAlign: 'center' },
   istekKatman: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.75)', alignItems: 'center', justifyContent: 'center', zIndex: 5 },
   istekGeriCek: { marginTop: spacing.sm, paddingHorizontal: spacing.md, paddingVertical: 5, borderRadius: radius.full, borderWidth: 1.5, borderColor: '#FFB800' },
   istekGeriCekYazi: { color: '#fff', fontSize: 12, fontWeight: '800' },

@@ -7,7 +7,7 @@ import { Avatar, Bos, GonderiFoto, HataKutusu, Modal, OnayModal, Rozet, SayfaBas
 export type SikayetSatir = { post_id: string; body: string; category: string; place: string | null; photo_path: string | null; post_created_at: string; removed_at: string | null;
   author_id: string; author_username: string; author_name: string; author_avatar: string | null; is_anonymous: boolean; report_count: number; open_count: number;
   reasons: Record<string, number>; first_report_at: string; last_report_at: string; total_count: number };
-type Detay = { reporter_id: string; reporter_username: string; reason: string | null; status: string; created_at: string; handled_by_username: string | null; handled_at: string | null; handler_note: string | null };
+type Detay = { reporter_id: string; reporter_username: string; reason: string | null; status: string; created_at: string; handled_by_username: string | null; handled_at: string | null; handler_note: string | null; detail?: string | null };
 const ADET = 20;
 
 export function Sikayetler() {
@@ -69,6 +69,7 @@ function SikayetDetay({ satir, kapat, bitti }: { satir: SikayetSatir; kapat: () 
             <div key={i} className="sol-cizgi"><div className="row wrap"><b>@{r.reporter_username}</b><Rozet t={r.reason || 'Belirtilmedi'} />
               <Rozet c={r.status === 'open' ? 'uyari' : r.status === 'actioned' ? 'ok' : ''} t={r.status === 'open' ? 'Açık' : r.status === 'actioned' ? 'İşlem yapıldı' : 'Reddedildi'} />
               <span className="muted sm right">{tarih(r.created_at)}</span></div>
+              {r.detail && <div className="sm" style={{ marginTop: 4 }}>“{r.detail}”</div>}
               {r.handled_by_username && <div className="muted sm">@{r.handled_by_username} · {tarih(r.handled_at)}{r.handler_note ? ` · “${r.handler_note}”` : ''}</div>}</div>))}</div>
         )}
       </Modal>

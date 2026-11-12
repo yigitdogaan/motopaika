@@ -76,7 +76,7 @@ type Baglam = {
   /** Kendi gönderini siler; başarılıysa true. */
   gonderiSil: (id: string) => Promise<boolean>;
   /** Gönderiyi şikayet eder: 'tamam' | 'zaten' (daha önce bildirilmiş) | 'hata'. */
-  gonderiSikayet: (id: string, neden: string) => Promise<'tamam' | 'zaten' | 'hata'>;
+  gonderiSikayet: (id: string, neden: string, not?: string) => Promise<'tamam' | 'zaten' | 'hata'>;
   /** Kullanıcının konumu (GPS ya da elle seçilen); mesafe filtreleri buna göre çalışır. */
   konumum: Konum | null;
   /** Haritadan pinlenen noktayı konum yapar. */
@@ -269,11 +269,18 @@ export function AkisSaglayici({ children }: { children: ReactNode }) {
   );
 
   const gonderiSikayet = useCallback(
-    async (id: string, neden: string): Promise<'tamam' | 'zaten' | 'hata'> => {
-      if (!supabase || !uid) return 'tamam';
-      const { error } = await supabase.from('post_reports').insert({ post_id: id, reporter_id: uid, reason: neden.slice(0, 300) });
-      if (!error) return 'tamam';
-      return error.code === '23505' ? 'zaten' : 'hata';
+    async (id: string, neden: string, not?: string): Promise<'tamam' | 'zaten' | 'hata'> => {
+      if (!supabase || !uid) {
+        setGonderiler((o) => o.filter((g) => g.id !== id));
+        return 'tamam';
+      }
+      const { error } = await supabase
+        .from('post_reports')
+        .insert({ post_id: id, reporter_id: uid, reason: neden.slice(0, 300), detail: not?.trim() ? not.trim().slice(0, 300) : null });
+      const sonuc = !error ? 'tamam' : error.code === '23505' ? 'zaten' : 'hata';
+      // Şikâyet eden kişiye gönderi hemen gizlenir.
+      if (sonuc !== 'hata') setGonderiler((o) => o.filter((g) => g.id !== id));
+      return sonuc;
     },
     [uid],
   );

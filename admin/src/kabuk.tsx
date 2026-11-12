@@ -5,6 +5,7 @@ import { baglanti, useYol } from './router';
 import { Ikon } from './ui/ikon';
 import { Genel } from './pages/genel';
 import { Sikayetler } from './pages/sikayetler';
+import { ProfilSikayetleri } from './pages/profil-sikayetleri';
 import { Gonderiler } from './pages/gonderiler';
 import { Kullanicilar, KullaniciDetay } from './pages/kullanicilar';
 import { Surusler } from './pages/surusler';
@@ -16,6 +17,7 @@ type Oge = { yol: string; ad: string; ikon: string; min: Rol; rozet?: boolean };
 const OGELER: Oge[] = [
   { yol: '/', ad: 'Genel bakış', ikon: 'ana', min: 'moderator' },
   { yol: '/sikayetler', ad: 'Şikâyetler', ikon: 'bayrak', min: 'moderator', rozet: true },
+  { yol: '/profil-sikayetleri', ad: 'Profil şikâyetleri', ikon: 'bayrak', min: 'moderator' },
   { yol: '/gonderiler', ad: 'Gönderiler', ikon: 'yazi', min: 'moderator' },
   { yol: '/kullanicilar', ad: 'Kullanıcılar', ikon: 'kisi', min: 'moderator' },
   { yol: '/surusler', ad: 'Sürüşler', ikon: 'yol', min: 'moderator' },
@@ -46,6 +48,7 @@ export function Kabuk({ rol }: { rol: Rol }) {
   let sayfa;
   if (!erisim) sayfa = <div className="kart bos">Bu bölüm için yetkin yok ({ROL_AD[aktif.min]} ve üstü).</div>;
   else if (bolum === '/sikayetler') sayfa = <Sikayetler />;
+  else if (bolum === '/profil-sikayetleri') sayfa = <ProfilSikayetleri />;
   else if (bolum === '/gonderiler') sayfa = <Gonderiler />;
   else if (bolum === '/kullanicilar') sayfa = parcalar[1] ? <KullaniciDetay id={parcalar[1]} rol={rol} /> : <Kullanicilar />;
   else if (bolum === '/surusler') sayfa = <Surusler />;
