@@ -234,12 +234,16 @@ export default function Sohbet() {
         </View>
       ) : null}
 
+      {mesajlar.length === 0 ? (
+        <View pointerEvents="none" style={styles.bosKap}>
+          <Text style={[styles.bos, { color: c.textMuted }]}>İlk mesajı sen yaz.</Text>
+        </View>
+      ) : null}
       <FlatList
         inverted
         data={mesajlar}
         keyExtractor={(m) => m.id}
         contentContainerStyle={styles.liste}
-        ListEmptyComponent={<Text style={[styles.bos, { color: c.textMuted }]}>İlk mesajı sen yaz.</Text>}
         renderItem={({ item: m }) => {
           const benim = m.yazarId === ben;
           const gonderenId = m.yazarId;
@@ -416,7 +420,8 @@ const styles = StyleSheet.create({
   istekDugme: { paddingHorizontal: spacing.md, paddingVertical: 8, borderRadius: radius.full },
   istekDugmeYazi: { fontSize: 13, fontWeight: '800' },
   liste: { padding: spacing.lg, gap: spacing.sm },
-  bos: { textAlign: 'center', marginTop: spacing.xl, transform: Platform.OS === 'ios' ? [{ scaleY: -1 }] : [] },
+  bosKap: { position: 'absolute', left: 0, right: 0, top: '40%', alignItems: 'center', zIndex: 1 },
+  bos: { textAlign: 'center' },
   satir: { flexDirection: 'row' },
   sag: { justifyContent: 'flex-end' },
   sol: { justifyContent: 'flex-start' },

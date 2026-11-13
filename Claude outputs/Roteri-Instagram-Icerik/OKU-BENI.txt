@@ -1,0 +1,6 @@
+ROTERİ INSTAGRAM İÇERİĞİ (12 Kasım - 10 Aralık, haftada 5 paylaşım)
+Her klasör bir paylaşım günü: klasör adı = tarih, gün, saat, tür.
+İçinde görsel/video ve aciklama.txt var. Açıklamayı kopyala, dosyaları yükle.
+Reel'lere müziği Instagram içinden telifsiz kütüphaneden ekle.
+Story klasörlerinde çıkartmaların (anket, soru kutusu) nasıl ekleneceği yazıyor.
+10 Kasım'da paylaşım yok (Atatürk'ü Anma Günü).

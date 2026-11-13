@@ -36,16 +36,19 @@ begin
 end;
 $$;
 
+drop trigger if exists posts_moderasyon on public.posts;
 create trigger posts_moderasyon before insert on public.posts
   for each row execute function public.moderasyon_metin_kontrol();
+drop trigger if exists post_comments_moderasyon on public.post_comments;
 create trigger post_comments_moderasyon before insert on public.post_comments
   for each row execute function public.moderasyon_metin_kontrol();
+drop trigger if exists chat_messages_moderasyon on public.chat_messages;
 create trigger chat_messages_moderasyon before insert on public.chat_messages
   for each row when (new.kind = 'text')
   execute function public.moderasyon_metin_kontrol();
 
 -- Otomatik kararların denetim günlüğü (yanlış pozitifleri incelemek ve geri almak için).
-create table public.auto_moderation_log (
+create table if not exists public.auto_moderation_log (
   id uuid primary key default gen_random_uuid(),
   kind text not null check (kind in ('post_photo', 'chat_photo')),
   ref_id uuid not null,
@@ -55,7 +58,8 @@ create table public.auto_moderation_log (
   reason text,
   created_at timestamptz not null default now()
 );
-create index auto_moderation_log_created_idx on public.auto_moderation_log (created_at desc);
+create index if not exists auto_moderation_log_created_idx on public.auto_moderation_log (created_at desc);
 alter table public.auto_moderation_log enable row level security;
+drop policy if exists "auto_moderation_log_staff_okur" on public.auto_moderation_log;
 create policy "auto_moderation_log_staff_okur" on public.auto_moderation_log
   for select to authenticated using (public.is_staff());
